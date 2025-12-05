@@ -1,0 +1,428 @@
+:root {
+  --bg-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --accent-color: #4a90e2;
+  --danger-color: #e74c3c;
+  --spacing-unit: 16px;
+  --border-radius: 12px;
+  --transition-speed: 0.2s;
+}
+
+body.light {
+  --bg-color: #f5f5f5;
+  --surface-color: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Grid Layout - Smaller buttons (120px) */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-auto-rows: 120px;
+  gap: var(--spacing-unit);
+  overflow-y: auto;
+  padding: var(--spacing-unit);
+  height: 100%;
+  
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.grid-container::-webkit-scrollbar {
+  display: none;
+}
+
+.audio-button-container {
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  aspect-ratio: 1 / 1;
+}
+
+body.light .audio-button-container {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.audio-button-container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.light .audio-button-container:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.audio-button-container.playing {
+  border-color: var(--button-color);
+  box-shadow: 0 0 20px var(--button-color);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.light .audio-button-container.playing {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.audio-button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+.track-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  word-break: break-word;
+  color: var(--text-primary);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
+body.light .track-name {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.keybinding-text {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Context Menu - Improved styling */
+.context-menu {
+  position: fixed;
+  background-color: #252525;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 220px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+body.light .context-menu {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: background-color 0.15s ease;
+}
+
+.menu-item label {
+  font-weight: 500;
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.light .menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.menu-item.action {
+  cursor: pointer;
+  justify-content: center;
+}
+
+.menu-item.action:hover {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.menu-item.action.danger:hover {
+  background-color: var(--danger-color);
+}
+
+.menu-separator {
+  height: 1px;
+  background-color: #333;
+  margin: 4px 0;
+}
+
+body.light .menu-separator {
+  background-color: #e0e0e0;
+}
+
+.key-record-btn {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid #444;
+  color: white;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  min-width: 80px;
+  text-align: center;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+body.light .key-record-btn {
+  background: rgba(0,0,0,0.05);
+  border: 1px solid #ccc;
+  color: var(--text-primary);
+}
+
+.key-record-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+body.light .key-record-btn:hover {
+  background: rgba(0,0,0,0.08);
+}
+
+.key-record-btn.recording {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+input[type="color"] {
+  border: none;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  border-radius: 4px;
+}
+
+input[type="range"] {
+  accent-color: var(--accent-color);
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+body.light .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: var(--surface-color);
+  padding: 28px;
+  border-radius: var(--border-radius);
+  min-width: 320px;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+body.light .modal-content {
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+}
+
+.modal-content .control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-content .control-group label {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #444;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+body.light .theme-btn {
+  border: 1px solid #ccc;
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.theme-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.light .theme-btn:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.theme-btn.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+}
+
+.close-btn {
+  background-color: var(--surface-color);
+  border: 1px solid #444;
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-end;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+body.light .close-btn {
+  border: 1px solid #ccc;
+}
+
+.close-btn:hover {
+  background-color: #333;
+}
+
+body.light .close-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* About Modal */
+.modal-content.about {
+  text-align: center;
+  max-width: 420px;
+}
+
+.about-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.about-logo {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.about-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+body.light .about-info {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.about-info p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.about-description {
+  margin: 0;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.modal-content.settings {
+  min-width: 380px;
+}
