@@ -12,10 +12,8 @@ export function setupPersistence(): void {
   ipcMain.handle('load-config', async () => {
     try {
       const configPath = getConfigPath();
-      console.log('Loading config from:', configPath);
       if (fs.existsSync(configPath)) {
         const data = fs.readFileSync(configPath, 'utf-8');
-        console.log('Config loaded:', data);
         return JSON.parse(data);
       }
       return null;
@@ -28,7 +26,6 @@ export function setupPersistence(): void {
   ipcMain.handle('save-config', async (_, config: unknown) => {
     try {
       const configPath = getConfigPath();
-      console.log('Saving config to:', configPath);
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
       return true;
     } catch (error) {
@@ -39,7 +36,6 @@ export function setupPersistence(): void {
 
   ipcMain.handle('read-buffer', async (_, filePath: string) => {
     try {
-      console.log('Reading file:', filePath);
       const buffer = fs.readFileSync(filePath);
       return buffer;
     } catch (error) {

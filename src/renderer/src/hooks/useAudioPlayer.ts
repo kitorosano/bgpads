@@ -1,13 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-
-export interface AudioTrack {
-  id: string;
-  file: string;
-  name: string;
-  keybinding: string | null;
-  color: string;
-  volume: number;
-}
+import { AudioTrack } from '../types';
 
 export const useAudioPlayer = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -31,7 +23,6 @@ export const useAudioPlayer = () => {
 
   const play = useCallback(
     async (track: AudioTrack) => {
-      console.log('Playing track:', track.name);
       initAudioContext();
       const ctx = audioContextRef.current!;
 

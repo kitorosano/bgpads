@@ -1,10 +1,10 @@
-import { AudioTrack } from '../hooks/useAudioPlayer'
+import { AudioTrack } from '../types';
 
 interface AudioButtonProps {
-  track: AudioTrack
-  isPlaying: boolean
-  onClick: () => void
-  onContextMenu: (e: React.MouseEvent) => void
+  track: AudioTrack;
+  isPlaying: boolean;
+  onClick: () => void;
+  onContextMenu: (e: React.MouseEvent) => void;
 }
 
 export const AudioButton = ({ track, isPlaying, onClick, onContextMenu }: AudioButtonProps) => {
@@ -22,5 +22,5 @@ export const AudioButton = ({ track, isPlaying, onClick, onContextMenu }: AudioB
         {track.keybinding && <span className="keybinding-text">{track.keybinding}</span>}
       </div>
     </div>
-  )
-}
+  );
+};

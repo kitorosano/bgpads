@@ -4,6 +4,7 @@ interface Window {
   electron: {
     ipcRenderer: {
       invoke(channel: string, ...args: unknown[]): Promise<unknown>;
+      on(channel: string, listener: (event: any, ...args: any[]) => void): any;
       // ... other methods if needed
     };
   };
@@ -15,5 +16,6 @@ interface Window {
     onMenuAddAudio: (callback: () => void) => () => void;
     onMenuOpenSettings: (callback: () => void) => () => void;
     onMenuOpenAbout: (callback: () => void) => () => void;
+    openFileDialog: () => Promise<string[] | null>;
   };
 }

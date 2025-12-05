@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { AudioTrack } from '../hooks/useAudioPlayer';
-import { Language, t } from '../i18n';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { t } from '../i18n';
+import { AudioTrack, Language } from '../types';
 
 interface ContextMenuProps {
   track: AudioTrack;
@@ -11,6 +11,8 @@ interface ContextMenuProps {
   onRemove: () => void;
   onChangeFile: () => void;
 }
+
+const KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
 
 export const ContextMenu = ({
   track,
@@ -31,7 +33,9 @@ export const ContextMenu = ({
         onClose();
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
+
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
@@ -43,19 +47,19 @@ export const ContextMenu = ({
       e.stopPropagation();
 
       const key = e.key.toUpperCase();
-      // Ignore modifier keys alone
-      if (['CONTROL', 'SHIFT', 'ALT', 'META'].includes(key)) return;
+      if (KEYS_TO_IGNORE.includes(key)) return;
 
       onUpdate({ ...track, keybinding: key });
       setIsRecording(false);
     };
 
     window.addEventListener('keydown', handleKeyDown);
+
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isRecording, track, onUpdate]);
 
   // Boundary detection
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!menuRef.current) return;
 
     const menu = menuRef.current;

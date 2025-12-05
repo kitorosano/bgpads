@@ -21,7 +21,8 @@ const api = {
     const subscription = (_event: any) => callback();
     ipcRenderer.on('menu-open-about', subscription);
     return () => ipcRenderer.removeListener('menu-open-about', subscription);
-  }
+  },
+  openFileDialog: (): Promise<string[] | null> => ipcRenderer.invoke('dialog-open-file')
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
