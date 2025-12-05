@@ -1,34 +1,68 @@
-# bgpads
+# BGPads
 
-An Electron application with React and TypeScript
+<div align="center">
+  <img src="resources/logo.png" alt="BGPads Logo" width="150" height="150" />
+  <br />
+  <h3>Ambient Audio Pads for Worship</h3>
+  <p>Una aplicación profesional para la gestión de pads y ambientes en contextos de iglesia.</p>
+</div>
 
-## Recommended IDE Setup
+---
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## 📋 Descripción
 
-## Project Setup
+**BGPads** es una aplicación de escritorio diseñada específicamente para músicos y directores de alabanza. Permite disparar secuencias de audio, pads y ambientes de forma fluida, con transiciones suaves (crossfade) y un control total sobre la mezcla.
 
-### Install
+Pensada para ser utilizada en **contextos de iglesia**, su interfaz es limpia, oscura y libre de distracciones, permitiendo al usuario concentrarse en lo más importante: la adoración.
 
-```bash
-$ pnpm install
-```
+![UI Mockup](resources/ui_mockup.png)
 
-### Development
+## 👤 Autor
 
-```bash
-$ pnpm dev
-```
+**Esteban Rosano**
+- Desarrollo y Diseño
+- © 2024
 
-### Build
+## 🚀 Tecnologías
 
-```bash
-# For windows
-$ pnpm build:win
+Este proyecto está construido con tecnologías web modernas encapsuladas en una aplicación de escritorio robusta:
 
-# For macOS
-$ pnpm build:mac
+- **Electron**: Framework para aplicaciones de escritorio multiplataforma.
+- **React**: Biblioteca para construir interfaces de usuario dinámicas.
+- **TypeScript**: Superset de JavaScript para un código más seguro y escalable.
+- **Vite**: Build tool de próxima generación para un desarrollo rápido.
+- **Web Audio API**: Motor de audio de baja latencia para reproducción y efectos.
 
-# For Linux
-$ pnpm build:linux
-```
+## ✨ Características Principales
+
+### 🎛️ Control de Audio Profesional
+- **Crossfade Automático**: Transiciones suaves entre pistas con duración configurable (0-10s).
+- **Fade-out al Detener**: El audio se desvanece suavemente al detenerse, evitando cortes bruscos.
+- **Volumen Independiente**: Ajusta el volumen de cada pista individualmente (hasta 300% de ganancia).
+
+### 🎨 Personalización Total
+- **Temas**: Modo Claro y Oscuro para adaptarse a cualquier entorno de iluminación.
+- **Colores Personalizables**: Asigna colores únicos a cada pad para una rápida identificación visual.
+- **Grid Responsivo**: Los botones se ajustan automáticamente al tamaño de la ventana.
+
+### ⌨️ Flujo de Trabajo Eficiente
+- **Atajos de Teclado**: Asigna teclas a tus pads simplemente presionando la tecla deseada.
+- **Drag & Drop**: (Próximamente) Arrastra tus archivos directamente a la aplicación.
+- **Persistencia**: Tu configuración, pistas y preferencias se guardan automáticamente.
+
+### 🌍 Internacionalización
+- **Multi-idioma**: Soporte completo para Español e Inglés.
+
+## 🎥 Demostración
+
+> *Aquí se incluirán videos explicativos sobre el uso de la herramienta, configuración de atajos y gestión de archivos.*
+
+1. **Agregando Audio**: Ve a `Archivo > Agregar Audio` y selecciona tus MP3s.
+2. **Configurando Crossfade**: Ajusta el slider en `Archivo > Preferencias`.
+3. **Asignando Teclas**: Click derecho en un pad > Click en el icono de teclado > Presiona tu tecla.
+
+---
+
+<div align="center">
+  <sub>Construido con ❤️ para la iglesia.</sub>
+</div>

@@ -51,5 +51,21 @@
       "electron",
       "esbuild"
     ]
+  },
+  "build": {
+    "appId": "com.electron.bgpads",
+    "productName": "BGPads",
+    "directories": {
+      "buildResources": "resources"
+    },
+    "win": {
+      "icon": "resources/icon.png",
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

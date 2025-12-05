@@ -15,7 +15,6 @@ export const AboutModal = ({ language, onClose }: AboutModalProps) => {
           <div className="about-logo">
             <img src={logoImg} alt="BGPads Logo" width="100" height="100" />
           </div>
-          <h2>BGPads</h2>
         </div>
 
         <div className="about-info">
