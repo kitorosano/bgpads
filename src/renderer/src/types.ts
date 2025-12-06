@@ -1,6 +1,4 @@
-export type Language = 'es' | 'en';
-
-export type Theme = 'light' | 'dark';
+import { Language, Theme } from 'src/types';
 
 export interface AudioTrack {
   id: string;

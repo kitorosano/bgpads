@@ -5,8 +5,10 @@ import { contextBridge, ipcRenderer, webUtils } from 'electron';
 const api = {
   loadConfig: (): Promise<unknown> => ipcRenderer.invoke('load-config'),
   saveConfig: (config: unknown): Promise<boolean> => ipcRenderer.invoke('save-config', config),
+
   readBuffer: (path: string): Promise<Uint8Array> => ipcRenderer.invoke('read-buffer', path),
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),
+
   onMenuAddAudio: (callback: () => void) => {
     const subscription = (_event: any) => callback();
     ipcRenderer.on('menu-add-audio', subscription);

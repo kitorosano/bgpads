@@ -5,6 +5,7 @@ export const useAudioPlayer = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
+  const bufferCache = useRef<Map<string, AudioBuffer>>(new Map());
   const [isPlaying, setIsPlaying] = useState<string | null>(null); // ID of playing track
   const [fadeOutDuration, setFadeOutDuration] = useState(2); // Seconds
 
@@ -16,10 +17,29 @@ export const useAudioPlayer = () => {
 
   const loadAudioBuffer = async (filePath: string): Promise<AudioBuffer> => {
     initAudioContext();
+    // Check cache first
+    if (bufferCache.current.has(filePath)) {
+      return bufferCache.current.get(filePath)!;
+    }
+
     // Use IPC to read file buffer from main process
     const buffer = await window.api.readBuffer(filePath);
-    return await audioContextRef.current!.decodeAudioData(buffer.buffer as ArrayBuffer);
+    const decodedBuffer = await audioContextRef.current!.decodeAudioData(
+      buffer.buffer as ArrayBuffer
+    );
+
+    // Cache the decoded buffer
+    bufferCache.current.set(filePath, decodedBuffer);
+    return decodedBuffer;
   };
+
+  const preload = useCallback(async (track: AudioTrack) => {
+    try {
+      await loadAudioBuffer(track.file);
+    } catch (error) {
+      console.error(`Failed to preload track ${track.name}:`, error);
+    }
+  }, []);
 
   const play = useCallback(
     async (track: AudioTrack) => {
@@ -98,6 +118,7 @@ export const useAudioPlayer = () => {
   return {
     play,
     stop,
+    preload,
     isPlaying,
     fadeOutDuration,
     setFadeOutDuration

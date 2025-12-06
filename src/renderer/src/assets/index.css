@@ -47,12 +47,6 @@ h1 {
   -webkit-text-fill-color: transparent;
 }
 
-.controls-panel {
-  display: flex;
-  gap: calc(var(--spacing-unit) * 2);
-  align-items: center;
-}
-
 .control-group {
   display: flex;
   flex-direction: column;

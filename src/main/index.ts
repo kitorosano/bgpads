@@ -2,33 +2,26 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
 import { join } from 'path';
 import icon from '../../resources/icon.png?asset';
+import {
+  DEFAULT_ABOUT_WINDOW_HEIGHT,
+  DEFAULT_ABOUT_WINDOW_WIDTH,
+  DEFAULT_LANGUAGE,
+  DEFAULT_MAIN_WINDOW_HEIGHT,
+  DEFAULT_MAIN_WINDOW_WIDTH,
+  DEFAULT_SETTINGS_WINDOW_HEIGHT,
+  DEFAULT_SETTINGS_WINDOW_WIDTH,
+  MAIN_WINDOW_MIN_HEIGHT,
+  MAIN_WINDOW_MIN_WIDTH
+} from '../constants';
+import { translations } from '../i18n';
+import { Language } from '../types';
 import { setupPersistence } from './persistence';
 
 // Global reference to main window
 let mainWindow: BrowserWindow | null = null;
 
-// Menu Translations
-const translations = {
-  en: {
-    file: 'File',
-    addAudio: 'Add Audio',
-    preferences: 'Preferences',
-    help: 'Help',
-    about: 'About',
-    quit: 'Quit'
-  },
-  es: {
-    file: 'Archivo',
-    addAudio: 'Agregar Audio',
-    preferences: 'Preferencias',
-    help: 'Ayuda',
-    about: 'Acerca de',
-    quit: 'Salir'
-  }
-};
-
-const setMenu = (language: 'en' | 'es') => {
-  const t = translations[language] || translations.en;
+const setMenu = (language: Language) => {
+  const t = translations[language] || translations[DEFAULT_LANGUAGE];
   const template = [
     {
       label: t.file,
@@ -62,10 +55,10 @@ const setMenu = (language: 'en' | 'es') => {
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
-    minWidth: 400,
-    minHeight: 400,
+    width: DEFAULT_MAIN_WINDOW_WIDTH,
+    height: DEFAULT_MAIN_WINDOW_HEIGHT,
+    minWidth: MAIN_WINDOW_MIN_WIDTH,
+    minHeight: MAIN_WINDOW_MIN_HEIGHT,
     show: false,
     autoHideMenuBar: false,
     icon,
@@ -86,7 +79,7 @@ function createWindow(): void {
   });
 
   // Initial menu (default to Spanish, will be updated by renderer or persistence later)
-  setMenu('es');
+  setMenu(DEFAULT_LANGUAGE);
 
   // IPC handler for window resizing
   ipcMain.handle('resize-window', (_event, { width, height }) => {
@@ -130,7 +123,12 @@ app.whenReady().then(() => {
   let settingsWindow: BrowserWindow | null = null;
   let aboutWindow: BrowserWindow | null = null;
 
-  const createAuxWindow = (path: string, title: string, width = 500, height = 600) => {
+  const createAuxWindow = (
+    path: string,
+    title: string,
+    width = DEFAULT_SETTINGS_WINDOW_WIDTH,
+    height = DEFAULT_SETTINGS_WINDOW_HEIGHT
+  ) => {
     const win = new BrowserWindow({
       width,
       height,
@@ -167,7 +165,12 @@ app.whenReady().then(() => {
       aboutWindow.focus();
       return;
     }
-    aboutWindow = createAuxWindow('/about', 'About', 400, 500);
+    aboutWindow = createAuxWindow(
+      '/about',
+      'About',
+      DEFAULT_ABOUT_WINDOW_WIDTH,
+      DEFAULT_ABOUT_WINDOW_HEIGHT
+    );
   });
 
   ipcMain.handle('broadcast-settings-change', (_event, config) => {

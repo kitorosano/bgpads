@@ -1,8 +1,7 @@
 import { app, ipcMain } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-
-const CONFIG_FILE_NAME = 'bgpads-config.json';
+import { CONFIG_FILE_NAME } from '../constants';
 
 function getConfigPath(): string {
   return path.join(app.getPath('userData'), CONFIG_FILE_NAME);

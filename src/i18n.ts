@@ -1,5 +1,3 @@
-import { Language } from './types';
-
 export const translations = {
   es: {
     // Menu
@@ -71,8 +69,4 @@ export const translations = {
     changeFile: 'Change File...',
     removeAudio: 'Remove Audio'
   }
-};
-
-export const t = (lang: Language, key: keyof typeof translations.en): string => {
-  return translations[lang][key];
 };

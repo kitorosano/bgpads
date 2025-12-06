@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
+import { TRACK_INITIAL_VOLUME } from '../../../constants';
 import { AudioTrack } from '../types';
-
-export const TRACK_INITIAL_VOLUME = 1.5;
 
 export const useTracks = () => {
   const [tracks, setTracks] = useState<AudioTrack[]>([]);

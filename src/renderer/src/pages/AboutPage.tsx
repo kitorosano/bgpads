@@ -1,27 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useI18n } from '@renderer/hooks/useI18n';
 import packageJson from '../../../../package.json';
 import logoImg from '../assets/logo.png';
-import { t } from '../i18n';
-import { Language, Theme } from '../types';
 
 export const AboutPage = () => {
-  const [language, setLanguage] = useState<Language>('es');
-  const [theme, setTheme] = useState<Theme>('dark');
-
-  useEffect(() => {
-    const init = async () => {
-      const config = await window.api.loadConfig();
-      if (config) {
-        if (config.language) setLanguage(config.language);
-        if (config.theme) setTheme(config.theme);
-      }
-    };
-    init();
-  }, []);
-
-  useEffect(() => {
-    document.body.className = theme;
-  }, [theme]);
+  const { t } = useI18n();
 
   return (
     <div
@@ -47,18 +29,18 @@ export const AboutPage = () => {
         style={{ width: '100%', maxWidth: '400px', marginBottom: '20px' }}
       >
         <p>
-          <strong>{t(language, 'version')}:</strong> {packageJson.version}
+          <strong>{t('version')}:</strong> {packageJson.version}
         </p>
         <p>
-          <strong>{t(language, 'author')}:</strong> Esteban Rosano
+          <strong>{t('author')}:</strong> Esteban Rosano
         </p>
         <p>
-          <strong>{t(language, 'copyright')}:</strong> © {new Date().getFullYear()} Esteban Rosano
+          <strong>{t('copyright')}:</strong> © {new Date().getFullYear()} Esteban Rosano
         </p>
       </div>
 
       <p className="about-description" style={{ maxWidth: '400px' }}>
-        {t(language, 'description')}
+        {t('description')}
       </p>
     </div>
   );

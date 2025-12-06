@@ -1,23 +1,20 @@
+import { useI18n } from '@renderer/hooks/useI18n';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { t } from '../i18n';
-import { AudioTrack, Language } from '../types';
+import { SHORTCUT_KEYS_TO_IGNORE, VOLUME_STEP_INCREMENT } from '../../../constants';
+import { AudioTrack } from '../types';
 
 interface ContextMenuProps {
   track: AudioTrack;
   position: { x: number; y: number };
-  language: Language;
   onClose: () => void;
   onUpdate: (updatedTrack: AudioTrack) => void;
   onRemove: () => void;
   onChangeFile: () => void;
 }
 
-const KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
-
 export const ContextMenu = ({
   track,
   position,
-  language,
   onClose,
   onUpdate,
   onRemove,
@@ -26,6 +23,7 @@ export const ContextMenu = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [adjustedPosition, setAdjustedPosition] = useState(position);
+  const { t } = useI18n();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -47,7 +45,7 @@ export const ContextMenu = ({
       e.stopPropagation();
 
       const key = e.key.toUpperCase();
-      if (KEYS_TO_IGNORE.includes(key)) return;
+      if (SHORTCUT_KEYS_TO_IGNORE.includes(key)) return;
 
       onUpdate({ ...track, keybinding: key });
       setIsRecording(false);
@@ -93,30 +91,30 @@ export const ContextMenu = ({
     >
       <div className="menu-item">
         <label>
-          {t(language, 'volume')}: {(track.volume * 100).toFixed(0)}%
+          {t('volume')}: {(track.volume * 100).toFixed(0)}%
         </label>
         <input
           type="range"
           min="0"
           max="3"
-          step="0.1"
+          step={VOLUME_STEP_INCREMENT}
           value={track.volume}
           onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
         />
       </div>
 
       <div className="menu-item">
-        <label>{t(language, 'keybinding')}</label>
+        <label>{t('keybinding')}</label>
         <button
           className={`key-record-btn ${isRecording ? 'recording' : ''}`}
           onClick={() => setIsRecording(true)}
         >
-          {isRecording ? t(language, 'pressAnyKey') : track.keybinding || t(language, 'none')}
+          {isRecording ? t('pressAnyKey') : track.keybinding || t('none')}
         </button>
       </div>
 
       <div className="menu-item">
-        <label>{t(language, 'color')}</label>
+        <label>{t('color')}</label>
         <input
           type="color"
           value={track.color}
@@ -127,11 +125,11 @@ export const ContextMenu = ({
       <div className="menu-separator" />
 
       <div className="menu-item action" onClick={onChangeFile}>
-        {t(language, 'changeFile')}
+        {t('changeFile')}
       </div>
 
       <div className="menu-item action danger" onClick={onRemove}>
-        {t(language, 'removeAudio')}
+        {t('removeAudio')}
       </div>
     </div>
   );

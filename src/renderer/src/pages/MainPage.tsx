@@ -7,7 +7,7 @@ import { useTracks } from '../hooks/useTracks';
 import { ContextMenuState } from '../types';
 
 export const MainPage = () => {
-  const { play, isPlaying, fadeOutDuration, setFadeOutDuration } = useAudioPlayer();
+  const { play, isPlaying, setFadeOutDuration } = useAudioPlayer();
   const { tracks, setTracks, updateTrack, removeTrack, changeFile } = useTracks();
   const { theme, language, fadeOutDuration: configFadeOut, isLoaded } = useAppConfig();
 
@@ -140,7 +140,6 @@ export const MainPage = () => {
         <ContextMenu
           track={tracks.find((t) => t.id === contextMenu.trackId)!}
           position={contextMenu.position}
-          language={language}
           onClose={() => setContextMenu(null)}
           onUpdate={updateTrack}
           onRemove={() => onRemoveTrack(contextMenu.trackId)}

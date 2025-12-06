@@ -343,6 +343,7 @@ body.light .theme-btn:hover {
   background-color: rgba(0, 0, 0, 0.06);
 }
 
+body.light .theme-btn.active,
 .theme-btn.active {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
