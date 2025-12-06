@@ -66,16 +66,18 @@ export const useAudioPlayer = () => {
       }
 
       try {
+        console.time('Loading Audio Buffer');
         const buffer = await loadAudioBuffer(track.file);
+        console.timeEnd('Loading Audio Buffer');
 
         const source = ctx.createBufferSource();
         source.buffer = buffer;
 
         const gain = ctx.createGain();
-        // Use track volume, default to 1.0 if not set
-        gain.gain.value = track.volume ?? 1.0;
+        gain.gain.value = track.volume;
 
         source.connect(gain);
+
         gain.connect(ctx.destination);
 
         source.start(0);

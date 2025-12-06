@@ -1,37 +1,55 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { TRACK_INITIAL_VOLUME } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useTracks } from '../hooks/useTracks';
-import { ContextMenuState } from '../types';
+import { AudioTrack, ContextMenuState } from '../types';
 
 export const MainPage = () => {
-  const { play, isPlaying, setFadeOutDuration } = useAudioPlayer();
+  const { play, isPlaying, preload, setFadeOutDuration } = useAudioPlayer();
   const { tracks, setTracks, updateTrack, removeTrack, changeFile } = useTracks();
-  const { theme, language, fadeOutDuration: configFadeOut, isLoaded } = useAppConfig();
+  const {
+    fadeOutDuration: configFadeOut,
+    isLoaded,
+    tracks: configTracks,
+    updateConfig
+  } = useAppConfig();
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+  const [isPreloading, setIsPreloading] = useState(true);
+  const initializedRef = useRef(false);
 
   // Sync fadeOutDuration from config to player
   useEffect(() => {
     setFadeOutDuration(configFadeOut);
   }, [configFadeOut, setFadeOutDuration]);
 
-  // Load tracks on startup
+  // Load tracks from config and preload
   useEffect(() => {
+    if (!isLoaded || initializedRef.current) return;
+
     const init = async () => {
-      const config = await window.api.loadConfig();
-      if (config && config.tracks) {
-        const validTracks = config.tracks.filter((t: any) => t.file && typeof t.file === 'string');
-        const tracksWithVolume = validTracks.map((t: any) => ({ ...t, volume: t.volume ?? 1.5 }));
+      if (configTracks) {
+        const validTracks = configTracks.filter((t: any) => t.file && typeof t.file === 'string');
+        const tracksWithVolume = validTracks.map((t: any) => ({
+          ...t,
+          volume: t.volume ?? TRACK_INITIAL_VOLUME
+        }));
+
+        await Promise.all(tracksWithVolume.map((track: AudioTrack) => preload(track)));
         setTracks(tracksWithVolume);
       }
+      setIsPreloading(false);
+      initializedRef.current = true;
     };
     init();
+  }, [isLoaded, configTracks, preload, setTracks]);
 
-    // IPC Listeners
+  // IPC Listeners for adding audio
+  useEffect(() => {
     const removeAddAudioListener = window.api.onMenuAddAudio(async () => {
       const filePaths = await window.api.openFileDialog();
       if (filePaths && filePaths.length > 0) {
@@ -59,14 +77,11 @@ export const MainPage = () => {
 
   // Save config on changes (only tracks, others handled by useAppConfig)
   useEffect(() => {
-    if (!isLoaded) return;
-    window.api.saveConfig({
-      tracks,
-      fadeOutDuration: configFadeOut,
-      theme,
-      language
+    if (!isLoaded || isPreloading) return;
+    updateConfig({
+      tracks
     });
-  }, [tracks, isLoaded, configFadeOut, theme, language]);
+  }, [tracks, isLoaded, isPreloading, updateConfig]);
 
   // Auto-resize window when tracks change
   useEffect(() => {
@@ -115,6 +130,43 @@ export const MainPage = () => {
     changeFile(id);
     setContextMenu(null);
   };
+
+  if (!isLoaded || isPreloading) {
+    return (
+      <div
+        className="app-container"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          color: 'var(--text-color)'
+        }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <h2>Cargando configuración y pistas...</h2>
+          <div
+            className="spinner"
+            style={{
+              margin: '20px auto',
+              width: '40px',
+              height: '40px',
+              border: '4px solid rgba(255,255,255,0.3)',
+              borderRadius: '50%',
+              borderTop: '4px solid var(--primary-color)',
+              animation: 'spin 1s linear infinite'
+            }}
+          ></div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
