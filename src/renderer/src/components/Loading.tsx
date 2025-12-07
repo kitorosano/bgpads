@@ -15,7 +15,7 @@ export const Loading = () => {
       }}
     >
       <div style={{ textAlign: 'center' }}>
-        <h2>{t('loading')}</h2>
+        <p>{t('loading')}</p>
         <div
           className="spinner"
           style={{
