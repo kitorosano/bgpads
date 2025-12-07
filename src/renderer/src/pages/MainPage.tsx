@@ -5,6 +5,7 @@ import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
+import { useMetronome } from '../hooks/useMetronome';
 import { useTracks } from '../hooks/useTracks';
 import { AudioTrack, ContextMenuState } from '../types';
 
@@ -14,9 +15,13 @@ export const MainPage = () => {
   const {
     fadeOutDuration: configFadeOut,
     isLoaded,
+    bpm,
+    metronomeShortcut,
     tracks: configTracks,
     updateConfig
   } = useAppConfig();
+
+  const metronome = useMetronome(bpm);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -90,6 +95,13 @@ export const MainPage = () => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       const key = e.key.toUpperCase();
+
+      // Metronome Shortcut
+      if (metronomeShortcut && key === metronomeShortcut) {
+        metronome.toggle();
+        return;
+      }
+
       const track = tracks.find((t) => t.keybinding === key);
       if (track) {
         play(track);
@@ -98,7 +110,7 @@ export const MainPage = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [tracks, play]);
+  }, [tracks, play, metronomeShortcut, metronome]);
 
   const onRemoveTrack = (id: string) => {
     removeTrack(id);
@@ -109,7 +121,6 @@ export const MainPage = () => {
     changeFile(id);
     setContextMenu(null);
   };
-
   if (!isLoaded || isPreloading) {
     return <Loading />;
   }

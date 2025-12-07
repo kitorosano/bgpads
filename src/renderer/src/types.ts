@@ -12,6 +12,8 @@ export interface AudioTrack {
 export interface AppConfig {
   tracks: AudioTrack[];
   fadeOutDuration: number;
+  bpm: number;
+  metronomeShortcut: string | null;
   theme: Theme;
   language: Language;
 }

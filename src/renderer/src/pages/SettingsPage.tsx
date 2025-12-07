@@ -3,8 +3,18 @@ import { useI18n } from '@renderer/hooks/useI18n';
 import { CROSSFADE_STEP_INCREMENT } from '../../../constants';
 
 export const SettingsPage = () => {
-  const { theme, language, setLanguage, fadeOutDuration, setTheme, setFadeOutDuration } =
-    useAppConfig();
+  const {
+    theme,
+    language,
+    setLanguage,
+    fadeOutDuration,
+    setTheme,
+    setFadeOutDuration,
+    bpm,
+    setBpm,
+    metronomeShortcut,
+    setMetronomeShortcut
+  } = useAppConfig();
   const { t } = useI18n();
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +77,81 @@ export const SettingsPage = () => {
           >
             English
           </button>
+        </div>
+      </div>
+
+      <div className="control-group" style={{ marginTop: '20px' }}>
+        <h3>Metronome</h3>
+        <div style={{ display: 'grid', gap: '15px' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <label>BPM:</label>
+              <input
+                type="number"
+                min="40"
+                max="240"
+                value={bpm}
+                onChange={(e) =>
+                  setBpm(Math.max(40, Math.min(240, parseInt(e.target.value) || 120)))
+                }
+                style={{
+                  width: '60px',
+                  padding: '5px',
+                  borderRadius: '4px',
+                  border: '1px solid #444',
+                  background: '#222',
+                  color: '#fff',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
+            <input
+              type="range"
+              min="40"
+              max="240"
+              step="1"
+              value={bpm}
+              onChange={(e) => setBpm(parseInt(e.target.value))}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px' }}>
+              Shortcut (Start/Stop):{' '}
+              {metronomeShortcut ? (
+                <span className="key-tag">{metronomeShortcut}</span>
+              ) : (
+                <span style={{ opacity: 0.5 }}>None</span>
+              )}
+            </label>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                className="theme-btn"
+                onClick={() => {
+                  const handler = (e: KeyboardEvent) => {
+                    e.preventDefault();
+                    const key = e.key.toUpperCase();
+                    // Avoid modifiers alone
+                    if (['CONTROL', 'SHIFT', 'ALT', 'META'].includes(key)) return;
+                    setMetronomeShortcut(key);
+                    window.removeEventListener('keydown', handler);
+                  };
+                  window.addEventListener('keydown', handler);
+                }}
+              >
+                Record Shortcut
+              </button>
+              {metronomeShortcut && (
+                <button
+                  className="theme-btn"
+                  style={{ background: '#e74c3c' }}
+                  onClick={() => setMetronomeShortcut(null)}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
