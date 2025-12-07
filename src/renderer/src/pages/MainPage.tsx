@@ -1,6 +1,5 @@
 import { Loading } from '@renderer/components/Loading';
 import { useEffect, useRef, useState } from 'react';
-import { TRACK_INITIAL_VOLUME } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -8,6 +7,7 @@ import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useMetronome } from '../hooks/useMetronome';
 import { useTracks } from '../hooks/useTracks';
 import { AudioTrack, ContextMenuState } from '../types';
+import { createTrackFromPath, validateTracks } from '../utils/trackUtils';
 
 export const MainPage = () => {
   const { play, isPlaying, preload, setFadeOutDuration } = useAudioPlayer();
@@ -40,11 +40,7 @@ export const MainPage = () => {
 
     const init = async () => {
       if (configTracks) {
-        const validTracks = configTracks.filter((t: any) => t.file && typeof t.file === 'string');
-        const tracksWithVolume = validTracks.map((t: any) => ({
-          ...t,
-          volume: t.volume ?? TRACK_INITIAL_VOLUME
-        }));
+        const tracksWithVolume = validateTracks(configTracks);
 
         await Promise.all(tracksWithVolume.map((track: AudioTrack) => preload(track)));
         setTracks(tracksWithVolume);
@@ -62,16 +58,7 @@ export const MainPage = () => {
       if (filePaths && filePaths.length > 0) {
         const newTracks: any[] = [];
         filePaths.forEach((path) => {
-          // Extract filename from path
-          const name = path.split(/[/\\]/).pop()?.replace('.mp3', '') || 'Unknown';
-          newTracks.push({
-            id: crypto.randomUUID(),
-            file: path,
-            name,
-            keybinding: null,
-            color: '#4a90e2',
-            volume: 1.5
-          });
+          newTracks.push(createTrackFromPath(path));
         });
         setTracks((prev) => [...prev, ...newTracks]);
       }
@@ -138,9 +125,7 @@ export const MainPage = () => {
             track={track}
             isPlaying={isPlaying === track.id}
             onClick={() => {
-              if (track.bpm) {
-                setBpm(track.bpm);
-              }
+              if (track.bpm) setBpm(track.bpm);
               play(track);
             }}
             onContextMenu={(e) => {

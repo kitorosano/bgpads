@@ -19,7 +19,17 @@ export interface AppConfig {
   language: Language;
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export interface ContextMenuState {
   trackId: string;
-  position: { x: number; y: number };
+  position: Point;
+}
+
+export interface Dimensions {
+  width: number;
+  height: number;
 }

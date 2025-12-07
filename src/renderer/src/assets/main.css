@@ -431,3 +431,49 @@ body.light .about-info {
 .modal-content.settings {
   min-width: 380px;
 }
+
+/* About Page */
+.about-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+
+.about-logo-container {
+  margin-bottom: 20px;
+}
+
+.about-title {
+  margin-bottom: 20px;
+}
+
+.about-info-container {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+.about-description-text {
+  max-width: 400px;
+}
+
+/* Context Menu Inputs */
+.context-menu-input {
+  width: 100%;
+  padding: 5px;
+  border-radius: 4px;
+  background: #333;
+  border: 1px solid #444;
+  color: #fff;
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+body.light .context-menu-input {
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  color: var(--text-primary);
+}

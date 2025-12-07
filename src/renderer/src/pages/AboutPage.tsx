@@ -6,28 +6,14 @@ export const AboutPage = () => {
   const { t } = useI18n();
 
   return (
-    <div
-      className="app-container"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        padding: '20px',
-        textAlign: 'center'
-      }}
-    >
-      <div className="about-logo" style={{ marginBottom: '20px' }}>
+    <div className="app-container about-container">
+      <div className="about-logo about-logo-container">
         <img src={logoImg} alt="BGPads Logo" width="100" height="100" />
       </div>
 
-      <h2 style={{ marginBottom: '20px' }}>BGPads</h2>
+      <h2 className="about-title">BGPads</h2>
 
-      <div
-        className="about-info"
-        style={{ width: '100%', maxWidth: '400px', marginBottom: '20px' }}
-      >
+      <div className="about-info about-info-container">
         <p>
           <strong>{t('version')}:</strong> {packageJson.version}
         </p>
@@ -39,9 +25,7 @@ export const AboutPage = () => {
         </p>
       </div>
 
-      <p className="about-description" style={{ maxWidth: '400px' }}>
-        {t('description')}
-      </p>
+      <p className="about-description about-description-text">{t('description')}</p>
     </div>
   );
 };

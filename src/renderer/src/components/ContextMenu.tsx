@@ -2,6 +2,7 @@ import { useI18n } from '@renderer/hooks/useI18n';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { SHORTCUT_KEYS_TO_IGNORE, VOLUME_STEP_INCREMENT } from '../../../constants';
 import { AudioTrack } from '../types';
+import { calculateMenuPosition } from '../utils/uiUtils';
 
 interface ContextMenuProps {
   track: AudioTrack;
@@ -62,25 +63,12 @@ export const ContextMenu = ({
 
     const menu = menuRef.current;
     const menuRect = menu.getBoundingClientRect();
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
+    const windowDimensions = { width: window.innerWidth, height: window.innerHeight };
+    const menuDimensions = { width: menuRect.width, height: menuRect.height };
 
-    let newX = position.x;
-    let newY = position.y;
+    const newPos = calculateMenuPosition(position, menuDimensions, windowDimensions);
 
-    // Adjust horizontal position
-    if (newX + menuRect.width > windowWidth) {
-      newX = windowWidth - menuRect.width - 10;
-    }
-    if (newX < 10) newX = 10;
-
-    // Adjust vertical position
-    if (newY + menuRect.height > windowHeight) {
-      newY = windowHeight - menuRect.height - 10;
-    }
-    if (newY < 10) newY = 10;
-
-    setAdjustedPosition({ x: newX, y: newY });
+    setAdjustedPosition(newPos);
   }, [position]);
 
   return (
@@ -125,14 +113,8 @@ export const ContextMenu = ({
             const val = e.target.value === '' ? undefined : parseInt(e.target.value);
             onUpdate({ ...track, bpm: val });
           }}
-          style={{
-            width: '100%',
-            padding: '5px',
-            borderRadius: '4px',
-            background: '#333',
-            border: '1px solid #444',
-            color: '#fff'
-          }}
+          style={undefined}
+          className="context-menu-input"
         />
       </div>
 
