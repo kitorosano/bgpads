@@ -1,4 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  DEFAULT_METRONOME_DECAY,
+  DEFAULT_METRONOME_FREQUENCY,
+  DEFAULT_METRONOME_HARMONIC_COUNT,
+  DEFAULT_METRONOME_VOLUME
+} from '../../../constants';
 
 export const useMetronome = (bpm: number) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -27,14 +33,36 @@ export const useMetronome = (bpm: number) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
-    osc.frequency.value = 1000; // 1000Hz beep
-    gain.gain.value = 0.5;
+    // Create a periodic wave for a "click" sound (similar to a pulse)
+    // We use a series of harmonics to approximate a narrow pulse
+    const frequency = DEFAULT_METRONOME_FREQUENCY;
+    const decay = DEFAULT_METRONOME_DECAY;
+    const harmonicCount = DEFAULT_METRONOME_HARMONIC_COUNT;
+
+    const real = new Float32Array(harmonicCount);
+    const imag = new Float32Array(harmonicCount);
+    real[0] = 0;
+    imag[0] = 0;
+
+    for (let i = 1; i < harmonicCount; i++) {
+      real[i] = 1;
+      imag[i] = 0;
+    }
+
+    const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+    osc.setPeriodicWave(wave);
+
+    osc.frequency.value = frequency;
+
+    // Envelope for a sharp attack and quick decay
+    gain.gain.setValueAtTime(DEFAULT_METRONOME_VOLUME, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start(time);
-    osc.stop(time + 0.05); // Short beep
+    osc.stop(time + decay);
   }, []);
 
   const scheduler = useCallback(() => {
