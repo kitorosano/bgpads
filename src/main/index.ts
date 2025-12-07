@@ -27,15 +27,33 @@ const setMenu = (language: Language) => {
       label: t.file,
       submenu: [
         {
-          label: t.addAudio,
-          click: () => mainWindow?.webContents.send('menu-add-audio')
-        },
-        {
           label: t.preferences,
           click: () => ipcMain.emit('menu-open-settings')
         },
         { type: 'separator' },
         { label: t.quit, role: 'quit' }
+      ]
+    },
+    {
+      label: t.pads,
+      submenu: [
+        {
+          label: t.addAudio,
+          click: () => mainWindow?.webContents.send('menu-add-audio')
+        },
+        {
+          label: t.padsSettings,
+          click: () => ipcMain.emit('menu-open-pads-settings')
+        }
+      ]
+    },
+    {
+      label: t.metronome,
+      submenu: [
+        {
+          label: t.metronomeSettings,
+          click: () => ipcMain.emit('menu-open-metronome-settings')
+        }
       ]
     },
     {
@@ -121,6 +139,7 @@ app.whenReady().then(() => {
 
   // Window Management
   let settingsWindow: BrowserWindow | null = null;
+  let metronomeSettingsWindow: BrowserWindow | null = null;
   let aboutWindow: BrowserWindow | null = null;
 
   const createAuxWindow = (
@@ -158,6 +177,14 @@ app.whenReady().then(() => {
       return;
     }
     settingsWindow = createAuxWindow('/settings', 'Preferences');
+  });
+
+  ipcMain.on('menu-open-metronome-settings', () => {
+    if (metronomeSettingsWindow && !metronomeSettingsWindow.isDestroyed()) {
+      metronomeSettingsWindow.focus();
+      return;
+    }
+    metronomeSettingsWindow = createAuxWindow('/metronome-settings', 'Metronome Configuration');
   });
 
   ipcMain.on('menu-open-about', () => {

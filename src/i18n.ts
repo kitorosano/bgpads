@@ -4,14 +4,15 @@ export const translations = {
 
     // Menu
     file: 'Archivo',
-    addAudio: 'Agregar Audio',
+    pads: 'Pads',
+    metronome: 'Metrónomo',
+    help: 'Ayuda',
+
+    // File Menu
     preferences: 'Preferencias',
     quit: 'Salir',
-    help: 'Ayuda',
-    about: 'Acerca de',
 
-    // Settings Modal
-    settingsTitle: 'Preferencias',
+    // Settings
     fadeOutDuration: 'Duración de Fundido',
     theme: 'Tema',
     language: 'Idioma',
@@ -23,8 +24,19 @@ export const translations = {
     recordShortcut: 'Grabar Atajo',
     clearShortcut: 'Borrar',
 
-    // About Modal
-    aboutTitle: 'Acerca de BGPads',
+    // Pads Settings
+    addAudio: 'Agregar Audio',
+    padsSettings: 'Config. Pads',
+
+    // Metronome Settings
+    metronomeSettings: 'Config. Metrónomo',
+    frequency: 'Frecuencia (Tono)',
+    decay: 'Decaimiento (Duración)',
+    harmonics: 'Armónicos (Riqueza)',
+    soundCustomization: 'Personalizar Sonido',
+
+    // About Menu
+    about: 'Acerca de',
     version: 'Versión',
     author: 'Autor',
     copyright: 'Derechos de Autor',
@@ -47,14 +59,15 @@ export const translations = {
 
     // Menu
     file: 'File',
-    addAudio: 'Add Audio',
+    pads: 'Pads',
+    metronome: 'Metronome',
+    help: 'Help',
+
+    // File Menu
     preferences: 'Preferences',
     quit: 'Quit',
-    help: 'Help',
-    about: 'About',
 
     // Settings Modal
-    settingsTitle: 'Preferences',
     fadeOutDuration: 'Fade Out Duration',
     theme: 'Theme',
     language: 'Language',
@@ -66,8 +79,19 @@ export const translations = {
     recordShortcut: 'Record Shortcut',
     clearShortcut: 'Clear',
 
+    // Pads Settings
+    addAudio: 'Add Audio',
+    padsSettings: 'Pads Config',
+
+    // Metronome Settings
+    metronomeSettings: 'Metronome Config',
+    frequency: 'Frequency (Pitch)',
+    decay: 'Decay (Duration)',
+    harmonics: 'Harmonics (Richness)',
+    soundCustomization: 'Sound Customization',
+
     // About Modal
-    aboutTitle: 'About BGPads',
+    about: 'About',
     version: 'Version',
     author: 'Author',
     copyright: 'Copyright',

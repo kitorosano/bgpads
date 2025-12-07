@@ -3,6 +3,9 @@ import {
   DEFAULT_BPM,
   DEFAULT_CROSSFADE_DURATION,
   DEFAULT_LANGUAGE,
+  DEFAULT_METRONOME_DECAY,
+  DEFAULT_METRONOME_FREQUENCY,
+  DEFAULT_METRONOME_HARMONIC_COUNT,
   DEFAULT_THEME
 } from '../../../constants';
 import { Language, Theme } from '../../../types';
@@ -15,6 +18,11 @@ export const useAppConfig = () => {
   const [metronomeShortcut, setMetronomeShortcut] = useState<string | null>(null);
   const [tracks, setTracks] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [metronomeFrequency, setMetronomeFrequency] = useState(DEFAULT_METRONOME_FREQUENCY);
+  const [metronomeDecay, setMetronomeDecay] = useState(DEFAULT_METRONOME_DECAY);
+  const [metronomeHarmonicCount, setMetronomeHarmonicCount] = useState(
+    DEFAULT_METRONOME_HARMONIC_COUNT
+  );
 
   useEffect(() => {
     const init = async () => {
@@ -25,6 +33,9 @@ export const useAppConfig = () => {
         if (config.fadeOutDuration) setFadeOutDuration(config.fadeOutDuration);
         if (config.bpm) setBpm(config.bpm);
         if (config.metronomeShortcut) setMetronomeShortcut(config.metronomeShortcut);
+        if (config.metronomeFrequency) setMetronomeFrequency(config.metronomeFrequency);
+        if (config.metronomeDecay) setMetronomeDecay(config.metronomeDecay);
+        if (config.metronomeHarmonicCount) setMetronomeHarmonicCount(config.metronomeHarmonicCount);
         if (config.tracks) setTracks(config.tracks);
       }
       setIsLoaded(true);
@@ -40,6 +51,10 @@ export const useAppConfig = () => {
         if (newConfig.fadeOutDuration) setFadeOutDuration(newConfig.fadeOutDuration);
         if (newConfig.bpm) setBpm(newConfig.bpm);
         if (newConfig.metronomeShortcut) setMetronomeShortcut(newConfig.metronomeShortcut);
+        if (newConfig.metronomeFrequency) setMetronomeFrequency(newConfig.metronomeFrequency);
+        if (newConfig.metronomeDecay) setMetronomeDecay(newConfig.metronomeDecay);
+        if (newConfig.metronomeHarmonicCount)
+          setMetronomeHarmonicCount(newConfig.metronomeHarmonicCount);
         if (newConfig.tracks) setTracks(newConfig.tracks);
       }
     );
@@ -69,6 +84,9 @@ export const useAppConfig = () => {
     if (updates.fadeOutDuration) setFadeOutDuration(updates.fadeOutDuration);
     if (updates.bpm) setBpm(updates.bpm);
     if (updates.metronomeShortcut) setMetronomeShortcut(updates.metronomeShortcut);
+    if (updates.metronomeFrequency) setMetronomeFrequency(updates.metronomeFrequency);
+    if (updates.metronomeDecay) setMetronomeDecay(updates.metronomeDecay);
+    if (updates.metronomeHarmonicCount) setMetronomeHarmonicCount(updates.metronomeHarmonicCount);
     if (updates.tracks) setTracks(updates.tracks);
 
     const config = await window.api.loadConfig();
@@ -86,6 +104,9 @@ export const useAppConfig = () => {
     tracks,
     bpm,
     metronomeShortcut,
+    metronomeFrequency,
+    metronomeDecay,
+    metronomeHarmonicCount,
     isLoaded,
     updateConfig,
     setTheme: (t: Theme) => updateConfig({ theme: t }),
@@ -93,6 +114,9 @@ export const useAppConfig = () => {
     setFadeOutDuration: (d: number) => updateConfig({ fadeOutDuration: d }),
     setBpm: (b: number) => updateConfig({ bpm: b }),
     setMetronomeShortcut: (s: string | null) => updateConfig({ metronomeShortcut: s }),
+    setMetronomeFrequency: (f: number) => updateConfig({ metronomeFrequency: f }),
+    setMetronomeDecay: (d: number) => updateConfig({ metronomeDecay: d }),
+    setMetronomeHarmonicCount: (h: number) => updateConfig({ metronomeHarmonicCount: h }),
     setTracks: (t: any[]) => updateConfig({ tracks: t })
   };
 };

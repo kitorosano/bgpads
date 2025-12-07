@@ -1,4 +1,4 @@
-import { Language, MetronomeType, Theme } from './types';
+import { Language, Theme } from './types';
 
 export const CONFIG_FILE_NAME = 'bgpads-config.json';
 
@@ -11,8 +11,8 @@ export const MIN_BPM = 60;
 export const MAX_BPM = 240;
 export const DEFAULT_BPM = 100;
 
-export const DEFAULT_METRONOME_FREQUENCY = 1050;
-export const DEFAULT_METRONOME_DECAY = 0.06;
+export const DEFAULT_METRONOME_FREQUENCY = 1050; // Hz
+export const DEFAULT_METRONOME_DECAY = 0.06; // Seconds
 export const DEFAULT_METRONOME_HARMONIC_COUNT = 3;
 export const DEFAULT_METRONOME_VOLUME = 0.5;
 

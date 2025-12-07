@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  DEFAULT_METRONOME_DECAY,
-  DEFAULT_METRONOME_FREQUENCY,
-  DEFAULT_METRONOME_HARMONIC_COUNT,
-  DEFAULT_METRONOME_VOLUME
-} from '../../../constants';
+import { DEFAULT_METRONOME_VOLUME } from '../../../constants';
+import { useAppConfig } from './useAppConfig';
 
 export const useMetronome = (bpm: number) => {
+  const { metronomeFrequency, metronomeDecay, metronomeHarmonicCount } = useAppConfig();
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const nextNoteTimeRef = useRef<number>(0);
@@ -26,44 +23,47 @@ export const useMetronome = (bpm: number) => {
     nextNoteTimeRef.current += secondsPerBeat;
   }, []);
 
-  const scheduleNote = useCallback((time: number) => {
-    const ctx = audioContextRef.current;
-    if (!ctx) return;
+  const scheduleNote = useCallback(
+    (time: number) => {
+      const ctx = audioContextRef.current;
+      if (!ctx) return;
 
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    // Create a periodic wave for a "click" sound (similar to a pulse)
-    // We use a series of harmonics to approximate a narrow pulse
-    const frequency = DEFAULT_METRONOME_FREQUENCY;
-    const decay = DEFAULT_METRONOME_DECAY;
-    const harmonicCount = DEFAULT_METRONOME_HARMONIC_COUNT;
+      // Create a periodic wave for a "click" sound (similar to a pulse)
+      // We use a series of harmonics to approximate a narrow pulse
+      const frequency = metronomeFrequency;
+      const decay = metronomeDecay;
+      const harmonicCount = metronomeHarmonicCount;
 
-    const real = new Float32Array(harmonicCount);
-    const imag = new Float32Array(harmonicCount);
-    real[0] = 0;
-    imag[0] = 0;
+      const real = new Float32Array(harmonicCount);
+      const imag = new Float32Array(harmonicCount);
+      real[0] = 0;
+      imag[0] = 0;
 
-    for (let i = 1; i < harmonicCount; i++) {
-      real[i] = 1;
-      imag[i] = 0;
-    }
+      for (let i = 1; i < harmonicCount; i++) {
+        real[i] = 1;
+        imag[i] = 0;
+      }
 
-    const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
-    osc.setPeriodicWave(wave);
+      const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+      osc.setPeriodicWave(wave);
 
-    osc.frequency.value = frequency;
+      osc.frequency.value = frequency;
 
-    // Envelope for a sharp attack and quick decay
-    gain.gain.setValueAtTime(DEFAULT_METRONOME_VOLUME, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
+      // Envelope for a sharp attack and quick decay
+      gain.gain.setValueAtTime(DEFAULT_METRONOME_VOLUME, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-    osc.start(time);
-    osc.stop(time + decay);
-  }, []);
+      osc.start(time);
+      osc.stop(time + decay);
+    },
+    [metronomeFrequency, metronomeDecay, metronomeHarmonicCount]
+  );
 
   const scheduler = useCallback(() => {
     const ctx = audioContextRef.current;
