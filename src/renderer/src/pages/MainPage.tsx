@@ -1,3 +1,4 @@
+import { Loading } from '@renderer/components/Loading';
 import { useEffect, useRef, useState } from 'react';
 import { TRACK_INITIAL_VOLUME } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
@@ -83,28 +84,6 @@ export const MainPage = () => {
     });
   }, [tracks, isLoaded, isPreloading, updateConfig]);
 
-  // Auto-resize window when tracks change
-  useEffect(() => {
-    if (!isLoaded || !window.electron?.ipcRenderer) return;
-
-    const trackCount = tracks.length;
-    if (trackCount === 0) return;
-
-    // Calculate grid dimensions (120px buttons + 16px gap + 16px padding)
-    const buttonSize = 120;
-    const gap = 16;
-    const padding = 32;
-
-    // Estimate columns (max 6)
-    const cols = Math.min(Math.ceil(Math.sqrt(trackCount)), 6);
-    const rows = Math.ceil(trackCount / cols);
-
-    const width = Math.min(cols * (buttonSize + gap) + padding, 900);
-    const height = Math.min(rows * (buttonSize + gap) + padding + 40, 800); // +40 for menu bar
-
-    window.electron.ipcRenderer.invoke('resize-window', { width, height });
-  }, [tracks.length, isLoaded]);
-
   // Global keydown listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -132,40 +111,7 @@ export const MainPage = () => {
   };
 
   if (!isLoaded || isPreloading) {
-    return (
-      <div
-        className="app-container"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          color: 'var(--text-color)'
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <h2>Cargando configuración y pistas...</h2>
-          <div
-            className="spinner"
-            style={{
-              margin: '20px auto',
-              width: '40px',
-              height: '40px',
-              border: '4px solid rgba(255,255,255,0.3)',
-              borderRadius: '50%',
-              borderTop: '4px solid var(--primary-color)',
-              animation: 'spin 1s linear infinite'
-            }}
-          ></div>
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

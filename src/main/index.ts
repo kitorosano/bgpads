@@ -85,8 +85,8 @@ function createWindow(): void {
   ipcMain.handle('resize-window', (_event, { width, height }) => {
     if (!mainWindow) return;
     const currentSize = mainWindow.getSize();
-    const newWidth = Math.max(width, 400);
-    const newHeight = Math.max(height, 400);
+    const newWidth = Math.max(width, 100);
+    const newHeight = Math.max(height, 100);
 
     // Only resize if significantly different
     if (Math.abs(currentSize[0] - newWidth) > 50 || Math.abs(currentSize[1] - newHeight) > 50) {

@@ -1,5 +1,7 @@
 export const translations = {
   es: {
+    loading: 'Cargando configuración y pistas...',
+
     // Menu
     file: 'Archivo',
     addAudio: 'Agregar Audio',
@@ -35,6 +37,8 @@ export const translations = {
     removeAudio: 'Eliminar Audio'
   },
   en: {
+    loading: 'Loading configuration and tracks...',
+
     // Menu
     file: 'File',
     addAudio: 'Add Audio',
