@@ -87,11 +87,10 @@ export const SettingsPage = () => {
       </div>
 
       <div className="control-group" style={{ marginTop: '20px' }}>
-        <label>{t('metronome')}</label>
         <div className="settings-grid">
           <div>
             <div className="bpm-input-group">
-              <label>BPM:</label>
+              <label>{t('defaultBpm')}:</label>
               <input
                 type="number"
                 min={MIN_BPM}

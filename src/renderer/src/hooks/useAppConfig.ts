@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
+import {
+  DEFAULT_BPM,
+  DEFAULT_CROSSFADE_DURATION,
+  DEFAULT_LANGUAGE,
+  DEFAULT_THEME
+} from '../../../constants';
 import { Language, Theme } from '../../../types';
 
 export const useAppConfig = () => {
-  const [theme, setTheme] = useState<Theme>('dark');
-  const [language, setLanguage] = useState<Language>('es');
-  const [fadeOutDuration, setFadeOutDuration] = useState(2);
-  const [bpm, setBpm] = useState(100);
+  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
+  const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE);
+  const [fadeOutDuration, setFadeOutDuration] = useState(DEFAULT_CROSSFADE_DURATION);
+  const [bpm, setBpm] = useState(DEFAULT_BPM);
   const [metronomeShortcut, setMetronomeShortcut] = useState<string | null>(null);
   const [tracks, setTracks] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);

@@ -1,4 +1,4 @@
-import { TRACK_INITIAL_VOLUME } from '../../../constants';
+import { DEFAULT_TRACK_VOLUME } from '../../../constants';
 import { AudioTrack } from '../types';
 
 export const createTrackFromPath = (path: string): AudioTrack => {
@@ -11,7 +11,7 @@ export const createTrackFromPath = (path: string): AudioTrack => {
     name,
     keybinding: null,
     color: '#4a90e2',
-    volume: TRACK_INITIAL_VOLUME
+    volume: DEFAULT_TRACK_VOLUME
   };
 };
 
@@ -19,6 +19,6 @@ export const validateTracks = (tracks: any[]): AudioTrack[] => {
   const validTracks = tracks.filter((t: any) => t.file && typeof t.file === 'string');
   return validTracks.map((t: any) => ({
     ...t,
-    volume: t.volume ?? TRACK_INITIAL_VOLUME
+    volume: t.volume ?? DEFAULT_TRACK_VOLUME
   }));
 };
