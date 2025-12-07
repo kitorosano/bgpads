@@ -1,8 +1,14 @@
 import { useI18n } from '@renderer/hooks/useI18n';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { SHORTCUT_KEYS_TO_IGNORE, VOLUME_STEP_INCREMENT } from '../../../constants';
+import {
+  MAX_BPM,
+  MIN_BPM,
+  SHORTCUT_KEYS_TO_IGNORE,
+  VOLUME_STEP_INCREMENT
+} from '../../../constants';
 import { AudioTrack } from '../types';
 import { calculateMenuPosition } from '../utils/uiUtils';
+import { clampBpm } from '../utils/validationUtils';
 
 interface ContextMenuProps {
   track: AudioTrack;
@@ -102,15 +108,15 @@ export const ContextMenu = ({
       </div>
 
       <div className="menu-item">
-        <label>Pad BPM (Optional)</label>
+        <label>{t('padBpm')}</label>
         <input
           type="number"
-          min="40"
-          max="240"
-          placeholder="Global"
+          min={MIN_BPM}
+          max={MAX_BPM}
+          placeholder={t('global')}
           value={track.bpm || ''}
           onChange={(e) => {
-            const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+            const val = e.target.value === '' ? undefined : clampBpm(e.target.value);
             onUpdate({ ...track, bpm: val });
           }}
           style={undefined}

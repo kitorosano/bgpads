@@ -5,7 +5,11 @@ export const SHORTCUT_KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
 export const CROSSFADE_STEP_INCREMENT = 0.5;
 export const VOLUME_STEP_INCREMENT = 0.1;
 
-export const TRACK_INITIAL_VOLUME = 1.5;
+export const MIN_BPM = 60;
+export const MAX_BPM = 240;
+export const DEFAULT_BPM = 100;
+
+export const TRACK_INITIAL_VOLUME = 1;
 
 export const DEFAULT_LANGUAGE = 'en';
 export const DEFAULT_THEME = 'dark';

@@ -18,6 +18,10 @@ export const translations = {
     lightMode: 'Claro',
     darkMode: 'Oscuro',
     close: 'Cerrar',
+    metronome: 'Metrónomo',
+    metronomeShortcut: 'Atajo (Iniciar/Detener)',
+    recordShortcut: 'Grabar Atajo',
+    clearShortcut: 'Borrar',
 
     // About Modal
     aboutTitle: 'Acerca de BGPads',
@@ -34,7 +38,9 @@ export const translations = {
     none: 'Ninguno',
     color: 'Color',
     changeFile: 'Cambiar Archivo...',
-    removeAudio: 'Eliminar Audio'
+    removeAudio: 'Eliminar Audio',
+    padBpm: 'BPM del Pad (Opcional)',
+    global: 'Global'
   },
   en: {
     loading: 'Loading configuration and tracks...',
@@ -55,6 +61,10 @@ export const translations = {
     lightMode: 'Light',
     darkMode: 'Dark',
     close: 'Close',
+    metronome: 'Metronome',
+    metronomeShortcut: 'Shortcut (Start/Stop)',
+    recordShortcut: 'Record Shortcut',
+    clearShortcut: 'Clear',
 
     // About Modal
     aboutTitle: 'About BGPads',
@@ -71,6 +81,8 @@ export const translations = {
     none: 'None',
     color: 'Color',
     changeFile: 'Change File...',
-    removeAudio: 'Remove Audio'
+    removeAudio: 'Remove Audio',
+    padBpm: 'Pad BPM (Optional)',
+    global: 'Global'
   }
 };

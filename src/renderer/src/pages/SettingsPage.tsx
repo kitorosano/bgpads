@@ -1,6 +1,12 @@
 import { useAppConfig } from '@renderer/hooks/useAppConfig';
 import { useI18n } from '@renderer/hooks/useI18n';
-import { CROSSFADE_STEP_INCREMENT } from '../../../constants';
+import {
+  CROSSFADE_STEP_INCREMENT,
+  MAX_BPM,
+  MIN_BPM,
+  SHORTCUT_KEYS_TO_IGNORE
+} from '../../../constants';
+import { clampBpm } from '../utils/validationUtils';
 
 export const SettingsPage = () => {
   const {
@@ -81,50 +87,41 @@ export const SettingsPage = () => {
       </div>
 
       <div className="control-group" style={{ marginTop: '20px' }}>
-        <h3>Metronome</h3>
-        <div style={{ display: 'grid', gap: '15px' }}>
+        <label>{t('metronome')}</label>
+        <div className="settings-grid">
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+            <div className="bpm-input-group">
               <label>BPM:</label>
               <input
                 type="number"
-                min="40"
-                max="240"
+                min={MIN_BPM}
+                max={MAX_BPM}
                 value={bpm}
-                onChange={(e) =>
-                  setBpm(Math.max(40, Math.min(240, parseInt(e.target.value) || 120)))
-                }
-                style={{
-                  width: '60px',
-                  padding: '5px',
-                  borderRadius: '4px',
-                  border: '1px solid #444',
-                  background: '#222',
-                  color: '#fff',
-                  textAlign: 'center'
-                }}
+                onChange={(e) => setBpm(clampBpm(e.target.value))}
+                className="bpm-number-input"
               />
             </div>
             <input
               type="range"
-              min="40"
-              max="240"
+              min={MIN_BPM}
+              max={MAX_BPM}
               step="1"
               value={bpm}
               onChange={(e) => setBpm(parseInt(e.target.value))}
+              className="w-full"
               style={{ width: '100%' }}
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>
-              Shortcut (Start/Stop):{' '}
+            <label className="shortcut-label">
+              {t('metronomeShortcut')}:{' '}
               {metronomeShortcut ? (
                 <span className="key-tag">{metronomeShortcut}</span>
               ) : (
-                <span style={{ opacity: 0.5 }}>None</span>
+                <span className="placeholder-text">{t('none')}</span>
               )}
             </label>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="shortcut-buttons">
               <button
                 className="theme-btn"
                 onClick={() => {
@@ -132,22 +129,18 @@ export const SettingsPage = () => {
                     e.preventDefault();
                     const key = e.key.toUpperCase();
                     // Avoid modifiers alone
-                    if (['CONTROL', 'SHIFT', 'ALT', 'META'].includes(key)) return;
+                    if (SHORTCUT_KEYS_TO_IGNORE.includes(key)) return;
                     setMetronomeShortcut(key);
                     window.removeEventListener('keydown', handler);
                   };
                   window.addEventListener('keydown', handler);
                 }}
               >
-                Record Shortcut
+                {t('recordShortcut')}
               </button>
               {metronomeShortcut && (
-                <button
-                  className="theme-btn"
-                  style={{ background: '#e74c3c' }}
-                  onClick={() => setMetronomeShortcut(null)}
-                >
-                  Clear
+                <button className="theme-btn danger-btn" onClick={() => setMetronomeShortcut(null)}>
+                  {t('clearShortcut')}
                 </button>
               )}
             </div>
