@@ -7,6 +7,7 @@ export interface AudioTrack {
   keybinding: string | null;
   color: string;
   volume: number;
+  bpm?: number;
 }
 
 export interface AppConfig {

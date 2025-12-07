@@ -114,6 +114,29 @@ export const ContextMenu = ({
       </div>
 
       <div className="menu-item">
+        <label>Pad BPM (Optional)</label>
+        <input
+          type="number"
+          min="40"
+          max="240"
+          placeholder="Global"
+          value={track.bpm || ''}
+          onChange={(e) => {
+            const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+            onUpdate({ ...track, bpm: val });
+          }}
+          style={{
+            width: '100%',
+            padding: '5px',
+            borderRadius: '4px',
+            background: '#333',
+            border: '1px solid #444',
+            color: '#fff'
+          }}
+        />
+      </div>
+
+      <div className="menu-item">
         <label>{t('color')}</label>
         <input
           type="color"

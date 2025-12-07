@@ -18,7 +18,8 @@ export const MainPage = () => {
     bpm,
     metronomeShortcut,
     tracks: configTracks,
-    updateConfig
+    updateConfig,
+    setBpm
   } = useAppConfig();
 
   const metronome = useMetronome(bpm);
@@ -104,6 +105,9 @@ export const MainPage = () => {
 
       const track = tracks.find((t) => t.keybinding === key);
       if (track) {
+        if (track.bpm) {
+          setBpm(track.bpm);
+        }
         play(track);
       }
     };
@@ -133,7 +137,12 @@ export const MainPage = () => {
             key={track.id}
             track={track}
             isPlaying={isPlaying === track.id}
-            onClick={() => play(track)}
+            onClick={() => {
+              if (track.bpm) {
+                setBpm(track.bpm);
+              }
+              play(track);
+            }}
             onContextMenu={(e) => {
               e.preventDefault();
               setContextMenu({
