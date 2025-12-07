@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome Sound Preview</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; background: #222; color: #eee; }
+        .control { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; }
+        input[type="range"] { width: 100%; }
+        button { font-size: 1.2rem; padding: 0.5rem 1rem; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        .value { float: right; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Metronome Preview</h1>
+    <p>Use this tool to verify and tune the metronome click sound.</p>
+    
+    <div class="control">
+        <label>Frequency (Hz) <span id="freqVal" class="value">800</span></label>
+        <input type="range" id="freq" min="200" max="2000" value="800" oninput="updateVal('freq', 'freqVal')">
+    </div>
+
+    <div class="control">
+        <label>Decay (seconds) <span id="decayVal" class="value">0.1</span></label>
+        <input type="range" id="decay" min="0.01" max="0.5" step="0.01" value="0.1" oninput="updateVal('decay', 'decayVal')">
+    </div>
+
+    <div class="control">
+        <label>Harmonics (Richness) <span id="harmVal" class="value">20</span></label>
+        <input type="range" id="harm" min="1" max="50" value="20" oninput="updateVal('harm', 'harmVal')">
+    </div>
+
+    <button onclick="playSound()">Play Click</button>
+
+    <script>
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function updateVal(id, displayId) {
+            document.getElementById(displayId).textContent = document.getElementById(id).value;
+        }
+
+        function playSound() {
+            if (ctx.state === 'suspended') ctx.resume();
+            
+            const freq = parseFloat(document.getElementById('freq').value);
+            const decay = parseFloat(document.getElementById('decay').value);
+            const harmonicCount = parseInt(document.getElementById('harm').value);
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            // Create PeriodicWave
+            const real = new Float32Array(harmonicCount);
+            const imag = new Float32Array(harmonicCount);
+            real[0] = 0; imag[0] = 0;
+            for (let i = 1; i < harmonicCount; i++) {
+                real[i] = 1;
+                imag[i] = 0;
+            }
+            const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+            osc.setPeriodicWave(wave);
+            
+            osc.frequency.value = freq;
+            
+            // Envelope
+            const time = ctx.currentTime;
+            gain.gain.setValueAtTime(1.0, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(time);
+            osc.stop(time + decay);
+        }
+    </script>
+</body>
+</html>
