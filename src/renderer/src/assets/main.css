@@ -36,6 +36,19 @@ body {
   box-sizing: border-box;
 }
 
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.loading-container p {
+  margin-top: 16px;
+  font-size: .8rem;
+}
+
 /* Grid Layout */
 .grid-container {
   display: grid;

@@ -1,7 +1,17 @@
 import { useI18n } from '@renderer/hooks/useI18n';
+import { useEffect, useState } from 'react';
+import logoImg from '../assets/logo.png';
 
 export const Loading = () => {
   const { t } = useI18n();
+  const [counter, setCounter] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCounter((prevCounter) => (prevCounter + 1) % 3);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div
@@ -14,26 +24,12 @@ export const Loading = () => {
         color: 'var(--text-color)'
       }}
     >
-      <div style={{ textAlign: 'center' }}>
-        <p>{t('loading')}</p>
-        <div
-          className="spinner"
-          style={{
-            margin: '20px auto',
-            width: '40px',
-            height: '40px',
-            border: '4px solid rgba(255,255,255,0.3)',
-            borderRadius: '50%',
-            borderTop: '4px solid var(--primary-color)',
-            animation: 'spin 1s linear infinite'
-          }}
-        ></div>
-        <style>{`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}</style>
+      <div className="loading-container">
+        <img src={logoImg} alt="BGPads Logo" width="150" height="150" />
+        <p>
+          {t('loading')}
+          {'.'.repeat(counter)}
+        </p>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 export const translations = {
   es: {
-    loading: 'Cargando configuración y pistas...',
+    loading: 'Cargando configuración y pistas.',
 
     // Menu
     file: 'Archivo',
@@ -55,7 +55,7 @@ export const translations = {
     global: 'Global'
   },
   en: {
-    loading: 'Loading configuration and tracks...',
+    loading: 'Loading configuration and tracks.',
 
     // Menu
     file: 'File',
