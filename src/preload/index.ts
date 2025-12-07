@@ -14,6 +14,11 @@ const api = {
     ipcRenderer.on('menu-add-audio', subscription);
     return () => ipcRenderer.removeListener('menu-add-audio', subscription);
   },
+  onMenuClearPads: (callback: () => void) => {
+    const subscription = (_event: any) => callback();
+    ipcRenderer.on('menu-clear-pads', subscription);
+    return () => ipcRenderer.removeListener('menu-clear-pads', subscription);
+  },
   onMenuOpenSettings: (callback: () => void) => {
     const subscription = (_event: any) => callback();
     ipcRenderer.on('menu-open-settings', subscription);

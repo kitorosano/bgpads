@@ -123,10 +123,11 @@ body.light .audio-button-container.playing {
 }
 
 .track-name {
-  font-size: 1.1rem;
+  font-size: .8rem;
   font-weight: 600;
+  font-style: italic;
   word-break: break-word;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,10 +142,16 @@ body.light .track-name {
 }
 
 .keybinding-text {
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 1;
+}
+
+.bpm-text {
   color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 500;
-  opacity: 0.8;
+  font-size: 0.8rem;
+  font-weight: 400;
 }
 
 /* Context Menu - Improved styling */

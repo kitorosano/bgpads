@@ -64,8 +64,13 @@ export const MainPage = () => {
       }
     });
 
+    const removeClearPadsListener = window.api.onMenuClearPads(() => {
+      setTracks([]);
+    });
+
     return () => {
       removeAddAudioListener();
+      removeClearPadsListener();
     };
   }, [setTracks]);
 

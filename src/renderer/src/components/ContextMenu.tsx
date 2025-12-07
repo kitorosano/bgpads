@@ -98,6 +98,16 @@ export const ContextMenu = ({
       </div>
 
       <div className="menu-item">
+        <label>{t('name')}</label>
+        <input
+          type="text"
+          value={track.name}
+          onChange={(e) => onUpdate({ ...track, name: e.target.value })}
+          className="context-menu-input"
+        />
+      </div>
+
+      <div className="menu-item">
         <label>{t('keybinding')}</label>
         <button
           className={`key-record-btn ${isRecording ? 'recording' : ''}`}

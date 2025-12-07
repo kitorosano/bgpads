@@ -26,6 +26,7 @@ export const translations = {
 
     // Pads Settings
     addAudio: 'Agregar Audio',
+    clearPads: 'Limpiar Pads',
     padsSettings: 'Config. Pads',
 
     // Metronome Settings
@@ -44,6 +45,7 @@ export const translations = {
 
     // Context Menu
     volume: 'Volumen',
+    name: 'Nombre',
     keybinding: 'Atajo de Teclado',
     recordKey: 'Grabar Tecla',
     pressAnyKey: 'Presiona cualquier tecla...',
@@ -51,7 +53,7 @@ export const translations = {
     color: 'Color',
     changeFile: 'Cambiar Archivo...',
     removeAudio: 'Eliminar Audio',
-    padBpm: 'BPM del Pad (Opcional)',
+    padBpm: 'BPM del pad',
     global: 'Global'
   },
   en: {
@@ -81,6 +83,7 @@ export const translations = {
 
     // Pads Settings
     addAudio: 'Add Audio',
+    clearPads: 'Clear Pads',
     padsSettings: 'Pads Config',
 
     // Metronome Settings
@@ -99,6 +102,7 @@ export const translations = {
 
     // Context Menu
     volume: 'Volume',
+    name: 'Name',
     keybinding: 'Keybinding',
     recordKey: 'Record Key',
     pressAnyKey: 'Press any key...',
@@ -106,7 +110,7 @@ export const translations = {
     color: 'Color',
     changeFile: 'Change File...',
     removeAudio: 'Remove Audio',
-    padBpm: 'Pad BPM (Optional)',
+    padBpm: 'Pad BPM',
     global: 'Global'
   }
 };

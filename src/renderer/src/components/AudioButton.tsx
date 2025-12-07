@@ -16,10 +16,11 @@ export const AudioButton = ({ track, isPlaying, onClick, onContextMenu }: AudioB
       onContextMenu={onContextMenu}
     >
       <div className="audio-button-content">
+        {track.keybinding && <span className="keybinding-text">{track.keybinding}</span>}
         <span className="track-name" title={track.name}>
           {track.name}
         </span>
-        {track.keybinding && <span className="keybinding-text">{track.keybinding}</span>}
+        {track.bpm && <span className="bpm-text">{track.bpm} BPM</span>}
       </div>
     </div>
   );

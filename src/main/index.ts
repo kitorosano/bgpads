@@ -42,6 +42,10 @@ const setMenu = (language: Language) => {
           click: () => mainWindow?.webContents.send('menu-add-audio')
         },
         {
+          label: t.clearPads,
+          click: () => mainWindow?.webContents.send('menu-clear-pads')
+        },
+        {
           label: t.padsSettings,
           click: () => ipcMain.emit('menu-open-pads-settings')
         }

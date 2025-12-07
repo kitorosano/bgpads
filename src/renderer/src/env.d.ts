@@ -14,6 +14,7 @@ interface Window {
     readBuffer: (path: string) => Promise<Uint8Array>;
     getPathForFile: (file: File) => string;
     onMenuAddAudio: (callback: () => void) => () => void;
+    onMenuClearPads: (callback: () => void) => () => void;
     onMenuOpenSettings: (callback: () => void) => () => void;
     onMenuOpenAbout: (callback: () => void) => () => void;
     openFileDialog: () => Promise<string[] | null>;
