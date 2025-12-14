@@ -1,21 +1,47 @@
 import { AudioTrack } from '../types';
+import { Spinner } from './Spinner';
 
 interface AudioButtonProps {
   track: AudioTrack;
   isPlaying: boolean;
+  isLoading?: boolean;
   onClick: () => void;
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-export const AudioButton = ({ track, isPlaying, onClick, onContextMenu }: AudioButtonProps) => {
+export const AudioButton = ({
+  track,
+  isPlaying,
+  isLoading,
+  onClick,
+  onContextMenu
+}: AudioButtonProps) => {
+  const handleClick = () => {
+    if (!isLoading) {
+      onClick();
+    }
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    if (!isLoading) {
+      onContextMenu(e);
+    }
+  };
+
   return (
     <div
       className={`audio-button-container ${isPlaying ? 'playing' : ''}`}
-      style={{ '--button-color': track.color } as React.CSSProperties}
-      onClick={onClick}
-      onContextMenu={onContextMenu}
+      style={
+        {
+          '--button-color': track.color,
+          cursor: isLoading ? 'default' : 'pointer'
+        } as React.CSSProperties
+      }
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
     >
-      <div className="audio-button-content">
+      {isLoading && <Spinner />}
+      <div className="audio-button-content" style={{ opacity: isLoading ? 0.5 : 1 }}>
         {track.keybinding && <span className="keybinding-text">{track.keybinding}</span>}
         <span className="track-name" title={track.name}>
           {track.name}

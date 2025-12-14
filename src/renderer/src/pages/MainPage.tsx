@@ -11,7 +11,7 @@ import { AudioTrack, ContextMenuState } from '../types';
 import { createTrackFromPath, validateTracks } from '../utils/trackUtils';
 
 export const MainPage = () => {
-  const { play, isPlaying, preload, setFadeOutDuration } = useAudioPlayer();
+  const { play, isPlaying, preload, setFadeOutDuration, loadingTrackIds } = useAudioPlayer();
   const { tracks, setTracks, updateTrack, removeTrack, changeFile } = useTracks();
   const {
     fadeOutDuration: configFadeOut,
@@ -58,26 +58,28 @@ export const MainPage = () => {
     const removeAddAudioListener = window.api.onMenuAddAudio(async () => {
       const filePaths = await window.api.openFileDialog();
       if (filePaths && filePaths.length > 0) {
-        setTracks((prev) => {
-          const newTracks: any[] = [];
-          const usedKeys = new Set(prev.map((t) => t.keybinding).filter(Boolean));
+        const newTracks: AudioTrack[] = [];
+        const usedKeys = new Set(tracks.map((t) => t.keybinding).filter(Boolean));
 
-          filePaths.forEach((path) => {
-            let keybinding: string | null = null;
+        filePaths.forEach((path) => {
+          let keybinding: string | null = null;
 
-            if (autoAssignShortcuts) {
-              // Find first available key from 1-9
-              const availableKey = TOP_ROW_KEYS.find((k) => !usedKeys.has(k));
-              if (availableKey) {
-                keybinding = availableKey;
-                usedKeys.add(availableKey);
-              }
+          if (autoAssignShortcuts) {
+            // Find first available key from 1-9
+            const availableKey = TOP_ROW_KEYS.find((k) => !usedKeys.has(k));
+            if (availableKey) {
+              keybinding = availableKey;
+              usedKeys.add(availableKey);
             }
+          }
 
-            newTracks.push(createTrackFromPath(path, { keybinding }));
-          });
-          return [...prev, ...newTracks];
+          const newTrack = createTrackFromPath(path, { keybinding });
+          newTracks.push(newTrack);
+          // Preload immediately
+          preload(newTrack);
         });
+
+        setTracks((prev) => [...prev, ...newTracks]);
       }
     });
 
@@ -89,7 +91,7 @@ export const MainPage = () => {
       removeAddAudioListener();
       removeClearPadsListener();
     };
-  }, [setTracks, autoAssignShortcuts]);
+  }, [tracks, setTracks, autoAssignShortcuts, preload]);
 
   // Save config on changes (only tracks, others handled by useAppConfig)
   useEffect(() => {
@@ -114,6 +116,11 @@ export const MainPage = () => {
 
       const track = tracks.find((t) => t.keybinding === key);
       if (track) {
+        // Prevent play if track is loading
+        if (loadingTrackIds.has(track.id)) {
+          return;
+        }
+
         if (track.bpm) {
           setBpm(track.bpm);
         }
@@ -123,7 +130,7 @@ export const MainPage = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [tracks, play, metronomeShortcut, metronome]);
+  }, [tracks, play, metronomeShortcut, metronome, loadingTrackIds]);
 
   const onRemoveTrack = (id: string) => {
     removeTrack(id);
@@ -146,6 +153,7 @@ export const MainPage = () => {
             key={track.id}
             track={track}
             isPlaying={isPlaying === track.id}
+            isLoading={loadingTrackIds.has(track.id)}
             onClick={() => {
               if (track.bpm) setBpm(track.bpm);
               play(track);

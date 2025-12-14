@@ -6,6 +6,7 @@ export const useAudioPlayer = () => {
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
   const bufferCache = useRef<Map<string, AudioBuffer>>(new Map());
+  const [loadingTrackIds, setLoadingTrackIds] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState<string | null>(null); // ID of playing track
   const [fadeOutDuration, setFadeOutDuration] = useState(2); // Seconds
 
@@ -34,10 +35,22 @@ export const useAudioPlayer = () => {
   };
 
   const preload = useCallback(async (track: AudioTrack) => {
+    setLoadingTrackIds((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(track.id);
+      return newSet;
+    });
+
     try {
       await loadAudioBuffer(track.file);
     } catch (error) {
       console.error(`Failed to preload track ${track.name}:`, error);
+    } finally {
+      setLoadingTrackIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(track.id);
+        return newSet;
+      });
     }
   }, []);
 
@@ -67,8 +80,27 @@ export const useAudioPlayer = () => {
 
       try {
         console.time('Loading Audio Buffer');
+        // If track is not cached, we might want to show loading indicator too,
+        // but typically play is called after preload.
+        // However, if we want to ensure loading state shows if play causes load:
+        if (!bufferCache.current.has(track.file)) {
+          setLoadingTrackIds((prev) => {
+            const newSet = new Set(prev);
+            newSet.add(track.id);
+            return newSet;
+          });
+        }
+
         const buffer = await loadAudioBuffer(track.file);
         console.timeEnd('Loading Audio Buffer');
+
+        // Remove from loading set if it was added
+        setLoadingTrackIds((prev) => {
+          if (!prev.has(track.id)) return prev;
+          const newSet = new Set(prev);
+          newSet.delete(track.id);
+          return newSet;
+        });
 
         const source = ctx.createBufferSource();
         source.buffer = buffer;
@@ -95,6 +127,13 @@ export const useAudioPlayer = () => {
         };
       } catch (error) {
         console.error('Error playing audio:', error);
+        // Ensure loading state is cleared on error
+        setLoadingTrackIds((prev) => {
+          if (!prev.has(track.id)) return prev;
+          const newSet = new Set(prev);
+          newSet.delete(track.id);
+          return newSet;
+        });
       }
     },
     [isPlaying, fadeOutDuration, initAudioContext]
@@ -122,6 +161,7 @@ export const useAudioPlayer = () => {
     stop,
     preload,
     isPlaying,
+    loadingTrackIds,
     fadeOutDuration,
     setFadeOutDuration
   };
