@@ -22,6 +22,7 @@ export interface AppConfig {
   metronomeOutputDeviceId?: string;
   timeSignature?: string;
   metronomeColor?: string;
+  metronomeVolume?: number;
 }
 
 export interface Point {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DEFAULT_METRONOME_TIME_SIGNATURE, DEFAULT_METRONOME_VOLUME } from '../../../constants';
+import { DEFAULT_METRONOME_TIME_SIGNATURE } from '../../../constants';
 import { useAppConfig } from './useAppConfig';
 
 export const useMetronome = (
@@ -7,8 +7,13 @@ export const useMetronome = (
   timeSignature: string = DEFAULT_METRONOME_TIME_SIGNATURE,
   onBeat?: (beat: number) => void
 ) => {
-  const { metronomeFrequency, metronomeDecay, metronomeHarmonicCount, metronomeOutputDeviceId } =
-    useAppConfig();
+  const {
+    metronomeFrequency,
+    metronomeDecay,
+    metronomeHarmonicCount,
+    metronomeOutputDeviceId,
+    metronomeVolume
+  } = useAppConfig();
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const nextNoteTimeRef = useRef<number>(0);
@@ -26,11 +31,32 @@ export const useMetronome = (
   }, [beatsPerBar]);
 
   // Use a ref for BPM so the scheduler always sees the latest value
-  // without needing to be recreated (which would restart the loop logic mostly).
   const bpmRef = useRef(bpm);
   useEffect(() => {
     bpmRef.current = bpm;
   }, [bpm]);
+
+  // Use refs for sound parameters to avoid recreating scheduler
+  const frequencyRef = useRef(metronomeFrequency);
+  const decayRef = useRef(metronomeDecay);
+  const harmonicCountRef = useRef(metronomeHarmonicCount);
+  const volumeRef = useRef(metronomeVolume);
+
+  useEffect(() => {
+    frequencyRef.current = metronomeFrequency;
+  }, [metronomeFrequency]);
+
+  useEffect(() => {
+    decayRef.current = metronomeDecay;
+  }, [metronomeDecay]);
+
+  useEffect(() => {
+    harmonicCountRef.current = metronomeHarmonicCount;
+  }, [metronomeHarmonicCount]);
+
+  useEffect(() => {
+    volumeRef.current = metronomeVolume;
+  }, [metronomeVolume]);
 
   // Update onBeat ref to avoid scheduler recreation dependencies
   const onBeatRef = useRef(onBeat);
@@ -44,64 +70,61 @@ export const useMetronome = (
     currentBeatRef.current = (currentBeatRef.current + 1) % beatsPerBarRef.current;
   }, []);
 
-  const scheduleNote = useCallback(
-    (time: number) => {
-      const ctx = audioContextRef.current;
-      if (!ctx) return;
+  const scheduleNote = useCallback((time: number) => {
+    const ctx = audioContextRef.current;
+    if (!ctx) return;
 
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-      // Create a periodic wave for a "click" sound (similar to a pulse)
-      // We use a series of harmonics to approximate a narrow pulse
-      const frequency = metronomeFrequency;
-      const decay = metronomeDecay;
-      const harmonicCount = metronomeHarmonicCount;
+    // Create a periodic wave for a "click" sound (similar to a pulse)
+    // We use a series of harmonics to approximate a narrow pulse
+    const frequency = frequencyRef.current;
+    const decay = decayRef.current;
+    const harmonicCount = harmonicCountRef.current;
 
-      const real = new Float32Array(harmonicCount);
-      const imag = new Float32Array(harmonicCount);
-      real[0] = 0;
-      imag[0] = 0;
+    const real = new Float32Array(harmonicCount);
+    const imag = new Float32Array(harmonicCount);
+    real[0] = 0;
+    imag[0] = 0;
 
-      for (let i = 1; i < harmonicCount; i++) {
-        real[i] = 1;
-        imag[i] = 0;
-      }
+    for (let i = 1; i < harmonicCount; i++) {
+      real[i] = 1;
+      imag[i] = 0;
+    }
 
-      const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
-      osc.setPeriodicWave(wave);
+    const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+    osc.setPeriodicWave(wave);
 
-      osc.frequency.value = frequency;
+    osc.frequency.value = frequency;
 
-      // Envelope for a sharp attack and quick decay
-      gain.gain.setValueAtTime(DEFAULT_METRONOME_VOLUME, time);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
+    // Envelope for a sharp attack and quick decay
+    gain.gain.setValueAtTime(volumeRef.current ?? 0.5, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
 
-      osc.start(time);
-      osc.stop(time + decay);
+    osc.start(time);
+    osc.stop(time + decay);
 
-      if (onBeatRef.current) {
-        // Schedule visual callback
-        // Calculate delay in ms
-        const delay = (time - ctx.currentTime) * 1000;
-        // Ensure delay is not negative
-        const safeDelay = Math.max(0, delay);
+    if (onBeatRef.current) {
+      // Schedule visual callback
+      // Calculate delay in ms
+      const delay = (time - ctx.currentTime) * 1000;
+      // Ensure delay is not negative
+      const safeDelay = Math.max(0, delay);
 
-        // Capture current beat for the closure
-        const beatToReport = currentBeatRef.current;
+      // Capture current beat for the closure
+      const beatToReport = currentBeatRef.current;
 
-        const timeoutId = setTimeout(() => {
-          onBeatRef.current?.(beatToReport);
-        }, safeDelay);
+      const timeoutId = setTimeout(() => {
+        onBeatRef.current?.(beatToReport);
+      }, safeDelay);
 
-        beatTimeoutsRef.current.push(timeoutId);
-      }
-    },
-    [metronomeFrequency, metronomeDecay, metronomeHarmonicCount]
-  );
+      beatTimeoutsRef.current.push(timeoutId);
+    }
+  }, []); // Dependencies are now empty (refs are stable)
 
   const scheduler = useCallback(() => {
     const ctx = audioContextRef.current;

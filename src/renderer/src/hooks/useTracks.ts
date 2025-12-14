@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { DEFAULT_TRACK_VOLUME } from '../../../constants';
+import { DEFAULT_BPM, DEFAULT_TRACK_VOLUME } from '../../../constants';
 import { AudioTrack } from '../types';
 
 export const useTracks = () => {
@@ -16,7 +16,8 @@ export const useTracks = () => {
           name: file.name.replace('.mp3', ''),
           keybinding: null,
           color: '#4a90e2',
-          volume: DEFAULT_TRACK_VOLUME
+          volume: DEFAULT_TRACK_VOLUME,
+          bpm: DEFAULT_BPM
         });
       }
     });

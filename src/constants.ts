@@ -17,13 +17,16 @@ export const DEFAULT_METRONOME_FREQUENCY = 1050; // Hz
 export const DEFAULT_METRONOME_DECAY = 0.06; // Seconds
 export const DEFAULT_METRONOME_HARMONIC_COUNT = 3;
 export const DEFAULT_METRONOME_VOLUME = 0.5;
+export const MIN_METRONOME_VOLUME = 0;
+export const MAX_METRONOME_VOLUME = 1;
+export const METRONOME_VOLUME_STEP_INCREMENT = 0.01;
 
 export const DEFAULT_METRONOME_TIME_SIGNATURE = '4/4';
 
 export const DEFAULT_TRACK_VOLUME = 1;
 export const VOLUME_STEP_INCREMENT = 0.1;
-export const MIN_VOLUME = 0;
-export const MAX_VOLUME = 3;
+export const MIN_TRACK_VOLUME = 0;
+export const MAX_TRACK_VOLUME = 3;
 
 export const DEFAULT_LANGUAGE: Language = 'en';
 export const DEFAULT_THEME: Theme = 'dark';

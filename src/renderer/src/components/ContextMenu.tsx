@@ -2,9 +2,9 @@ import { useI18n } from '@renderer/hooks/useI18n';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   MAX_BPM,
-  MAX_VOLUME,
+  MAX_TRACK_VOLUME,
   MIN_BPM,
-  MIN_VOLUME,
+  MIN_TRACK_VOLUME,
   SHORTCUT_KEYS_TO_IGNORE,
   VOLUME_STEP_INCREMENT
 } from '../../../constants';
@@ -136,8 +136,8 @@ export const ContextMenu = ({
         </label>
         <input
           type="range"
-          min={MIN_VOLUME}
-          max={MAX_VOLUME}
+          min={MIN_TRACK_VOLUME}
+          max={MAX_TRACK_VOLUME}
           step={VOLUME_STEP_INCREMENT}
           value={track.volume}
           onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}

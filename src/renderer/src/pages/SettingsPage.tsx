@@ -10,8 +10,8 @@ export const SettingsPage = () => {
     setTheme,
     tracksOutputDeviceId,
     metronomeOutputDeviceId,
-    setTracksOutputDeviceId,
-    setMetronomeOutputDeviceId
+    setMetronomeOutputDeviceId,
+    setTracksOutputDeviceId
   } = useAppConfig();
   const { t } = useI18n();
   const devices = useAudioDevices();

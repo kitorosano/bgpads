@@ -168,6 +168,13 @@ export const useAudioPlayer = () => {
     }
   }, []);
 
+  const setVolume = useCallback((volume: number) => {
+    if (gainNodeRef.current && audioContextRef.current) {
+      const ctx = audioContextRef.current;
+      gainNodeRef.current.gain.setValueAtTime(volume, ctx.currentTime);
+    }
+  }, []);
+
   return {
     play,
     stop,
@@ -175,6 +182,7 @@ export const useAudioPlayer = () => {
     isPlaying,
     loadingTrackIds,
     fadeOutDuration,
-    setFadeOutDuration
+    setFadeOutDuration,
+    setVolume
   };
 };

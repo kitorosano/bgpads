@@ -7,6 +7,7 @@ import {
   DEFAULT_METRONOME_FREQUENCY,
   DEFAULT_METRONOME_HARMONIC_COUNT,
   DEFAULT_METRONOME_TIME_SIGNATURE,
+  DEFAULT_METRONOME_VOLUME,
   DEFAULT_THEME
 } from '../../../constants';
 import { Language, Theme } from '../../../types';
@@ -29,6 +30,7 @@ export const useAppConfig = () => {
   const [metronomeOutputDeviceId, setMetronomeOutputDeviceId] = useState<string>('default');
   const [timeSignature, setTimeSignature] = useState<string>(DEFAULT_METRONOME_TIME_SIGNATURE);
   const [metronomeColor, setMetronomeColor] = useState<string>('var(--accent-color)');
+  const [metronomeVolume, setMetronomeVolume] = useState(DEFAULT_METRONOME_VOLUME);
 
   useEffect(() => {
     const init = async () => {
@@ -50,6 +52,7 @@ export const useAppConfig = () => {
         if (config.tracks) setTracks(config.tracks);
         if (config.timeSignature) setTimeSignature(config.timeSignature);
         if (config.metronomeColor) setMetronomeColor(config.metronomeColor);
+        if (config.metronomeVolume !== undefined) setMetronomeVolume(config.metronomeVolume);
       }
       setIsLoaded(true);
     };
@@ -76,6 +79,7 @@ export const useAppConfig = () => {
         if (newConfig.tracks) setTracks(newConfig.tracks);
         if (newConfig.timeSignature) setTimeSignature(newConfig.timeSignature);
         if (newConfig.metronomeColor) setMetronomeColor(newConfig.metronomeColor);
+        if (newConfig.metronomeVolume !== undefined) setMetronomeVolume(newConfig.metronomeVolume);
       }
     );
 
@@ -115,6 +119,7 @@ export const useAppConfig = () => {
     if (updates.tracks) setTracks(updates.tracks);
     if (updates.timeSignature) setTimeSignature(updates.timeSignature);
     if (updates.metronomeColor) setMetronomeColor(updates.metronomeColor);
+    if (updates.metronomeVolume !== undefined) setMetronomeVolume(updates.metronomeVolume);
 
     const config = await window.api.loadConfig();
     const newConfig = { ...config, ...updates };
@@ -151,9 +156,12 @@ export const useAppConfig = () => {
     setTracks: (t: any[]) => updateConfig({ tracks: t }),
     setTimeSignature: (ts: string) => updateConfig({ timeSignature: ts }),
     setMetronomeColor: (c: string) => updateConfig({ metronomeColor: c }),
+    setMetronomeVolume: (v: number) => updateConfig({ metronomeVolume: v }),
+    setTracksOutputDeviceId: (id: string) => updateConfig({ tracksOutputDeviceId: id }),
     tracksOutputDeviceId,
     metronomeOutputDeviceId,
     timeSignature,
-    metronomeColor
+    metronomeColor,
+    metronomeVolume
   };
 };

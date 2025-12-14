@@ -1,4 +1,4 @@
-import { DEFAULT_TRACK_VOLUME } from '../../../constants';
+import { DEFAULT_BPM, DEFAULT_TRACK_VOLUME } from '../../../constants';
 import { AudioTrack } from '../types';
 
 // Basic color palette for random selection
@@ -39,7 +39,8 @@ export const createTrackFromPath = (
     name,
     keybinding: options?.keybinding || null,
     color: options?.color || getRandomColor(),
-    volume: DEFAULT_TRACK_VOLUME
+    volume: DEFAULT_TRACK_VOLUME,
+    bpm: DEFAULT_BPM
   };
 };
 

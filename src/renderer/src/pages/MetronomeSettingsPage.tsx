@@ -1,13 +1,16 @@
 import { useAppConfig } from '@renderer/hooks/useAppConfig';
 import { useI18n } from '@renderer/hooks/useI18n';
-import { MAX_BPM, MIN_BPM, SHORTCUT_KEYS_TO_IGNORE } from '../../../constants';
-import { clampBpm } from '../utils/validationUtils';
+import {
+  DEFAULT_METRONOME_VOLUME,
+  MAX_METRONOME_VOLUME,
+  METRONOME_VOLUME_STEP_INCREMENT,
+  MIN_METRONOME_VOLUME,
+  SHORTCUT_KEYS_TO_IGNORE
+} from '../../../constants';
 
 export const MetronomeSettingsPage = () => {
   const { t } = useI18n();
   const {
-    bpm,
-    setBpm,
     metronomeShortcut,
     setMetronomeShortcut,
     metronomeFrequency,
@@ -15,7 +18,9 @@ export const MetronomeSettingsPage = () => {
     metronomeDecay,
     setMetronomeDecay,
     metronomeHarmonicCount,
-    setMetronomeHarmonicCount
+    setMetronomeHarmonicCount,
+    metronomeVolume,
+    setMetronomeVolume
   } = useAppConfig();
 
   return (
@@ -23,26 +28,18 @@ export const MetronomeSettingsPage = () => {
       <h2>{t('metronomeSettings')}</h2>
 
       {/* BPM Configuration */}
-      <div className="control-group" style={{ marginBottom: '20px', marginTop: '20px' }}>
-        <div className="bpm-input-group">
-          <label>{t('defaultBpm')}:</label>
-          <input
-            type="number"
-            min={MIN_BPM}
-            max={MAX_BPM}
-            value={bpm}
-            onChange={(e) => setBpm(clampBpm(e.target.value))}
-            className="bpm-number-input"
-          />
-        </div>
+
+      <div className="control-group" style={{ marginBottom: '20px' }}>
+        <label>
+          {t('volume')}: {Math.round((metronomeVolume ?? DEFAULT_METRONOME_VOLUME) * 100)}%
+        </label>
         <input
           type="range"
-          min={MIN_BPM}
-          max={MAX_BPM}
-          step="1"
-          value={bpm}
-          onChange={(e) => setBpm(parseInt(e.target.value))}
-          className="w-full"
+          min={MIN_METRONOME_VOLUME}
+          max={MAX_METRONOME_VOLUME}
+          step={METRONOME_VOLUME_STEP_INCREMENT}
+          value={metronomeVolume ?? DEFAULT_METRONOME_VOLUME}
+          onChange={(e) => setMetronomeVolume(parseFloat(e.target.value))}
           style={{ width: '100%' }}
         />
       </div>

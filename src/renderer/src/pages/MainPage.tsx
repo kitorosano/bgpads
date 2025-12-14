@@ -12,7 +12,8 @@ import { AudioTrack, ContextMenuState } from '../types';
 import { createTrackFromPath, validateTracks } from '../utils/trackUtils';
 
 export const MainPage = () => {
-  const { play, isPlaying, preload, setFadeOutDuration, loadingTrackIds } = useAudioPlayer();
+  const { play, isPlaying, preload, setFadeOutDuration, loadingTrackIds, setVolume } =
+    useAudioPlayer();
   const { tracks, setTracks, updateTrack, removeTrack } = useTracks();
   const {
     fadeOutDuration: configFadeOut,
@@ -254,6 +255,8 @@ export const MainPage = () => {
               if (updatedTrack.bpm) updates.bpm = updatedTrack.bpm;
               if (updatedTrack.timeSignature) updates.timeSignature = updatedTrack.timeSignature;
               if (updatedTrack.color) updates.metronomeColor = updatedTrack.color;
+              // Update volume in real-time if playing
+              setVolume(updatedTrack.volume);
             }
             updateConfig(updates);
           }}
