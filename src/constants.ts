@@ -7,6 +7,8 @@ export const SHORTCUT_KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
 export const DEFAULT_CROSSFADE_DURATION = 4;
 export const CROSSFADE_STEP_INCREMENT = 0.5;
 
+export const TOP_ROW_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 export const MIN_BPM = 60;
 export const MAX_BPM = 240;
 export const DEFAULT_BPM = 100;

@@ -143,6 +143,7 @@ app.whenReady().then(() => {
 
   // Window Management
   let settingsWindow: BrowserWindow | null = null;
+  let padSettingsWindow: BrowserWindow | null = null;
   let metronomeSettingsWindow: BrowserWindow | null = null;
   let aboutWindow: BrowserWindow | null = null;
 
@@ -181,6 +182,14 @@ app.whenReady().then(() => {
       return;
     }
     settingsWindow = createAuxWindow('/settings', 'Preferences');
+  });
+
+  ipcMain.on('menu-open-pads-settings', () => {
+    if (padSettingsWindow && !padSettingsWindow.isDestroyed()) {
+      padSettingsWindow.focus();
+      return;
+    }
+    padSettingsWindow = createAuxWindow('/pads-settings', 'Pads Configuration');
   });
 
   ipcMain.on('menu-open-metronome-settings', () => {

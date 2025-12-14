@@ -23,6 +23,7 @@ export const useAppConfig = () => {
   const [metronomeHarmonicCount, setMetronomeHarmonicCount] = useState(
     DEFAULT_METRONOME_HARMONIC_COUNT
   );
+  const [autoAssignShortcuts, setAutoAssignShortcuts] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -36,6 +37,8 @@ export const useAppConfig = () => {
         if (config.metronomeFrequency) setMetronomeFrequency(config.metronomeFrequency);
         if (config.metronomeDecay) setMetronomeDecay(config.metronomeDecay);
         if (config.metronomeHarmonicCount) setMetronomeHarmonicCount(config.metronomeHarmonicCount);
+        if (config.autoAssignShortcuts !== undefined)
+          setAutoAssignShortcuts(config.autoAssignShortcuts);
         if (config.tracks) setTracks(config.tracks);
       }
       setIsLoaded(true);
@@ -55,6 +58,8 @@ export const useAppConfig = () => {
         if (newConfig.metronomeDecay) setMetronomeDecay(newConfig.metronomeDecay);
         if (newConfig.metronomeHarmonicCount)
           setMetronomeHarmonicCount(newConfig.metronomeHarmonicCount);
+        if (newConfig.autoAssignShortcuts !== undefined)
+          setAutoAssignShortcuts(newConfig.autoAssignShortcuts);
         if (newConfig.tracks) setTracks(newConfig.tracks);
       }
     );
@@ -87,6 +92,8 @@ export const useAppConfig = () => {
     if (updates.metronomeFrequency) setMetronomeFrequency(updates.metronomeFrequency);
     if (updates.metronomeDecay) setMetronomeDecay(updates.metronomeDecay);
     if (updates.metronomeHarmonicCount) setMetronomeHarmonicCount(updates.metronomeHarmonicCount);
+    if (updates.autoAssignShortcuts !== undefined)
+      setAutoAssignShortcuts(updates.autoAssignShortcuts);
     if (updates.tracks) setTracks(updates.tracks);
 
     const config = await window.api.loadConfig();
@@ -107,6 +114,7 @@ export const useAppConfig = () => {
     metronomeFrequency,
     metronomeDecay,
     metronomeHarmonicCount,
+    autoAssignShortcuts,
     isLoaded,
     updateConfig,
     setTheme: (t: Theme) => updateConfig({ theme: t }),
@@ -116,7 +124,9 @@ export const useAppConfig = () => {
     setMetronomeShortcut: (s: string | null) => updateConfig({ metronomeShortcut: s }),
     setMetronomeFrequency: (f: number) => updateConfig({ metronomeFrequency: f }),
     setMetronomeDecay: (d: number) => updateConfig({ metronomeDecay: d }),
+
     setMetronomeHarmonicCount: (h: number) => updateConfig({ metronomeHarmonicCount: h }),
+    setAutoAssignShortcuts: (a: boolean) => updateConfig({ autoAssignShortcuts: a }),
     setTracks: (t: any[]) => updateConfig({ tracks: t })
   };
 };

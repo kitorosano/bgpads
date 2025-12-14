@@ -1,5 +1,6 @@
 import { Loading } from '@renderer/components/Loading';
 import { useEffect, useRef, useState } from 'react';
+import { TOP_ROW_KEYS } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { useAppConfig } from '../hooks/useAppConfig';
@@ -18,6 +19,7 @@ export const MainPage = () => {
     bpm,
     metronomeShortcut,
     tracks: configTracks,
+    autoAssignShortcuts,
     updateConfig,
     setBpm
   } = useAppConfig();
@@ -56,11 +58,26 @@ export const MainPage = () => {
     const removeAddAudioListener = window.api.onMenuAddAudio(async () => {
       const filePaths = await window.api.openFileDialog();
       if (filePaths && filePaths.length > 0) {
-        const newTracks: any[] = [];
-        filePaths.forEach((path) => {
-          newTracks.push(createTrackFromPath(path));
+        setTracks((prev) => {
+          const newTracks: any[] = [];
+          const usedKeys = new Set(prev.map((t) => t.keybinding).filter(Boolean));
+
+          filePaths.forEach((path) => {
+            let keybinding: string | null = null;
+
+            if (autoAssignShortcuts) {
+              // Find first available key from 1-9
+              const availableKey = TOP_ROW_KEYS.find((k) => !usedKeys.has(k));
+              if (availableKey) {
+                keybinding = availableKey;
+                usedKeys.add(availableKey);
+              }
+            }
+
+            newTracks.push(createTrackFromPath(path, { keybinding }));
+          });
+          return [...prev, ...newTracks];
         });
-        setTracks((prev) => [...prev, ...newTracks]);
       }
     });
 
@@ -72,7 +89,7 @@ export const MainPage = () => {
       removeAddAudioListener();
       removeClearPadsListener();
     };
-  }, [setTracks]);
+  }, [setTracks, autoAssignShortcuts]);
 
   // Save config on changes (only tracks, others handled by useAppConfig)
   useEffect(() => {

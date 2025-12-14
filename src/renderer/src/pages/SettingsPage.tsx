@@ -1,17 +1,9 @@
 import { useAppConfig } from '@renderer/hooks/useAppConfig';
 import { useI18n } from '@renderer/hooks/useI18n';
-import { CROSSFADE_STEP_INCREMENT } from '../../../constants';
 
 export const SettingsPage = () => {
-  const { theme, language, setLanguage, fadeOutDuration, setTheme, setFadeOutDuration } =
-    useAppConfig();
+  const { theme, language, setLanguage, setTheme } = useAppConfig();
   const { t } = useI18n();
-
-  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    // Update immediately for UI responsiveness, but could debounce persistence if needed
-    setFadeOutDuration(val);
-  };
 
   const isLightTheme = theme === 'light';
   const isEnglish = language === 'en';
@@ -54,20 +46,6 @@ export const SettingsPage = () => {
             English
           </button>
         </div>
-      </div>
-
-      <div className="control-group">
-        <label>
-          {t('fadeOutDuration')}: {fadeOutDuration.toFixed(1)}s
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="10"
-          step={CROSSFADE_STEP_INCREMENT}
-          value={fadeOutDuration}
-          onChange={handleDurationChange}
-        />
       </div>
     </div>
   );

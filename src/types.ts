@@ -13,5 +13,6 @@ export interface Config {
   metronomeFrequency?: number;
   metronomeDecay?: number;
   metronomeHarmonicCount?: number;
+  autoAssignShortcuts?: boolean;
   tracks?: any[];
 }

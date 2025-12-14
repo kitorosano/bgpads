@@ -28,6 +28,7 @@ export const translations = {
     addAudio: 'Agregar Audio',
     clearPads: 'Limpiar Pads',
     padsSettings: 'Config. Pads',
+    autoAssignShortcuts: 'Autoasignar atajos',
 
     // Metronome Settings
     metronomeSettings: 'Config. Metrónomo',
@@ -85,6 +86,7 @@ export const translations = {
     addAudio: 'Add Audio',
     clearPads: 'Clear Pads',
     padsSettings: 'Pads Config',
+    autoAssignShortcuts: 'Auto-assign Shortcuts',
 
     // Metronome Settings
     metronomeSettings: 'Metronome Config',
