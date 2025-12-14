@@ -12,7 +12,7 @@ import { createTrackFromPath, validateTracks } from '../utils/trackUtils';
 
 export const MainPage = () => {
   const { play, isPlaying, preload, setFadeOutDuration, loadingTrackIds } = useAudioPlayer();
-  const { tracks, setTracks, updateTrack, removeTrack, changeFile } = useTracks();
+  const { tracks, setTracks, updateTrack, removeTrack } = useTracks();
   const {
     fadeOutDuration: configFadeOut,
     isLoaded,
@@ -137,10 +137,34 @@ export const MainPage = () => {
     setContextMenu(null);
   };
 
-  const onChangeFile = (id: string) => {
-    changeFile(id);
+  const handleChangeFile = async (trackId: string) => {
+    // Determine the original track ahead of time
+    const originalTrack = tracks.find((t) => t.id === trackId);
+    if (!originalTrack) return;
+
+    // Use native file dialog
+    const filePaths = await window.api.openFileDialog();
+    if (!filePaths || filePaths.length === 0) return;
+
+    const newPath = filePaths[0];
+    const newName = newPath.split(/[\\/]/).pop()?.replace('.mp3', '') || 'Unknown';
+
+    const updatedTrack: AudioTrack = {
+      ...originalTrack,
+      file: newPath,
+      name: newName
+    };
+
+    // Close menu immediately
     setContextMenu(null);
+
+    // 1. Preload immediately (shows spinner)
+    preload(updatedTrack);
+
+    // 2. Update state
+    updateTrack(updatedTrack);
   };
+
   if (!isLoaded || isPreloading) {
     return <Loading />;
   }
@@ -176,7 +200,7 @@ export const MainPage = () => {
           onClose={() => setContextMenu(null)}
           onUpdate={updateTrack}
           onRemove={() => onRemoveTrack(contextMenu.trackId)}
-          onChangeFile={() => onChangeFile(contextMenu.trackId)}
+          onChangeFile={() => handleChangeFile(contextMenu.trackId)}
         />
       )}
     </div>

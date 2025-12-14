@@ -31,32 +31,11 @@ export const useTracks = () => {
     setTracks((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const changeFile = useCallback((trackId: string) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.mp3';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const path = window.api.getPathForFile(file);
-        if (path) {
-          setTracks((prev) =>
-            prev.map((t) =>
-              t.id === trackId ? { ...t, file: path, name: file.name.replace('.mp3', '') } : t
-            )
-          );
-        }
-      }
-    };
-    input.click();
-  }, []);
-
   return {
     tracks,
     setTracks,
     addFiles,
     updateTrack,
-    removeTrack,
-    changeFile
+    removeTrack
   };
 };
