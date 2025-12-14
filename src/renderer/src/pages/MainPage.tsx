@@ -24,7 +24,9 @@ export const MainPage = () => {
     autoAssignShortcuts,
     updateConfig,
     timeSignature,
-    metronomeColor
+    metronomeColor,
+    beatAccents,
+    setBeatAccents
   } = useAppConfig();
 
   // Metronome Visual State
@@ -207,6 +209,13 @@ export const MainPage = () => {
           currentBeat={currentBeat}
           activeColor={activeMetronomeColor}
           beatsPerBar={parseInt(timeSignature.split('/')[0]) || 4}
+          accents={beatAccents}
+          onToggleAccent={(beatIndex) => {
+            const newAccents = beatAccents.includes(beatIndex)
+              ? beatAccents.filter((b) => b !== beatIndex)
+              : [...beatAccents, beatIndex];
+            setBeatAccents(newAccents);
+          }}
         />
       </div>
 

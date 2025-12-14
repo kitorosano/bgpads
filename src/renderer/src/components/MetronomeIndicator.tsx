@@ -5,13 +5,17 @@ interface MetronomeIndicatorProps {
   currentBeat: number;
   activeColor?: string;
   beatsPerBar?: number;
+  accents?: number[];
+  onToggleAccent?: (beatIndex: number) => void;
 }
 
 export const MetronomeIndicator = ({
   isPlaying,
   currentBeat,
   activeColor,
-  beatsPerBar = 4
+  beatsPerBar = 4,
+  accents = [0],
+  onToggleAccent
 }: MetronomeIndicatorProps) => {
   const { theme } = useAppConfig();
 
@@ -29,22 +33,42 @@ export const MetronomeIndicator = ({
         justifyContent: 'center',
         padding: '1rem 0',
         width: '100%',
-        pointerEvents: 'none'
+        pointerEvents: 'auto' // Re-enable pointer events for clicking
       }}
     >
       {beats.map((beatIndex) => {
         const isActive = isPlaying && currentBeat === beatIndex;
+        const isAccented = accents.includes(beatIndex);
+
         return (
           <div
             key={beatIndex}
+            onClick={() => onToggleAccent?.(beatIndex)}
             style={{
               width: '1.5rem',
               height: '1.5rem',
-              borderRadius: '50%',
-              backgroundColor: isActive ? color : theme === 'dark' ? '#333' : '#ddd',
-              boxShadow: isActive ? `0 0 10px ${color}` : 'none',
-              transition: 'background-color 0.05s ease, box-shadow 0.05s ease',
-              opacity: isActive ? 1 : 0.5
+              borderRadius: isAccented ? '20%' : '50%', // Square-ish for accent? Or keep round but different border
+              backgroundColor: isActive
+                ? color
+                : isAccented
+                  ? theme === 'dark'
+                    ? '#555'
+                    : '#ccc' // Slightly lighter when accented but not active
+                  : theme === 'dark'
+                    ? '#333'
+                    : '#ddd',
+              boxShadow: isActive
+                ? `0 0 10px ${color}`
+                : isAccented
+                  ? theme === 'dark'
+                    ? '0 0 5px #777'
+                    : '0 0 5px #bbb' // Subtle glow for accent
+                  : 'none',
+              border: isAccented ? `2px solid ${color}` : '2px solid transparent',
+              transition:
+                'background-color 0.05s ease, box-shadow 0.05s ease, border-color 0.2s ease',
+              opacity: isActive ? 1 : 0.8,
+              cursor: 'pointer'
             }}
           />
         );

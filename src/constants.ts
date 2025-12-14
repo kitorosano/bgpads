@@ -21,6 +21,11 @@ export const MIN_METRONOME_VOLUME = 0;
 export const MAX_METRONOME_VOLUME = 1;
 export const METRONOME_VOLUME_STEP_INCREMENT = 0.1;
 
+export const DEFAULT_METRONOME_ACCENT_FREQUENCY = 1500;
+export const DEFAULT_METRONOME_ACCENT_DECAY = 0.06;
+export const DEFAULT_METRONOME_ACCENT_HARMONIC_COUNT = 3;
+export const DEFAULT_BEAT_ACCENTS = [0]; // First beat accented by default
+
 export const DEFAULT_METRONOME_TIME_SIGNATURE = '4/4';
 
 export const DEFAULT_TRACK_VOLUME = 1;

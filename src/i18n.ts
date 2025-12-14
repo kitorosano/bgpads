@@ -36,6 +36,7 @@ export const translations = {
     decay: 'Decaimiento (Duración)',
     harmonics: 'Armónicos (Riqueza)',
     soundCustomization: 'Personalizar Sonido',
+    accentSoundCustomization: 'Personalización de Acento',
 
     // About Menu
     about: 'Acerca de',
@@ -99,6 +100,7 @@ export const translations = {
     decay: 'Decay (Duration)',
     harmonics: 'Harmonics (Richness)',
     soundCustomization: 'Sound Customization',
+    accentSoundCustomization: 'Accent Sound Customization',
 
     // About Modal
     about: 'About',

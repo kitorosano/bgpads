@@ -20,7 +20,14 @@ export const MetronomeSettingsPage = () => {
     metronomeHarmonicCount,
     setMetronomeHarmonicCount,
     metronomeVolume,
-    setMetronomeVolume
+    setMetronomeVolume,
+    // Accent sound params
+    metronomeAccentFrequency,
+    setMetronomeAccentFrequency,
+    metronomeAccentDecay,
+    setMetronomeAccentDecay,
+    metronomeAccentHarmonicCount,
+    setMetronomeAccentHarmonicCount
   } = useAppConfig();
 
   return (
@@ -124,6 +131,56 @@ export const MetronomeSettingsPage = () => {
           step="1"
           value={metronomeHarmonicCount}
           onChange={(e) => setMetronomeHarmonicCount(parseInt(e.target.value))}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <hr style={{ opacity: 0.2, margin: '20px 0' }} />
+
+      {/* Accent Sound Customization */}
+      <h3>{t('accentSoundCustomization')}</h3>
+
+      <div className="control-group" style={{ marginBottom: '20px' }}>
+        <label>
+          {t('frequency')}: {metronomeAccentFrequency} Hz
+        </label>
+        <input
+          type="range"
+          min="200"
+          max="2000"
+          step="50"
+          value={metronomeAccentFrequency}
+          onChange={(e) => setMetronomeAccentFrequency(parseInt(e.target.value))}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <div className="control-group" style={{ marginBottom: '20px' }}>
+        <label>
+          {t('decay')}: {metronomeAccentDecay?.toFixed(2)} s
+        </label>
+        <input
+          type="range"
+          min="0.01"
+          max="0.5"
+          step="0.01"
+          value={metronomeAccentDecay}
+          onChange={(e) => setMetronomeAccentDecay(parseFloat(e.target.value))}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      <div className="control-group" style={{ marginBottom: '20px' }}>
+        <label>
+          {t('harmonics')}: {metronomeAccentHarmonicCount}
+        </label>
+        <input
+          type="range"
+          min="1"
+          max="50"
+          step="1"
+          value={metronomeAccentHarmonicCount}
+          onChange={(e) => setMetronomeAccentHarmonicCount(parseInt(e.target.value))}
           style={{ width: '100%' }}
         />
       </div>

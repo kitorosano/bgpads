@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  DEFAULT_BEAT_ACCENTS,
   DEFAULT_BPM,
   DEFAULT_CROSSFADE_DURATION,
   DEFAULT_LANGUAGE,
+  DEFAULT_METRONOME_ACCENT_DECAY,
+  DEFAULT_METRONOME_ACCENT_FREQUENCY,
+  DEFAULT_METRONOME_ACCENT_HARMONIC_COUNT,
   DEFAULT_METRONOME_DECAY,
   DEFAULT_METRONOME_FREQUENCY,
   DEFAULT_METRONOME_HARMONIC_COUNT,
@@ -31,6 +35,14 @@ export const useAppConfig = () => {
   const [timeSignature, setTimeSignature] = useState<string>(DEFAULT_METRONOME_TIME_SIGNATURE);
   const [metronomeColor, setMetronomeColor] = useState<string>('var(--accent-color)');
   const [metronomeVolume, setMetronomeVolume] = useState(DEFAULT_METRONOME_VOLUME);
+  const [metronomeAccentFrequency, setMetronomeAccentFrequency] = useState(
+    DEFAULT_METRONOME_ACCENT_FREQUENCY
+  );
+  const [metronomeAccentDecay, setMetronomeAccentDecay] = useState(DEFAULT_METRONOME_ACCENT_DECAY);
+  const [metronomeAccentHarmonicCount, setMetronomeAccentHarmonicCount] = useState(
+    DEFAULT_METRONOME_ACCENT_HARMONIC_COUNT
+  );
+  const [beatAccents, setBeatAccents] = useState<number[]>(DEFAULT_BEAT_ACCENTS);
 
   useEffect(() => {
     const init = async () => {
@@ -53,6 +65,12 @@ export const useAppConfig = () => {
         if (config.timeSignature) setTimeSignature(config.timeSignature);
         if (config.metronomeColor) setMetronomeColor(config.metronomeColor);
         if (config.metronomeVolume !== undefined) setMetronomeVolume(config.metronomeVolume);
+        if (config.metronomeAccentFrequency)
+          setMetronomeAccentFrequency(config.metronomeAccentFrequency);
+        if (config.metronomeAccentDecay) setMetronomeAccentDecay(config.metronomeAccentDecay);
+        if (config.metronomeAccentHarmonicCount)
+          setMetronomeAccentHarmonicCount(config.metronomeAccentHarmonicCount);
+        if (config.beatAccents) setBeatAccents(config.beatAccents);
       }
       setIsLoaded(true);
     };
@@ -80,6 +98,12 @@ export const useAppConfig = () => {
         if (newConfig.timeSignature) setTimeSignature(newConfig.timeSignature);
         if (newConfig.metronomeColor) setMetronomeColor(newConfig.metronomeColor);
         if (newConfig.metronomeVolume !== undefined) setMetronomeVolume(newConfig.metronomeVolume);
+        if (newConfig.metronomeAccentFrequency)
+          setMetronomeAccentFrequency(newConfig.metronomeAccentFrequency);
+        if (newConfig.metronomeAccentDecay) setMetronomeAccentDecay(newConfig.metronomeAccentDecay);
+        if (newConfig.metronomeAccentHarmonicCount)
+          setMetronomeAccentHarmonicCount(newConfig.metronomeAccentHarmonicCount);
+        if (newConfig.beatAccents) setBeatAccents(newConfig.beatAccents);
       }
     );
 
@@ -120,6 +144,12 @@ export const useAppConfig = () => {
     if (updates.timeSignature) setTimeSignature(updates.timeSignature);
     if (updates.metronomeColor) setMetronomeColor(updates.metronomeColor);
     if (updates.metronomeVolume !== undefined) setMetronomeVolume(updates.metronomeVolume);
+    if (updates.metronomeAccentFrequency)
+      setMetronomeAccentFrequency(updates.metronomeAccentFrequency);
+    if (updates.metronomeAccentDecay) setMetronomeAccentDecay(updates.metronomeAccentDecay);
+    if (updates.metronomeAccentHarmonicCount)
+      setMetronomeAccentHarmonicCount(updates.metronomeAccentHarmonicCount);
+    if (updates.beatAccents) setBeatAccents(updates.beatAccents);
 
     const config = await window.api.loadConfig();
     const newConfig = { ...config, ...updates };
@@ -162,6 +192,16 @@ export const useAppConfig = () => {
     metronomeOutputDeviceId,
     timeSignature,
     metronomeColor,
-    metronomeVolume
+    metronomeVolume,
+    // Accent setters
+    metronomeAccentFrequency,
+    metronomeAccentDecay,
+    metronomeAccentHarmonicCount,
+    beatAccents,
+    setMetronomeAccentFrequency: (f: number) => updateConfig({ metronomeAccentFrequency: f }),
+    setMetronomeAccentDecay: (d: number) => updateConfig({ metronomeAccentDecay: d }),
+    setMetronomeAccentHarmonicCount: (h: number) =>
+      updateConfig({ metronomeAccentHarmonicCount: h }),
+    setBeatAccents: (a: number[]) => updateConfig({ beatAccents: a })
   };
 };

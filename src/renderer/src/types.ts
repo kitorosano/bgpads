@@ -23,6 +23,11 @@ export interface AppConfig {
   timeSignature?: string;
   metronomeColor?: string;
   metronomeVolume?: number;
+  // Accent Configuration
+  metronomeAccentFrequency?: number;
+  metronomeAccentDecay?: number;
+  metronomeAccentHarmonicCount?: number;
+  beatAccents?: number[]; // indices of beats to accent
 }
 
 export interface Point {

@@ -12,7 +12,12 @@ export const useMetronome = (
     metronomeDecay,
     metronomeHarmonicCount,
     metronomeOutputDeviceId,
-    metronomeVolume
+    metronomeVolume,
+    // Accent sound params
+    metronomeAccentFrequency,
+    metronomeAccentDecay,
+    metronomeAccentHarmonicCount,
+    beatAccents
   } = useAppConfig();
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -41,6 +46,11 @@ export const useMetronome = (
   const decayRef = useRef(metronomeDecay);
   const harmonicCountRef = useRef(metronomeHarmonicCount);
   const volumeRef = useRef(metronomeVolume);
+  // Accent refs
+  const accentFrequencyRef = useRef(metronomeAccentFrequency);
+  const accentDecayRef = useRef(metronomeAccentDecay);
+  const accentHarmonicCountRef = useRef(metronomeAccentHarmonicCount);
+  const beatAccentsRef = useRef(beatAccents);
 
   useEffect(() => {
     frequencyRef.current = metronomeFrequency;
@@ -57,6 +67,22 @@ export const useMetronome = (
   useEffect(() => {
     volumeRef.current = metronomeVolume;
   }, [metronomeVolume]);
+
+  useEffect(() => {
+    accentFrequencyRef.current = metronomeAccentFrequency;
+  }, [metronomeAccentFrequency]);
+
+  useEffect(() => {
+    accentDecayRef.current = metronomeAccentDecay;
+  }, [metronomeAccentDecay]);
+
+  useEffect(() => {
+    accentHarmonicCountRef.current = metronomeAccentHarmonicCount;
+  }, [metronomeAccentHarmonicCount]);
+
+  useEffect(() => {
+    beatAccentsRef.current = beatAccents;
+  }, [beatAccents]);
 
   // Update onBeat ref to avoid scheduler recreation dependencies
   const onBeatRef = useRef(onBeat);
@@ -79,9 +105,12 @@ export const useMetronome = (
 
     // Create a periodic wave for a "click" sound (similar to a pulse)
     // We use a series of harmonics to approximate a narrow pulse
-    const frequency = frequencyRef.current;
-    const decay = decayRef.current;
-    const harmonicCount = harmonicCountRef.current;
+    const isAccented = beatAccentsRef.current.includes(currentBeatRef.current);
+
+    const frequency = isAccented ? accentFrequencyRef.current : frequencyRef.current;
+    const decay = isAccented ? accentDecayRef.current : decayRef.current;
+    const harmonicCount = isAccented ? accentHarmonicCountRef.current : harmonicCountRef.current;
+    const volume = volumeRef.current;
 
     const real = new Float32Array(harmonicCount);
     const imag = new Float32Array(harmonicCount);
@@ -99,7 +128,7 @@ export const useMetronome = (
     osc.frequency.value = frequency;
 
     // Envelope for a sharp attack and quick decay
-    gain.gain.setValueAtTime(volumeRef.current ?? 0.5, time);
+    gain.gain.setValueAtTime(volume ?? 0.5, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
 
     osc.connect(gain);
