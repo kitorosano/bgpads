@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DEFAULT_METRONOME_VOLUME } from '../../../constants';
+import { DEFAULT_METRONOME_TIME_SIGNATURE, DEFAULT_METRONOME_VOLUME } from '../../../constants';
 import { useAppConfig } from './useAppConfig';
 
-export const useMetronome = (bpm: number, onBeat?: (beat: number) => void) => {
+export const useMetronome = (
+  bpm: number,
+  timeSignature: string = DEFAULT_METRONOME_TIME_SIGNATURE,
+  onBeat?: (beat: number) => void
+) => {
   const { metronomeFrequency, metronomeDecay, metronomeHarmonicCount, metronomeOutputDeviceId } =
     useAppConfig();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -13,6 +17,13 @@ export const useMetronome = (bpm: number, onBeat?: (beat: number) => void) => {
   const currentBeatRef = useRef<number>(0);
   const lookahead = 25.0; // milliseconds
   const scheduleAheadTime = 0.1; // seconds
+
+  const beatsPerBar = parseInt(timeSignature.split('/')[0]) || 4;
+  const beatsPerBarRef = useRef(beatsPerBar);
+
+  useEffect(() => {
+    beatsPerBarRef.current = beatsPerBar;
+  }, [beatsPerBar]);
 
   // Use a ref for BPM so the scheduler always sees the latest value
   // without needing to be recreated (which would restart the loop logic mostly).
@@ -30,7 +41,7 @@ export const useMetronome = (bpm: number, onBeat?: (beat: number) => void) => {
   const nextNote = useCallback(() => {
     const secondsPerBeat = 60.0 / bpmRef.current;
     nextNoteTimeRef.current += secondsPerBeat;
-    currentBeatRef.current = (currentBeatRef.current + 1) % 4;
+    currentBeatRef.current = (currentBeatRef.current + 1) % beatsPerBarRef.current;
   }, []);
 
   const scheduleNote = useCallback(

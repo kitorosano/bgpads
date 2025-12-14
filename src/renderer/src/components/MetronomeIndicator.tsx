@@ -4,16 +4,19 @@ interface MetronomeIndicatorProps {
   isPlaying: boolean;
   currentBeat: number;
   activeColor?: string;
+  beatsPerBar?: number;
 }
-
-const DEFAULT_COMPAS = [0, 1, 2, 3];
 
 export const MetronomeIndicator = ({
   isPlaying,
   currentBeat,
-  activeColor
+  activeColor,
+  beatsPerBar = 4
 }: MetronomeIndicatorProps) => {
   const { theme } = useAppConfig();
+
+  // Create array of correct length
+  const beats = Array.from({ length: beatsPerBar }, (_, i) => i);
 
   // Use activeColor if available, otherwise fallback to var(--accent-color)
   const color = activeColor || 'var(--accent-color)';
@@ -29,7 +32,7 @@ export const MetronomeIndicator = ({
         pointerEvents: 'none'
       }}
     >
-      {DEFAULT_COMPAS.map((beatIndex) => {
+      {beats.map((beatIndex) => {
         const isActive = isPlaying && currentBeat === beatIndex;
         return (
           <div

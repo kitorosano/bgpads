@@ -8,6 +8,7 @@ export interface AudioTrack {
   color: string;
   volume: number;
   bpm?: number;
+  timeSignature?: string;
 }
 
 export interface AppConfig {

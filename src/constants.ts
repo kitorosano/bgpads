@@ -18,8 +18,12 @@ export const DEFAULT_METRONOME_DECAY = 0.06; // Seconds
 export const DEFAULT_METRONOME_HARMONIC_COUNT = 3;
 export const DEFAULT_METRONOME_VOLUME = 0.5;
 
+export const DEFAULT_METRONOME_TIME_SIGNATURE = '4/4';
+
 export const DEFAULT_TRACK_VOLUME = 1;
 export const VOLUME_STEP_INCREMENT = 0.1;
+export const MIN_VOLUME = 0;
+export const MAX_VOLUME = 3;
 
 export const DEFAULT_LANGUAGE: Language = 'en';
 export const DEFAULT_THEME: Theme = 'dark';

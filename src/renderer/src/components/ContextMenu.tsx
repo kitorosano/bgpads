@@ -2,7 +2,9 @@ import { useI18n } from '@renderer/hooks/useI18n';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   MAX_BPM,
+  MAX_VOLUME,
   MIN_BPM,
+  MIN_VOLUME,
   SHORTCUT_KEYS_TO_IGNORE,
   VOLUME_STEP_INCREMENT
 } from '../../../constants';
@@ -134,8 +136,8 @@ export const ContextMenu = ({
         </label>
         <input
           type="range"
-          min="0"
-          max="3"
+          min={MIN_VOLUME}
+          max={MAX_VOLUME}
           step={VOLUME_STEP_INCREMENT}
           value={track.volume}
           onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
@@ -168,6 +170,17 @@ export const ContextMenu = ({
           value={track.bpm}
           placeholder={t('global')}
           onChange={(newBpm) => onUpdate({ ...track, bpm: newBpm })}
+        />
+      </div>
+
+      <div className="menu-item">
+        <label>{t('timeSignature')}</label>
+        <input
+          type="text"
+          placeholder="4/4"
+          value={track.timeSignature || ''}
+          onChange={(e) => onUpdate({ ...track, timeSignature: e.target.value })}
+          className="context-menu-input"
         />
       </div>
 

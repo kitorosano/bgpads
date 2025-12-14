@@ -59,7 +59,8 @@ export const translations = {
     audioOutputs: 'Salidas de Audio',
     padsOutput: 'Salida de Pads',
     metronomeOutput: 'Salida de Metrónomo',
-    defaultOutput: 'Predeterminado'
+    defaultOutput: 'Predeterminado',
+    timeSignature: 'Compás'
   },
   en: {
     loading: 'Loading configuration and tracks.',
@@ -121,6 +122,7 @@ export const translations = {
     audioOutputs: 'Audio Outputs',
     padsOutput: 'Pads Output',
     metronomeOutput: 'Metronome Output',
-    defaultOutput: 'Default'
+    defaultOutput: 'Default',
+    timeSignature: 'Time Signature'
   }
 };

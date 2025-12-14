@@ -1,6 +1,6 @@
 import { Loading } from '@renderer/components/Loading';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { TOP_ROW_KEYS } from '../../../constants';
+import { DEFAULT_METRONOME_TIME_SIGNATURE, TOP_ROW_KEYS } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { MetronomeIndicator } from '../components/MetronomeIndicator';
@@ -35,7 +35,11 @@ export const MainPage = () => {
     // Don't need to clear beat state anymore because we switch active dot
   }, []);
 
-  const metronome = useMetronome(bpm, onBeat);
+  const activeTrack = tracks.find((t) => t.id === isPlaying);
+  const fallbackTrack = tracks[0];
+  const activeMetronomeColor = activeTrack?.color || fallbackTrack?.color;
+
+  const metronome = useMetronome(bpm, activeTrack?.timeSignature || DEFAULT_METRONOME_TIME_SIGNATURE, onBeat);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -185,11 +189,6 @@ export const MainPage = () => {
     return <Loading />;
   }
 
-  // Determine active color for metronome
-  const activeTrack = tracks.find((t) => t.id === isPlaying);
-  const fallbackTrack = tracks[0];
-  const activeMetronomeColor = activeTrack?.color || fallbackTrack?.color;
-
   return (
     <div className="app-container">
       {/* Visual Metronome - Needs to be flexible to push grid down */}
@@ -198,6 +197,7 @@ export const MainPage = () => {
           isPlaying={metronome.isPlaying}
           currentBeat={currentBeat}
           activeColor={activeMetronomeColor}
+          beatsPerBar={parseInt((activeTrack?.timeSignature || DEFAULT_METRONOME_TIME_SIGNATURE).split('/')[0]) || 4}
         />
       </div>
 
