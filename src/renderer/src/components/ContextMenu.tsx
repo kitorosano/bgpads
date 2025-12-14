@@ -19,6 +19,51 @@ interface ContextMenuProps {
   onChangeFile: () => void;
 }
 
+interface BpmInputProps {
+  value?: number;
+  placeholder?: string;
+  onChange: (value?: number) => void;
+}
+
+const BpmInput = ({ value, placeholder, onChange }: BpmInputProps) => {
+  const [localValue, setLocalValue] = useState<string>(value?.toString() || '');
+
+  useEffect(() => {
+    setLocalValue(value?.toString() || '');
+  }, [value]);
+
+  const commitChange = () => {
+    if (localValue === '') {
+      onChange(undefined);
+      return;
+    }
+    const clamped = clampBpm(localValue);
+    // Update local value to clamped version for visual feedback
+    setLocalValue(clamped.toString());
+    onChange(clamped);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur();
+    }
+  };
+
+  return (
+    <input
+      type="number"
+      min={MIN_BPM}
+      max={MAX_BPM}
+      placeholder={placeholder}
+      value={localValue}
+      onChange={(e) => setLocalValue(e.target.value)}
+      onBlur={commitChange}
+      onKeyDown={handleKeyDown}
+      className="context-menu-input"
+    />
+  );
+};
+
 export const ContextMenu = ({
   track,
   position,
@@ -119,18 +164,10 @@ export const ContextMenu = ({
 
       <div className="menu-item">
         <label>{t('padBpm')}</label>
-        <input
-          type="number"
-          min={MIN_BPM}
-          max={MAX_BPM}
+        <BpmInput
+          value={track.bpm}
           placeholder={t('global')}
-          value={track.bpm || ''}
-          onChange={(e) => {
-            const val = e.target.value === '' ? undefined : clampBpm(e.target.value);
-            onUpdate({ ...track, bpm: val });
-          }}
-          style={undefined}
-          className="context-menu-input"
+          onChange={(newBpm) => onUpdate({ ...track, bpm: newBpm })}
         />
       </div>
 

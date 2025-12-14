@@ -30,6 +30,7 @@ export const MainPage = () => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [isPreloading, setIsPreloading] = useState(true);
   const initializedRef = useRef(false);
+  const isManualUpdate = useRef(false);
 
   // Sync fadeOutDuration from config to player
   useEffect(() => {
@@ -96,6 +97,10 @@ export const MainPage = () => {
   // Save config on changes (only tracks, others handled by useAppConfig)
   useEffect(() => {
     if (!isLoaded || isPreloading) return;
+    if (isManualUpdate.current) {
+      isManualUpdate.current = false;
+      return;
+    }
     updateConfig({
       tracks
     });
@@ -198,7 +203,18 @@ export const MainPage = () => {
           track={tracks.find((t) => t.id === contextMenu.trackId)!}
           position={contextMenu.position}
           onClose={() => setContextMenu(null)}
-          onUpdate={updateTrack}
+          onUpdate={(updatedTrack) => {
+            const newTracks = tracks.map((t) => (t.id === updatedTrack.id ? updatedTrack : t));
+            isManualUpdate.current = true;
+            setTracks(newTracks);
+
+            const updates: any = { tracks: newTracks };
+            // If the playing track is updated and has a specific BPM, update the global engine immediately
+            if (isPlaying === updatedTrack.id && updatedTrack.bpm) {
+              updates.bpm = updatedTrack.bpm;
+            }
+            updateConfig(updates);
+          }}
           onRemove={() => onRemoveTrack(contextMenu.trackId)}
           onChangeFile={() => handleChangeFile(contextMenu.trackId)}
         />
