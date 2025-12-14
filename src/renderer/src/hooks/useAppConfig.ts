@@ -24,6 +24,8 @@ export const useAppConfig = () => {
     DEFAULT_METRONOME_HARMONIC_COUNT
   );
   const [autoAssignShortcuts, setAutoAssignShortcuts] = useState(false);
+  const [tracksOutputDeviceId, setTracksOutputDeviceId] = useState<string>('default');
+  const [metronomeOutputDeviceId, setMetronomeOutputDeviceId] = useState<string>('default');
 
   useEffect(() => {
     const init = async () => {
@@ -39,6 +41,9 @@ export const useAppConfig = () => {
         if (config.metronomeHarmonicCount) setMetronomeHarmonicCount(config.metronomeHarmonicCount);
         if (config.autoAssignShortcuts !== undefined)
           setAutoAssignShortcuts(config.autoAssignShortcuts);
+        if (config.tracksOutputDeviceId) setTracksOutputDeviceId(config.tracksOutputDeviceId);
+        if (config.metronomeOutputDeviceId)
+          setMetronomeOutputDeviceId(config.metronomeOutputDeviceId);
         if (config.tracks) setTracks(config.tracks);
       }
       setIsLoaded(true);
@@ -60,6 +65,9 @@ export const useAppConfig = () => {
           setMetronomeHarmonicCount(newConfig.metronomeHarmonicCount);
         if (newConfig.autoAssignShortcuts !== undefined)
           setAutoAssignShortcuts(newConfig.autoAssignShortcuts);
+        if (newConfig.tracksOutputDeviceId) setTracksOutputDeviceId(newConfig.tracksOutputDeviceId);
+        if (newConfig.metronomeOutputDeviceId)
+          setMetronomeOutputDeviceId(newConfig.metronomeOutputDeviceId);
         if (newConfig.tracks) setTracks(newConfig.tracks);
       }
     );
@@ -94,6 +102,9 @@ export const useAppConfig = () => {
     if (updates.metronomeHarmonicCount) setMetronomeHarmonicCount(updates.metronomeHarmonicCount);
     if (updates.autoAssignShortcuts !== undefined)
       setAutoAssignShortcuts(updates.autoAssignShortcuts);
+    if (updates.tracksOutputDeviceId) setTracksOutputDeviceId(updates.tracksOutputDeviceId);
+    if (updates.metronomeOutputDeviceId)
+      setMetronomeOutputDeviceId(updates.metronomeOutputDeviceId);
     if (updates.tracks) setTracks(updates.tracks);
 
     const config = await window.api.loadConfig();
@@ -127,6 +138,10 @@ export const useAppConfig = () => {
 
     setMetronomeHarmonicCount: (h: number) => updateConfig({ metronomeHarmonicCount: h }),
     setAutoAssignShortcuts: (a: boolean) => updateConfig({ autoAssignShortcuts: a }),
-    setTracks: (t: any[]) => updateConfig({ tracks: t })
+    setTracksOutputDeviceId: (id: string) => updateConfig({ tracksOutputDeviceId: id }),
+    setMetronomeOutputDeviceId: (id: string) => updateConfig({ metronomeOutputDeviceId: id }),
+    setTracks: (t: any[]) => updateConfig({ tracks: t }),
+    tracksOutputDeviceId,
+    metronomeOutputDeviceId
   };
 };

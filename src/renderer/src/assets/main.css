@@ -581,3 +581,27 @@ body.light .bpm-number-input {
   }
 }
 
+
+/* Form Controls */
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  background: #252525;
+  border: 1px solid #444;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+body.light .form-control {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  color: var(--text-primary);
+}
+
+.form-control:focus {
+  border-color: var(--accent-color);
+}

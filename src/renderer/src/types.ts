@@ -17,6 +17,8 @@ export interface AppConfig {
   metronomeShortcut: string | null;
   theme: Theme;
   language: Language;
+  tracksOutputDeviceId?: string;
+  metronomeOutputDeviceId?: string;
 }
 
 export interface Point {

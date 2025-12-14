@@ -1,7 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import { AudioTrack } from '../types';
+import { useAppConfig } from './useAppConfig';
 
 export const useAudioPlayer = () => {
+  const { tracksOutputDeviceId } = useAppConfig();
   const audioContextRef = useRef<AudioContext | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
@@ -14,7 +16,17 @@ export const useAudioPlayer = () => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-  }, []);
+    if (
+      audioContextRef.current &&
+      tracksOutputDeviceId &&
+      tracksOutputDeviceId !== 'default' &&
+      'setSinkId' in audioContextRef.current
+    ) {
+      (audioContextRef.current as any).setSinkId(tracksOutputDeviceId).catch((err) => {
+        console.warn('Failed to set audio output device:', err);
+      });
+    }
+  }, [tracksOutputDeviceId]);
 
   const loadAudioBuffer = async (filePath: string): Promise<AudioBuffer> => {
     initAudioContext();

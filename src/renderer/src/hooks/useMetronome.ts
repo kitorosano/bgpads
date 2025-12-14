@@ -3,7 +3,8 @@ import { DEFAULT_METRONOME_VOLUME } from '../../../constants';
 import { useAppConfig } from './useAppConfig';
 
 export const useMetronome = (bpm: number) => {
-  const { metronomeFrequency, metronomeDecay, metronomeHarmonicCount } = useAppConfig();
+  const { metronomeFrequency, metronomeDecay, metronomeHarmonicCount, metronomeOutputDeviceId } =
+    useAppConfig();
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const nextNoteTimeRef = useRef<number>(0);
@@ -93,12 +94,18 @@ export const useMetronome = (bpm: number) => {
     }
 
     if (ctx) {
+      if (metronomeOutputDeviceId && metronomeOutputDeviceId !== 'default' && 'setSinkId' in ctx) {
+        (ctx as any)
+          .setSinkId(metronomeOutputDeviceId)
+          .catch((err) => console.warn('Failed to set metronome output:', err));
+      }
+
       nextNoteTimeRef.current = ctx.currentTime + 0.05;
       setIsPlaying(true);
       // Start the scheduler loop
       scheduler();
     }
-  }, [isPlaying, scheduler]);
+  }, [isPlaying, scheduler, metronomeOutputDeviceId]);
 
   const stop = useCallback(() => {
     setIsPlaying(false);

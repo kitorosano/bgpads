@@ -55,7 +55,11 @@ export const translations = {
     changeFile: 'Cambiar Archivo...',
     removeAudio: 'Eliminar Audio',
     padBpm: 'BPM del pad',
-    global: 'Global'
+    global: 'Global',
+    audioOutputs: 'Salidas de Audio',
+    padsOutput: 'Salida de Pads',
+    metronomeOutput: 'Salida de Metrónomo',
+    defaultOutput: 'Predeterminado'
   },
   en: {
     loading: 'Loading configuration and tracks.',
@@ -113,6 +117,10 @@ export const translations = {
     changeFile: 'Change File...',
     removeAudio: 'Remove Audio',
     padBpm: 'Pad BPM',
-    global: 'Global'
+    global: 'Global',
+    audioOutputs: 'Audio Outputs',
+    padsOutput: 'Pads Output',
+    metronomeOutput: 'Metronome Output',
+    defaultOutput: 'Default'
   }
 };
