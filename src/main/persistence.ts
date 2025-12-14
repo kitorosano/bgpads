@@ -7,30 +7,38 @@ function getConfigPath(): string {
   return path.join(app.getPath('userData'), CONFIG_FILE_NAME);
 }
 
+export function readConfig(): any {
+  try {
+    const configPath = getConfigPath();
+    if (fs.existsSync(configPath)) {
+      const data = fs.readFileSync(configPath, 'utf-8');
+      return JSON.parse(data);
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load config:', error);
+    return null;
+  }
+}
+
+export function writeConfig(config: unknown): boolean {
+  try {
+    const configPath = getConfigPath();
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+    return true;
+  } catch (error) {
+    console.error('Failed to save config:', error);
+    return false;
+  }
+}
+
 export function setupPersistence(): void {
   ipcMain.handle('load-config', async () => {
-    try {
-      const configPath = getConfigPath();
-      if (fs.existsSync(configPath)) {
-        const data = fs.readFileSync(configPath, 'utf-8');
-        return JSON.parse(data);
-      }
-      return null;
-    } catch (error) {
-      console.error('Failed to load config:', error);
-      return null;
-    }
+    return readConfig();
   });
 
   ipcMain.handle('save-config', async (_, config: unknown) => {
-    try {
-      const configPath = getConfigPath();
-      fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-      return true;
-    } catch (error) {
-      console.error('Failed to save config:', error);
-      return false;
-    }
+    return writeConfig(config);
   });
 
   ipcMain.handle('read-buffer', async (_, filePath: string) => {

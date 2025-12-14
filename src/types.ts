@@ -4,6 +4,14 @@ export type Theme = 'light' | 'dark';
 
 export type MetronomeType = 'custom' | 'sawtooth' | 'sine' | 'square' | 'triangle';
 
+export interface WindowState {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  maximized: boolean;
+}
+
 export interface Config {
   theme?: Theme;
   language?: Language;
@@ -15,4 +23,5 @@ export interface Config {
   metronomeHarmonicCount?: number;
   autoAssignShortcuts?: boolean;
   tracks?: any[];
+  windowState?: WindowState;
 }

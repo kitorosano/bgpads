@@ -15,7 +15,7 @@ import {
 } from '../constants';
 import { translations } from '../i18n';
 import { Language } from '../types';
-import { setupPersistence } from './persistence';
+import { readConfig, setupPersistence, writeConfig } from './persistence';
 
 // Global reference to main window
 let mainWindow: BrowserWindow | null = null;
@@ -102,6 +102,59 @@ function createWindow(): void {
 
   // Initial menu (default to Spanish, will be updated by renderer or persistence later)
   setMenu(DEFAULT_LANGUAGE);
+
+  // Restore Window State
+  const config = readConfig();
+  if (config && config.windowState) {
+    const { width, height, x, y, maximized } = config.windowState;
+    if (maximized) {
+      mainWindow.maximize();
+    } else {
+      if (width && height) {
+        mainWindow.setSize(width, height);
+      }
+      if (x !== undefined && y !== undefined) {
+        mainWindow.setPosition(x, y);
+      }
+    }
+  }
+
+  // Save Window State Logic
+  let saveTimeout: NodeJS.Timeout | null = null;
+  const saveWindowState = () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+
+    if (saveTimeout) clearTimeout(saveTimeout);
+
+    saveTimeout = setTimeout(() => {
+      if (!mainWindow || mainWindow.isDestroyed()) return;
+
+      const maximized = mainWindow.isMaximized();
+      const bounds = mainWindow.getBounds();
+
+      const currentConfig = readConfig() || {};
+      const newConfig = {
+        ...currentConfig,
+        windowState: {
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          maximized
+        }
+      };
+
+      writeConfig(newConfig);
+
+      // Notify renderer of update if needed, though usually renderer drives updates.
+      // In this case, we just save silently to disk for next boot.
+    }, 500); // Debounce 500ms
+  };
+
+  mainWindow.on('resize', saveWindowState);
+  mainWindow.on('move', saveWindowState);
+  mainWindow.on('maximize', saveWindowState);
+  mainWindow.on('unmaximize', saveWindowState);
 
   // IPC handler for window resizing
   ipcMain.handle('resize-window', (_event, { width, height }) => {
