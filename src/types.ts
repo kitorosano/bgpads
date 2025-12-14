@@ -24,4 +24,6 @@ export interface Config {
   autoAssignShortcuts?: boolean;
   tracks?: any[];
   windowState?: WindowState;
+  timeSignature?: string;
+  metronomeColor?: string;
 }

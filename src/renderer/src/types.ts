@@ -20,6 +20,8 @@ export interface AppConfig {
   language: Language;
   tracksOutputDeviceId?: string;
   metronomeOutputDeviceId?: string;
+  timeSignature?: string;
+  metronomeColor?: string;
 }
 
 export interface Point {

@@ -1,6 +1,6 @@
 import { Loading } from '@renderer/components/Loading';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DEFAULT_METRONOME_TIME_SIGNATURE, TOP_ROW_KEYS } from '../../../constants';
+import { TOP_ROW_KEYS } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { MetronomeIndicator } from '../components/MetronomeIndicator';
@@ -22,7 +22,8 @@ export const MainPage = () => {
     tracks: configTracks,
     autoAssignShortcuts,
     updateConfig,
-    setBpm
+    timeSignature,
+    metronomeColor
   } = useAppConfig();
 
   // Metronome Visual State
@@ -37,9 +38,11 @@ export const MainPage = () => {
 
   const activeTrack = tracks.find((t) => t.id === isPlaying);
   const fallbackTrack = tracks[0];
-  const activeMetronomeColor = activeTrack?.color || fallbackTrack?.color;
+  // Prefer persisted color, fallback to active active track (should update persisted), fallback to default
+  const activeMetronomeColor = metronomeColor || activeTrack?.color || fallbackTrack?.color;
 
-  const metronome = useMetronome(bpm, activeTrack?.timeSignature || DEFAULT_METRONOME_TIME_SIGNATURE, onBeat);
+  // Use global timeSignature (which is updated when pads are played)
+  const metronome = useMetronome(bpm, timeSignature, onBeat);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -141,8 +144,13 @@ export const MainPage = () => {
           return;
         }
 
-        if (track.bpm) {
-          setBpm(track.bpm);
+        const updates: any = {};
+        if (track.bpm) updates.bpm = track.bpm;
+        if (track.timeSignature) updates.timeSignature = track.timeSignature;
+        if (track.color) updates.metronomeColor = track.color;
+
+        if (Object.keys(updates).length > 0) {
+          updateConfig(updates);
         }
         play(track);
       }
@@ -150,7 +158,7 @@ export const MainPage = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [tracks, play, metronomeShortcut, metronome, loadingTrackIds]);
+  }, [tracks, play, metronomeShortcut, metronome, loadingTrackIds, updateConfig]);
 
   const onRemoveTrack = (id: string) => {
     removeTrack(id);
@@ -197,7 +205,7 @@ export const MainPage = () => {
           isPlaying={metronome.isPlaying}
           currentBeat={currentBeat}
           activeColor={activeMetronomeColor}
-          beatsPerBar={parseInt((activeTrack?.timeSignature || DEFAULT_METRONOME_TIME_SIGNATURE).split('/')[0]) || 4}
+          beatsPerBar={parseInt(timeSignature.split('/')[0]) || 4}
         />
       </div>
 
@@ -209,7 +217,14 @@ export const MainPage = () => {
             isPlaying={isPlaying === track.id}
             isLoading={loadingTrackIds.has(track.id)}
             onClick={() => {
-              if (track.bpm) setBpm(track.bpm);
+              const updates: any = {};
+              if (track.bpm) updates.bpm = track.bpm;
+              if (track.timeSignature) updates.timeSignature = track.timeSignature;
+              if (track.color) updates.metronomeColor = track.color;
+
+              if (Object.keys(updates).length > 0) {
+                updateConfig(updates);
+              }
               play(track);
             }}
             onContextMenu={(e) => {
@@ -235,8 +250,10 @@ export const MainPage = () => {
 
             const updates: any = { tracks: newTracks };
             // If the playing track is updated and has a specific BPM, update the global engine immediately
-            if (isPlaying === updatedTrack.id && updatedTrack.bpm) {
-              updates.bpm = updatedTrack.bpm;
+            if (isPlaying === updatedTrack.id) {
+              if (updatedTrack.bpm) updates.bpm = updatedTrack.bpm;
+              if (updatedTrack.timeSignature) updates.timeSignature = updatedTrack.timeSignature;
+              if (updatedTrack.color) updates.metronomeColor = updatedTrack.color;
             }
             updateConfig(updates);
           }}

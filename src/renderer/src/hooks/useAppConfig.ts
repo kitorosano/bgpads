@@ -6,6 +6,7 @@ import {
   DEFAULT_METRONOME_DECAY,
   DEFAULT_METRONOME_FREQUENCY,
   DEFAULT_METRONOME_HARMONIC_COUNT,
+  DEFAULT_METRONOME_TIME_SIGNATURE,
   DEFAULT_THEME
 } from '../../../constants';
 import { Language, Theme } from '../../../types';
@@ -26,6 +27,8 @@ export const useAppConfig = () => {
   const [autoAssignShortcuts, setAutoAssignShortcuts] = useState(false);
   const [tracksOutputDeviceId, setTracksOutputDeviceId] = useState<string>('default');
   const [metronomeOutputDeviceId, setMetronomeOutputDeviceId] = useState<string>('default');
+  const [timeSignature, setTimeSignature] = useState<string>(DEFAULT_METRONOME_TIME_SIGNATURE);
+  const [metronomeColor, setMetronomeColor] = useState<string>('var(--accent-color)');
 
   useEffect(() => {
     const init = async () => {
@@ -45,6 +48,8 @@ export const useAppConfig = () => {
         if (config.metronomeOutputDeviceId)
           setMetronomeOutputDeviceId(config.metronomeOutputDeviceId);
         if (config.tracks) setTracks(config.tracks);
+        if (config.timeSignature) setTimeSignature(config.timeSignature);
+        if (config.metronomeColor) setMetronomeColor(config.metronomeColor);
       }
       setIsLoaded(true);
     };
@@ -69,6 +74,8 @@ export const useAppConfig = () => {
         if (newConfig.metronomeOutputDeviceId)
           setMetronomeOutputDeviceId(newConfig.metronomeOutputDeviceId);
         if (newConfig.tracks) setTracks(newConfig.tracks);
+        if (newConfig.timeSignature) setTimeSignature(newConfig.timeSignature);
+        if (newConfig.metronomeColor) setMetronomeColor(newConfig.metronomeColor);
       }
     );
 
@@ -106,6 +113,8 @@ export const useAppConfig = () => {
     if (updates.metronomeOutputDeviceId)
       setMetronomeOutputDeviceId(updates.metronomeOutputDeviceId);
     if (updates.tracks) setTracks(updates.tracks);
+    if (updates.timeSignature) setTimeSignature(updates.timeSignature);
+    if (updates.metronomeColor) setMetronomeColor(updates.metronomeColor);
 
     const config = await window.api.loadConfig();
     const newConfig = { ...config, ...updates };
@@ -138,10 +147,13 @@ export const useAppConfig = () => {
 
     setMetronomeHarmonicCount: (h: number) => updateConfig({ metronomeHarmonicCount: h }),
     setAutoAssignShortcuts: (a: boolean) => updateConfig({ autoAssignShortcuts: a }),
-    setTracksOutputDeviceId: (id: string) => updateConfig({ tracksOutputDeviceId: id }),
     setMetronomeOutputDeviceId: (id: string) => updateConfig({ metronomeOutputDeviceId: id }),
     setTracks: (t: any[]) => updateConfig({ tracks: t }),
+    setTimeSignature: (ts: string) => updateConfig({ timeSignature: ts }),
+    setMetronomeColor: (c: string) => updateConfig({ metronomeColor: c }),
     tracksOutputDeviceId,
-    metronomeOutputDeviceId
+    metronomeOutputDeviceId,
+    timeSignature,
+    metronomeColor
   };
 };
