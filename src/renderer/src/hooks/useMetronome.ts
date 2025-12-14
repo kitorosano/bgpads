@@ -2,13 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_METRONOME_VOLUME } from '../../../constants';
 import { useAppConfig } from './useAppConfig';
 
-export const useMetronome = (bpm: number) => {
+export const useMetronome = (bpm: number, onBeat?: (beat: number) => void) => {
   const { metronomeFrequency, metronomeDecay, metronomeHarmonicCount, metronomeOutputDeviceId } =
     useAppConfig();
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const nextNoteTimeRef = useRef<number>(0);
   const timerIDRef = useRef<NodeJS.Timeout | null>(null);
+  const beatTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const currentBeatRef = useRef<number>(0);
   const lookahead = 25.0; // milliseconds
   const scheduleAheadTime = 0.1; // seconds
 
@@ -19,9 +21,16 @@ export const useMetronome = (bpm: number) => {
     bpmRef.current = bpm;
   }, [bpm]);
 
+  // Update onBeat ref to avoid scheduler recreation dependencies
+  const onBeatRef = useRef(onBeat);
+  useEffect(() => {
+    onBeatRef.current = onBeat;
+  }, [onBeat]);
+
   const nextNote = useCallback(() => {
     const secondsPerBeat = 60.0 / bpmRef.current;
     nextNoteTimeRef.current += secondsPerBeat;
+    currentBeatRef.current = (currentBeatRef.current + 1) % 4;
   }, []);
 
   const scheduleNote = useCallback(
@@ -62,6 +71,23 @@ export const useMetronome = (bpm: number) => {
 
       osc.start(time);
       osc.stop(time + decay);
+
+      if (onBeatRef.current) {
+        // Schedule visual callback
+        // Calculate delay in ms
+        const delay = (time - ctx.currentTime) * 1000;
+        // Ensure delay is not negative
+        const safeDelay = Math.max(0, delay);
+
+        // Capture current beat for the closure
+        const beatToReport = currentBeatRef.current;
+
+        const timeoutId = setTimeout(() => {
+          onBeatRef.current?.(beatToReport);
+        }, safeDelay);
+
+        beatTimeoutsRef.current.push(timeoutId);
+      }
     },
     [metronomeFrequency, metronomeDecay, metronomeHarmonicCount]
   );
@@ -101,11 +127,17 @@ export const useMetronome = (bpm: number) => {
       }
 
       nextNoteTimeRef.current = ctx.currentTime + 0.05;
+      currentBeatRef.current = 0; // Reset beat counter on start
       setIsPlaying(true);
       // Start the scheduler loop
       scheduler();
     }
   }, [isPlaying, scheduler, metronomeOutputDeviceId]);
+
+  const clearPendingTimeouts = useCallback(() => {
+    beatTimeoutsRef.current.forEach((id) => clearTimeout(id));
+    beatTimeoutsRef.current = [];
+  }, []);
 
   const stop = useCallback(() => {
     setIsPlaying(false);
@@ -113,7 +145,8 @@ export const useMetronome = (bpm: number) => {
       clearTimeout(timerIDRef.current);
       timerIDRef.current = null;
     }
-  }, []);
+    clearPendingTimeouts();
+  }, [clearPendingTimeouts]);
 
   const toggle = useCallback(() => {
     // We need to check the current state ref or rely on the state variable.
@@ -134,11 +167,12 @@ export const useMetronome = (bpm: number) => {
       if (timerIDRef.current !== null) {
         clearTimeout(timerIDRef.current);
       }
+      clearPendingTimeouts();
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
     };
-  }, []);
+  }, [clearPendingTimeouts]);
 
   return { isPlaying, start, stop, toggle };
 };

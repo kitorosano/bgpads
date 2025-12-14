@@ -1,8 +1,9 @@
 import { Loading } from '@renderer/components/Loading';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { TOP_ROW_KEYS } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
+import { MetronomeIndicator } from '../components/MetronomeIndicator';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useMetronome } from '../hooks/useMetronome';
@@ -24,7 +25,17 @@ export const MainPage = () => {
     setBpm
   } = useAppConfig();
 
-  const metronome = useMetronome(bpm);
+  // Metronome Visual State
+  const [currentBeat, setCurrentBeat] = useState(0);
+  const beatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const onBeat = useCallback((beat: number) => {
+    setCurrentBeat(beat);
+    if (beatTimeoutRef.current) clearTimeout(beatTimeoutRef.current);
+    // Don't need to clear beat state anymore because we switch active dot
+  }, []);
+
+  const metronome = useMetronome(bpm, onBeat);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -174,8 +185,22 @@ export const MainPage = () => {
     return <Loading />;
   }
 
+  // Determine active color for metronome
+  const activeTrack = tracks.find((t) => t.id === isPlaying);
+  const fallbackTrack = tracks[0];
+  const activeMetronomeColor = activeTrack?.color || fallbackTrack?.color;
+
   return (
     <div className="app-container">
+      {/* Visual Metronome - Needs to be flexible to push grid down */}
+      <div style={{ flexShrink: 0 }}>
+        <MetronomeIndicator
+          isPlaying={metronome.isPlaying}
+          currentBeat={currentBeat}
+          activeColor={activeMetronomeColor}
+        />
+      </div>
+
       <main className="grid-container">
         {tracks.map((track) => (
           <AudioButton
