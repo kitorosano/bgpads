@@ -23,7 +23,7 @@ export const useMetronome = (
   const lookahead = 25.0; // milliseconds
   const scheduleAheadTime = 0.1; // seconds
 
-  const beatsPerBar = parseInt(timeSignature.split('/')[0]) || 4;
+  const beatsPerBar = parseInt(timeSignature.split('/')[0]);
   const beatsPerBarRef = useRef(beatsPerBar);
 
   useEffect(() => {
