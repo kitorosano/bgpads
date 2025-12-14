@@ -1,3 +1,4 @@
+import { DEFAULT_BEAT_ACCENTS } from '../../../constants';
 import { useAppConfig } from '../hooks/useAppConfig';
 
 interface MetronomeIndicatorProps {
@@ -14,7 +15,7 @@ export const MetronomeIndicator = ({
   currentBeat,
   activeColor,
   beatsPerBar = 4,
-  accents = [0],
+  accents = DEFAULT_BEAT_ACCENTS,
   onToggleAccent
 }: MetronomeIndicatorProps) => {
   const { theme } = useAppConfig();
@@ -66,7 +67,7 @@ export const MetronomeIndicator = ({
                   : 'none',
               border: isAccented ? `2px solid ${color}` : '2px solid transparent',
               transition:
-                'background-color 0.05s ease, box-shadow 0.05s ease, border-color 0.2s ease',
+                'background-color 0.05s ease, box-shadow 0.05s ease, border-color 0.2s ease, border-radius 0.2s ease',
               opacity: isActive ? 1 : 0.8,
               cursor: 'pointer'
             }}
