@@ -49,7 +49,6 @@ export const MainPage = () => {
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
-  const [isPreloading, setIsPreloading] = useState(true);
   const initializedRef = useRef(false);
   const isManualUpdate = useRef(false);
 
@@ -59,6 +58,7 @@ export const MainPage = () => {
   }, [configFadeOut, setFadeOutDuration]);
 
   // Load tracks from config and preload
+  // Load tracks from config and preload
   useEffect(() => {
     if (isLoading || initializedRef.current) return;
 
@@ -66,10 +66,12 @@ export const MainPage = () => {
       if (configTracks) {
         const tracksWithVolume = validateTracks(configTracks);
 
-        await Promise.all(tracksWithVolume.map((track: AudioTrack) => preload(track)));
+        // Render tracks immediately
         setTracks(tracksWithVolume);
+
+        // Preload in background (individual spinners will show)
+        tracksWithVolume.forEach((track: AudioTrack) => preload(track));
       }
-      setIsPreloading(false);
       initializedRef.current = true;
     };
     init();
@@ -126,10 +128,11 @@ export const MainPage = () => {
           const validTracks = validateTracks(importedTracks);
 
           if (validTracks.length > 0) {
-            setIsPreloading(true);
-            await Promise.all(validTracks.map((track) => preload(track)));
+            // Render tracks immediately
             setTracks(validTracks);
-            setIsPreloading(false);
+
+            // Preload in background
+            validTracks.forEach((track) => preload(track));
 
             // Trigger config update immediately to persist
             isManualUpdate.current = true; // Avoid circular update trigger if needed, but here we want to persist
@@ -139,7 +142,6 @@ export const MainPage = () => {
         }
       } catch (error) {
         console.error('Error importing tracks:', error);
-        setIsPreloading(false);
       }
     });
 
@@ -152,8 +154,9 @@ export const MainPage = () => {
   }, [tracks, setTracks, autoAssignShortcuts, preload]);
 
   // Save config on changes (only tracks, others handled by useAppConfig)
+  // Save config on changes (only tracks, others handled by useAppConfig)
   useEffect(() => {
-    if (isLoading || isPreloading) return;
+    if (isLoading) return;
     if (isManualUpdate.current) {
       isManualUpdate.current = false;
       return;
@@ -161,7 +164,7 @@ export const MainPage = () => {
     updateConfig({
       tracks
     });
-  }, [tracks, isLoading, isPreloading, updateConfig]);
+  }, [tracks, isLoading, updateConfig]);
 
   // Global keydown listener
   useEffect(() => {
@@ -232,7 +235,7 @@ export const MainPage = () => {
     updateTrack(updatedTrack);
   };
 
-  if (isLoading || isPreloading) {
+  if (isLoading) {
     return <Loading />;
   }
 
