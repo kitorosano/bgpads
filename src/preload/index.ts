@@ -29,7 +29,21 @@ const api = {
     ipcRenderer.on('menu-open-about', subscription);
     return () => ipcRenderer.removeListener('menu-open-about', subscription);
   },
-  openFileDialog: (): Promise<string[] | null> => ipcRenderer.invoke('dialog-open-file')
+  openFileDialog: (): Promise<string[] | null> => ipcRenderer.invoke('dialog-open-file'),
+  saveTracksFile: (content: string): Promise<boolean> =>
+    ipcRenderer.invoke('save-tracks-file', content),
+  loadTracksFile: (): Promise<any> => ipcRenderer.invoke('load-tracks-file'),
+
+  onMenuExportTracks: (callback: () => void) => {
+    const subscription = (_event: any) => callback();
+    ipcRenderer.on('menu-export-tracks', subscription);
+    return () => ipcRenderer.removeListener('menu-export-tracks', subscription);
+  },
+  onMenuImportTracks: (callback: () => void) => {
+    const subscription = (_event: any) => callback();
+    ipcRenderer.on('menu-import-tracks', subscription);
+    return () => ipcRenderer.removeListener('menu-import-tracks', subscription);
+  }
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

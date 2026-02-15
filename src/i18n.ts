@@ -9,6 +9,8 @@ export const translations = {
     help: 'Ayuda',
 
     // File Menu
+    importTracks: 'Importar Pistas',
+    exportTracks: 'Exportar Pistas',
     preferences: 'Preferencias',
     quit: 'Salir',
 
@@ -73,6 +75,8 @@ export const translations = {
     help: 'Help',
 
     // File Menu
+    importTracks: 'Import Tracks',
+    exportTracks: 'Export Tracks',
     preferences: 'Preferences',
     quit: 'Quit',
 

@@ -109,15 +109,50 @@ export const MainPage = () => {
       setTracks([]);
     });
 
+    // Import/Export Listeners
+    const removeExportListener = window.api.onMenuExportTracks(async () => {
+      if (tracks.length === 0) return;
+
+      // We export the tracks array as JSON
+      const content = JSON.stringify(tracks, null, 2);
+      await window.api.saveTracksFile(content);
+    });
+
+    const removeImportListener = window.api.onMenuImportTracks(async () => {
+      try {
+        const importedTracks = await window.api.loadTracksFile();
+        if (importedTracks && Array.isArray(importedTracks)) {
+          // Validate structure minimally
+          const validTracks = validateTracks(importedTracks);
+
+          if (validTracks.length > 0) {
+            setIsPreloading(true);
+            await Promise.all(validTracks.map((track) => preload(track)));
+            setTracks(validTracks);
+            setIsPreloading(false);
+
+            // Trigger config update immediately to persist
+            isManualUpdate.current = true; // Avoid circular update trigger if needed, but here we want to persist
+            // Actually, we WANT to persist, so we let the effect run or call updateConfig manually.
+            // The existing effect [tracks, ...] will catch setTracks and save.
+          }
+        }
+      } catch (error) {
+        console.error('Error importing tracks:', error);
+        setIsPreloading(false);
+      }
+    });
+
     return () => {
       removeAddAudioListener();
       removeClearPadsListener();
+      removeExportListener();
+      removeImportListener();
     };
   }, [tracks, setTracks, autoAssignShortcuts, preload]);
 
   // Save config on changes (only tracks, others handled by useAppConfig)
   useEffect(() => {
-    console.log({isLoading, isPreloading});
     if (isLoading || isPreloading) return;
     if (isManualUpdate.current) {
       isManualUpdate.current = false;

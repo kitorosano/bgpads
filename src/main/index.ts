@@ -27,10 +27,17 @@ const setMenu = (language: Language) => {
       label: t.file,
       submenu: [
         {
+          label: t.importTracks,
+          click: () => mainWindow?.webContents.send('menu-import-tracks')
+        },
+        {
+          label: t.exportTracks,
+          click: () => mainWindow?.webContents.send('menu-export-tracks')
+        },
+        {
           label: t.preferences,
           click: () => ipcMain.emit('menu-open-settings')
         },
-        { type: 'separator' },
         { label: t.quit, role: 'quit' }
       ]
     },
@@ -285,6 +292,44 @@ app.whenReady().then(() => {
     });
     if (canceled) return null;
     return filePaths;
+  });
+
+  ipcMain.handle('save-tracks-file', async (_event, content: string) => {
+    if (!mainWindow) return false;
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+      defaultPath: 'my-tracks.json'
+    });
+
+    if (canceled || !filePath) return false;
+
+    try {
+      const fs = require('fs');
+      fs.writeFileSync(filePath, content, 'utf-8');
+      return true;
+    } catch (e) {
+      console.error('Failed to save file:', e);
+      return false;
+    }
+  });
+
+  ipcMain.handle('load-tracks-file', async () => {
+    if (!mainWindow) return null;
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openFile'],
+      filters: [{ name: 'JSON', extensions: ['json'] }]
+    });
+
+    if (canceled || filePaths.length === 0) return null;
+
+    try {
+      const fs = require('fs');
+      const content = fs.readFileSync(filePaths[0], 'utf-8');
+      return JSON.parse(content);
+    } catch (e) {
+      console.error('Failed to load file:', e);
+      return null;
+    }
   });
 
   createWindow();

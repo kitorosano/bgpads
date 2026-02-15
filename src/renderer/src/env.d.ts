@@ -18,5 +18,9 @@ interface Window {
     onMenuOpenSettings: (callback: () => void) => () => void;
     onMenuOpenAbout: (callback: () => void) => () => void;
     openFileDialog: () => Promise<string[] | null>;
+    saveTracksFile: (content: string) => Promise<boolean>;
+    loadTracksFile: () => Promise<any>;
+    onMenuExportTracks: (callback: () => void) => () => void;
+    onMenuImportTracks: (callback: () => void) => () => void;
   };
 }
