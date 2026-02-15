@@ -135,9 +135,8 @@ export const MainPage = () => {
             validTracks.forEach((track) => preload(track));
 
             // Trigger config update immediately to persist
-            isManualUpdate.current = true; // Avoid circular update trigger if needed, but here we want to persist
-            // Actually, we WANT to persist, so we let the effect run or call updateConfig manually.
-            // The existing effect [tracks, ...] will catch setTracks and save.
+            isManualUpdate.current = true;
+            updateConfig({ tracks: validTracks });
           }
         }
       } catch (error) {
