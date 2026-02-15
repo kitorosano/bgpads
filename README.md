@@ -53,6 +53,10 @@ Este proyecto está construido con tecnologías web modernas encapsuladas en una
 ### 🌍 Internacionalización
 - **Multi-idioma**: Soporte completo para Español e Inglés.
 
+### Importar y Exportar Configuración
+- **Importar**: Importa tu configuración desde un archivo JSON.
+- **Exportar**: Exporta tu configuración a un archivo JSON.
+
 ## 🎥 Demostración
 
 > *Aquí se incluirán videos explicativos sobre el uso de la herramienta, configuración de atajos y gestión de archivos.*
