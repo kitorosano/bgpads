@@ -23,7 +23,7 @@ export const useAppConfig = () => {
   const [bpm, setBpm] = useState(DEFAULT_BPM);
   const [metronomeShortcut, setMetronomeShortcut] = useState<string | null>(null);
   const [tracks, setTracks] = useState<any[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [metronomeFrequency, setMetronomeFrequency] = useState(DEFAULT_METRONOME_FREQUENCY);
   const [metronomeDecay, setMetronomeDecay] = useState(DEFAULT_METRONOME_DECAY);
   const [metronomeHarmonicCount, setMetronomeHarmonicCount] = useState(
@@ -72,7 +72,7 @@ export const useAppConfig = () => {
           setMetronomeAccentHarmonicCount(config.metronomeAccentHarmonicCount);
         if (config.beatAccents) setBeatAccents(config.beatAccents);
       }
-      setIsLoaded(true);
+      setIsLoading(false);
     };
     init();
 
@@ -170,7 +170,7 @@ export const useAppConfig = () => {
     metronomeDecay,
     metronomeHarmonicCount,
     autoAssignShortcuts,
-    isLoaded,
+    isLoading,
     updateConfig,
     setTheme: (t: Theme) => updateConfig({ theme: t }),
     setLanguage: (l: Language) => updateConfig({ language: l }),

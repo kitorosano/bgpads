@@ -17,7 +17,7 @@ export const MainPage = () => {
   const { tracks, setTracks, updateTrack, removeTrack } = useTracks();
   const {
     fadeOutDuration: configFadeOut,
-    isLoaded,
+    isLoading,
     bpm,
     metronomeShortcut,
     tracks: configTracks,
@@ -60,7 +60,7 @@ export const MainPage = () => {
 
   // Load tracks from config and preload
   useEffect(() => {
-    if (!isLoaded || initializedRef.current) return;
+    if (isLoading || initializedRef.current) return;
 
     const init = async () => {
       if (configTracks) {
@@ -73,7 +73,7 @@ export const MainPage = () => {
       initializedRef.current = true;
     };
     init();
-  }, [isLoaded, configTracks, preload, setTracks]);
+  }, [isLoading, configTracks, preload, setTracks]);
 
   // IPC Listeners for adding audio
   useEffect(() => {
@@ -117,7 +117,8 @@ export const MainPage = () => {
 
   // Save config on changes (only tracks, others handled by useAppConfig)
   useEffect(() => {
-    if (!isLoaded || isPreloading) return;
+    console.log({isLoading, isPreloading});
+    if (isLoading || isPreloading) return;
     if (isManualUpdate.current) {
       isManualUpdate.current = false;
       return;
@@ -125,7 +126,7 @@ export const MainPage = () => {
     updateConfig({
       tracks
     });
-  }, [tracks, isLoaded, isPreloading, updateConfig]);
+  }, [tracks, isLoading, isPreloading, updateConfig]);
 
   // Global keydown listener
   useEffect(() => {
@@ -196,7 +197,7 @@ export const MainPage = () => {
     updateTrack(updatedTrack);
   };
 
-  if (!isLoaded || isPreloading) {
+  if (isLoading || isPreloading) {
     return <Loading />;
   }
 
