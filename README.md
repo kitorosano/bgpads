@@ -39,23 +39,27 @@ Este proyecto está construido con tecnologías web modernas encapsuladas en una
 - **Crossfade Automático**: Transiciones suaves entre pistas con duración configurable (0-10s).
 - **Fade-out al Detener**: El audio se desvanece suavemente al detenerse, evitando cortes bruscos.
 - **Volumen Independiente**: Ajusta el volumen de cada pista individualmente (hasta 300% de ganancia).
+- **Metrónomo Avanzado**:
+  - Configuración individual por pad (BPM y compás).
+  - Acentos interactivos personalizables (frecuencia, decaimiento y volumen independientes).
+  - Persistencia inteligente del tempo basándose en el último pad activo.
 
-### 🎨 Personalización Total
+### 🎨 Diseño y Personalización Total
+- **Menú Contextual Moderno**: Ajustes completamente renovados con sliders personalizados, agrupamiento inteligente y paletas de colores.
+- **Indicadores en Tiempo Real**: Visualización del progreso de reproducción y asignación de índice por pad.
 - **Temas**: Modo Claro y Oscuro para adaptarse a cualquier entorno de iluminación.
-- **Colores Personalizables**: Asigna colores únicos a cada pad para una rápida identificación visual.
-- **Grid Responsivo**: Los botones se ajustan automáticamente al tamaño de la ventana.
+- **Interfaz Inmersiva**: Maximización por defecto y diseño adaptativo que envuelve toda la pantalla.
+- **Colores Personalizables**: Asigna colores únicos o mediante presets a cada pad para una rápida identificación visual.
 
-### ⌨️ Flujo de Trabajo Eficiente
-- **Atajos de Teclado**: Asigna teclas a tus pads simplemente presionando la tecla deseada.
-- **Drag & Drop**: (Próximamente) Arrastra tus archivos directamente a la aplicación.
-- **Persistencia**: Tu configuración, pistas y preferencias se guardan automáticamente.
+### ⌨️ Flujo de Trabajo y Rendimiento
+- **Carga de Pistas Dinámica**: Carga asíncrona e individual con indicadores de carga (spinners), eliminando pantallas de bloqueo.
+- **Gestión de Pistas**: Importación y exportación de tus configuraciones y listas de reproducción directamente desde el menú.
+- **Atajos de Teclado**: Asigna teclas a tus pads rápidamente desde la nueva interfaz.
+- **Optimización y Resiliencia**: Uso mejorado de recursos y recuperación ante fallo de directorios (manejo de carpetas de recursos faltantes).
+- **Persistencia Automática**: Configuraciones, pistas añadidas y preferencias se guardan para la próxima sesión de manera eficiente.
 
 ### 🌍 Internacionalización
-- **Multi-idioma**: Soporte completo para Español e Inglés.
-
-### Importar y Exportar Configuración
-- **Importar**: Importa tu configuración desde un archivo JSON.
-- **Exportar**: Exporta tu configuración a un archivo JSON.
+- **Multi-idioma**: Soporte de traducciones completo para Español e Inglés en toda la aplicación.
 
 ## 🎥 Demostración
 
