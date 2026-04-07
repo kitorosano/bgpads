@@ -1,4 +1,4 @@
-import { useI18n } from '@renderer/hooks/useI18n';
+
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   MAX_BPM,
@@ -14,6 +14,7 @@ import { clampBpm } from '../utils/validationUtils';
 
 interface ContextMenuProps {
   track: AudioTrack;
+  index: number;
   position: { x: number; y: number };
   onClose: () => void;
   onUpdate: (updatedTrack: AudioTrack) => void;
@@ -66,8 +67,12 @@ const BpmInput = ({ value, placeholder, onChange }: BpmInputProps) => {
   );
 };
 
+const PRESET_COLORS = ['#a855f7', '#06b6d4', '#eab308', '#f43f5e'];
+const TIME_SIGNATURES = ['4/4', '3/4', '4/8', '3/8'];
+
 export const ContextMenu = ({
   track,
+  index,
   position,
   onClose,
   onUpdate,
@@ -77,7 +82,6 @@ export const ContextMenu = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [adjustedPosition, setAdjustedPosition] = useState(position);
-  const { t } = useI18n();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -130,22 +134,13 @@ export const ContextMenu = ({
       className="context-menu"
       style={{ top: adjustedPosition.y, left: adjustedPosition.x }}
     >
-      <div className="menu-item">
-        <label>
-          {t('volume')}: {(track.volume * 100).toFixed(0)}%
-        </label>
-        <input
-          type="range"
-          min={MIN_TRACK_VOLUME}
-          max={MAX_TRACK_VOLUME}
-          step={VOLUME_STEP_INCREMENT}
-          value={track.volume}
-          onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
-        />
+      <div className="context-menu-header">
+        <span className="context-menu-title">EDIT PAD {(index + 1).toString().padStart(2, '0')}</span>
+        <button className="context-menu-close" onClick={onClose}>&times;</button>
       </div>
 
-      <div className="menu-item">
-        <label>{t('name')}</label>
+      <div className="menu-group">
+        <label className="menu-label">PAD NAME</label>
         <input
           type="text"
           value={track.name}
@@ -154,54 +149,89 @@ export const ContextMenu = ({
         />
       </div>
 
-      <div className="menu-item">
-        <label>{t('keybinding')}</label>
-        <button
-          className={`key-record-btn ${isRecording ? 'recording' : ''}`}
-          onClick={() => setIsRecording(true)}
-        >
-          {isRecording ? t('pressAnyKey') : track.keybinding || t('none')}
-        </button>
-      </div>
-
-      <div className="menu-item">
-        <label>{t('padBpm')}</label>
-        <BpmInput
-          value={track.bpm}
-          placeholder={t('global')}
-          onChange={(newBpm) => onUpdate({ ...track, bpm: newBpm })}
-        />
-      </div>
-
-      <div className="menu-item">
-        <label>{t('timeSignature')}</label>
+      <div className="menu-group">
+        <div className="flex-between">
+          <label className="menu-label">GAIN</label>
+          <span className="gain-value">{(track.volume * 100).toFixed(0)}%</span>
+        </div>
         <input
-          type="text"
-          placeholder="4/4"
-          value={track.timeSignature || ''}
-          onChange={(e) => onUpdate({ ...track, timeSignature: e.target.value })}
-          className="context-menu-input"
+          type="range"
+          className="gain-slider"
+          min={MIN_TRACK_VOLUME}
+          max={MAX_TRACK_VOLUME}
+          step={VOLUME_STEP_INCREMENT}
+          value={track.volume}
+          onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
         />
       </div>
 
-      <div className="menu-item">
-        <label>{t('color')}</label>
-        <input
-          type="color"
-          value={track.color}
-          onChange={(e) => onUpdate({ ...track, color: e.target.value })}
-        />
+      <div className="menu-group">
+        <label className="menu-label">ACTIVE COLOR</label>
+        <div className="color-presets">
+          {PRESET_COLORS.map(c => (
+             <div 
+               key={c} 
+               className={`color-circle ${track.color === c ? 'active' : ''}`}
+               style={{ backgroundColor: c }}
+               onClick={() => onUpdate({ ...track, color: c })}
+             />
+          ))}
+          <div className="color-circle custom-color-picker">
+            <input
+              type="color"
+              value={track.color}
+              onChange={(e) => onUpdate({ ...track, color: e.target.value })}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="menu-separator" />
-
-      <div className="menu-item action" onClick={onChangeFile}>
-        {t('changeFile')}
+      <div className="menu-row">
+        <div className="menu-group flex-1">
+          <label className="menu-label">KEY</label>
+          <button
+            className={`key-record-btn ${isRecording ? 'recording' : ''}`}
+            onClick={() => setIsRecording(true)}
+          >
+            {isRecording ? '...' : track.keybinding || 'none'}
+          </button>
+        </div>
+        <div className="menu-group flex-1">
+          <label className="menu-label">SOURCE</label>
+          <button className="browse-btn" onClick={onChangeFile}>
+             Browse
+          </button>
+        </div>
       </div>
 
-      <div className="menu-item action danger" onClick={onRemove}>
-        {t('removeAudio')}
+      <div className="menu-row">
+        <div className="menu-group flex-1">
+          <label className="menu-label">BPM</label>
+          <BpmInput
+            value={track.bpm}
+            placeholder="Global"
+            onChange={(newBpm) => onUpdate({ ...track, bpm: newBpm })}
+          />
+        </div>
+        <div className="menu-group flex-2">
+          <label className="menu-label">TIME SIGNATURE</label>
+          <div className="time-sig-buttons">
+            {TIME_SIGNATURES.map(ts => (
+              <button 
+                key={ts} 
+                className={`time-sig-btn ${track.timeSignature === ts ? 'active' : ''}`}
+                onClick={() => onUpdate({ ...track, timeSignature: ts })}
+              >
+                {ts}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+
+      <button className="delete-pad-btn" onClick={onRemove}>
+        DELETE PAD
+      </button>
     </div>
   );
 };

@@ -38,6 +38,7 @@ export interface Point {
 export interface ContextMenuState {
   trackId: string;
   position: Point;
+  index: number;
 }
 
 export interface Dimensions {

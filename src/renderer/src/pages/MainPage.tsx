@@ -258,10 +258,11 @@ export const MainPage = () => {
       </div>
 
       <main className="grid-container">
-        {tracks.map((track) => (
+        {tracks.map((track, index) => (
           <AudioButton
             key={track.id}
             track={track}
+            index={index}
             isPlaying={isPlaying === track.id}
             isLoading={loadingTrackIds.has(track.id)}
             onClick={() => {
@@ -279,7 +280,8 @@ export const MainPage = () => {
               e.preventDefault();
               setContextMenu({
                 trackId: track.id,
-                position: { x: e.clientX, y: e.clientY }
+                position: { x: e.clientX, y: e.clientY },
+                index: index
               });
             }}
           />
@@ -289,6 +291,7 @@ export const MainPage = () => {
       {contextMenu && (
         <ContextMenu
           track={tracks.find((t) => t.id === contextMenu.trackId)!}
+          index={contextMenu.index}
           position={contextMenu.position}
           onClose={() => setContextMenu(null)}
           onUpdate={(updatedTrack) => {

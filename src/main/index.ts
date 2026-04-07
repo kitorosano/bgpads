@@ -1,13 +1,11 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell, screen } from 'electron';
 import { join } from 'path';
 import icon from '../../resources/icon.png?asset';
 import {
   DEFAULT_ABOUT_WINDOW_HEIGHT,
   DEFAULT_ABOUT_WINDOW_WIDTH,
   DEFAULT_LANGUAGE,
-  DEFAULT_MAIN_WINDOW_HEIGHT,
-  DEFAULT_MAIN_WINDOW_WIDTH,
   DEFAULT_SETTINGS_WINDOW_HEIGHT,
   DEFAULT_SETTINGS_WINDOW_WIDTH,
   MAIN_WINDOW_MIN_HEIGHT,
@@ -82,10 +80,14 @@ const setMenu = (language: Language) => {
 };
 
 function createWindow(): void {
+  // Get primary display work area
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: DEFAULT_MAIN_WINDOW_WIDTH,
-    height: DEFAULT_MAIN_WINDOW_HEIGHT,
+    width: width,
+    height: height,
     minWidth: MAIN_WINDOW_MIN_WIDTH,
     minHeight: MAIN_WINDOW_MIN_HEIGHT,
     show: false,
