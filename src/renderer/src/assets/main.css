@@ -665,7 +665,7 @@ body.light .form-control {
 .context-menu-title {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #a855f7;
+  color: var(--text-secondary);
   letter-spacing: 1px;
 }
 
@@ -794,6 +794,57 @@ body.light .form-control {
 .time-sig-btn.active {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
+}
+
+.custom-time-sig {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #444;
+  border-radius: 4px;
+  flex: 1.5;
+  transition: all 0.2s ease;
+}
+
+body.light .custom-time-sig {
+  background: rgba(0,0,0,0.02);
+  border: 1px solid #ccc;
+}
+
+.custom-time-sig.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.time-sig-input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  width: 20px;
+  text-align: center;
+  font-size: 0.7rem;
+  padding: 6px 0;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.custom-time-sig.active .time-sig-input,
+.custom-time-sig.active .time-sig-slash {
+  color: white;
+}
+
+.time-sig-input::-webkit-outer-spin-button,
+.time-sig-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.time-sig-slash {
+  color: var(--text-primary);
+  font-size: 0.7rem;
+  opacity: 0.7;
 }
 
 .delete-pad-btn {

@@ -28,12 +28,18 @@ export const useMetronome = (
   const lookahead = 25.0; // milliseconds
   const scheduleAheadTime = 0.1; // seconds
 
-  const beatsPerBar = parseInt(timeSignature.split('/')[0]);
+  const beatsPerBar = parseInt(timeSignature.split('/')[0]) || 4;
+  const beatValue = parseInt(timeSignature.split('/')[1]) || 4;
   const beatsPerBarRef = useRef(beatsPerBar);
+  const beatValueRef = useRef(beatValue);
 
   useEffect(() => {
     beatsPerBarRef.current = beatsPerBar;
   }, [beatsPerBar]);
+
+  useEffect(() => {
+    beatValueRef.current = beatValue;
+  }, [beatValue]);
 
   // Use a ref for BPM so the scheduler always sees the latest value
   const bpmRef = useRef(bpm);
@@ -91,7 +97,7 @@ export const useMetronome = (
   }, [onBeat]);
 
   const nextNote = useCallback(() => {
-    const secondsPerBeat = 60.0 / bpmRef.current;
+    const secondsPerBeat = (60.0 / bpmRef.current) * (4.0 / beatValueRef.current);
     nextNoteTimeRef.current += secondsPerBeat;
     currentBeatRef.current = (currentBeatRef.current + 1) % beatsPerBarRef.current;
   }, []);
