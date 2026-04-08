@@ -1,12 +1,33 @@
 :root {
-  --bg-color: #121212;
-  --surface-color: #1e1e1e;
-  --text-primary: #ffffff;
-  --text-secondary: #b3b3b3;
-  --accent-color: #4a90e2;
-  --danger-color: #e74c3c;
+  --surface: #0e0e0e;
+  --surface-container-lowest: #000000;
+  --surface-container-low: #131313;
+  --surface-container-high: #20201f;
+  --surface-container-highest: #262626;
+  --surface-bright: #2c2c2c;
+  --surface-dim: #0a0a0a;
+
+  --primary: #b6a0ff;
+  --primary-dim: #7e51ff;
+  --primary-fixed-dim: #8b68ff;
+
+  --secondary: #00e3fd;
+  --tertiary: #ffd572;
+
+  --on-surface: #ffffff;
+  --on-surface-variant: #adaaaa;
+  --on-primary: #340090;
+
+  --outline-variant: rgba(255, 255, 255, 0.15);
+
+  --bg-color: var(--surface);
+  --surface-color: var(--surface-container-high);
+  --text-primary: var(--on-surface-variant);
+  --text-secondary: #888888;
+  --accent-color: var(--primary);
+  --danger-color: var(--tertiary);
   --spacing-unit: 16px;
-  --border-radius: 12px;
+  --border-radius: 4px;
   --transition-speed: 0.2s;
 }
 
@@ -19,7 +40,7 @@ body.light {
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -70,18 +91,17 @@ body {
 }
 
 .audio-button-container {
-  background-color: var(--surface-color);
+  background-color: var(--surface-container-highest);
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
-  border: 2px solid transparent;
+  border: 1px solid var(--outline-variant);
   position: relative;
   overflow: hidden;
   display: flex;
   justify-content: center;
-  justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 body.light .audio-button-container {
@@ -100,7 +120,6 @@ body.light .audio-button-container:hover {
 
 .audio-button-container.playing {
   border-color: var(--button-color);
-  box-shadow: 0 0 20px var(--button-color);
   background-color: rgba(255, 255, 255, 0.05);
 }
 
@@ -134,7 +153,7 @@ body.light .audio-button-container.playing {
 
 .keybinding-text {
   background-color: #000000;
-  color: #ffffff;
+  color: var(--button-color, #ffffff);
   font-size: 0.7rem;
   font-weight: 700;
   padding: 3px 6px;
@@ -144,7 +163,7 @@ body.light .audio-button-container.playing {
 .track-name {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--button-color, var(--text-primary));
   text-align: center;
   word-break: break-word;
   padding: 0 10px;
@@ -191,7 +210,7 @@ body.light .audio-button-container.playing {
 .progress-bar-fill {
   width: 50%; /* Fake progress for active state */
   height: 100%;
-  background-color: var(--button-color, var(--accent-color));
+  background-color: var(--button-color, var(--secondary));
 }
 
 .bpm-text {
@@ -203,12 +222,13 @@ body.light .audio-button-container.playing {
 /* Context Menu - Improved styling */
 .context-menu {
   position: fixed;
-  background-color: #252525;
-  border: 1px solid #333;
+  background-color: rgba(38, 38, 38, 0.7); /* surface_container_highest at 70% opacity */
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--outline-variant);
   border-radius: 8px;
   padding: 8px;
   min-width: 220px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 32px rgba(182, 160, 255, 0.08); /* primary tint ambient shadow */
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -319,7 +339,7 @@ input[type="color"] {
 }
 
 input[type="range"] {
-  accent-color: var(--accent-color);
+  accent-color: var(--secondary);
   cursor: pointer;
   width: 100%;
 }
@@ -344,13 +364,14 @@ body.light .modal-overlay {
 }
 
 .modal-content {
-  background-color: var(--surface-color);
+  background-color: rgba(32, 32, 31, 0.8); /* surface_container_high at 80% opacity */
+  backdrop-filter: blur(16px);
   padding: 28px;
   border-radius: var(--border-radius);
   min-width: 320px;
   max-width: 500px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  border: 1px solid #333;
+  box-shadow: 0 8px 32px rgba(182, 160, 255, 0.08);
+  border: 1px solid var(--outline-variant);
   display: flex;
   flex-direction: column;
   gap: 20px;
