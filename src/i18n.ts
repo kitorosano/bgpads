@@ -48,6 +48,14 @@ export const translations = {
     description: 'Aplicación de pads de audio para contextos de iglesia y adoración',
 
     // Context Menu
+    editPad: 'EDITAR PAD',
+    padName: 'NOMBRE',
+    gain: 'GANANCIA',
+    activeColor: 'COLOR',
+    key: 'ATAJO',
+    source: 'ARCHIVO',
+    browse: 'Explorar',
+    deletePad: 'ELIMINAR PAD',
     volume: 'Volumen',
     name: 'Nombre',
     keybinding: 'Atajo de Teclado',
@@ -63,7 +71,13 @@ export const translations = {
     padsOutput: 'Salida de Pads',
     metronomeOutput: 'Salida de Metrónomo',
     defaultOutput: 'Predeterminado',
-    timeSignature: 'Compás'
+    timeSignature: 'COMPÁS',
+    bpm: 'BPM',
+
+    // AudioButton
+    pad: 'PAD',
+    ready: 'LISTO',
+    fading: 'FUNDIENDO...'
   },
   en: {
     loading: 'Loading configuration and tracks.',
@@ -114,6 +128,14 @@ export const translations = {
     description: 'Audio pad application for church and worship contexts',
 
     // Context Menu
+    editPad: 'EDIT PAD',
+    padName: 'NAME',
+    gain: 'GAIN',
+    activeColor: 'COLOR',
+    key: 'KEY',
+    source: 'SOURCE',
+    browse: 'Browse',
+    deletePad: 'DELETE PAD',
     volume: 'Volume',
     name: 'Name',
     keybinding: 'Keybinding',
@@ -129,6 +151,12 @@ export const translations = {
     padsOutput: 'Pads Output',
     metronomeOutput: 'Metronome Output',
     defaultOutput: 'Default',
-    timeSignature: 'Time Signature'
+    timeSignature: 'TIME SIGNATURE',
+    bpm: 'BPM',
+
+    // AudioButton
+    pad: 'PAD',
+    ready: 'READY',
+    fading: 'FADING...'
   }
 };

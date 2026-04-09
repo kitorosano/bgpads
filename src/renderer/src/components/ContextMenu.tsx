@@ -1,4 +1,4 @@
-
+import { useI18n } from '@renderer/hooks/useI18n';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   MAX_BPM,
@@ -70,7 +70,13 @@ const BpmInput = ({ value, placeholder, onChange }: BpmInputProps) => {
 const PRESET_COLORS = ['#a855f7', '#06b6d4', '#eab308', '#f43f5e'];
 const TIME_SIGNATURES = ['4/4', '4/8'];
 
-const CustomTimeSignatureInput = ({ value, onChange }: { value: string; onChange: (val: string) => void }) => {
+const CustomTimeSignatureInput = ({
+  value,
+  onChange
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) => {
   const [num, den] = value.split('/');
   const [localNum, setLocalNum] = useState(num || '4');
   const [localDen, setLocalDen] = useState(den || '4');
@@ -104,7 +110,9 @@ const CustomTimeSignatureInput = ({ value, onChange }: { value: string; onChange
         onChange={(e) => setLocalNum(e.target.value)}
         onBlur={commitChange}
         className="time-sig-input num"
-        onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur();
+        }}
       />
       <span className="time-sig-slash">/</span>
       <input
@@ -113,7 +121,9 @@ const CustomTimeSignatureInput = ({ value, onChange }: { value: string; onChange
         onChange={(e) => setLocalDen(e.target.value)}
         onBlur={commitChange}
         className="time-sig-input den"
-        onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur();
+        }}
       />
     </div>
   );
@@ -128,6 +138,7 @@ export const ContextMenu = ({
   onRemove,
   onChangeFile
 }: ContextMenuProps) => {
+  const { t } = useI18n();
   const menuRef = useRef<HTMLDivElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [adjustedPosition, setAdjustedPosition] = useState(position);
@@ -184,91 +195,103 @@ export const ContextMenu = ({
       style={{ top: adjustedPosition.y, left: adjustedPosition.x }}
     >
       <div className="context-menu-header">
-        <span className="context-menu-title">EDIT PAD {(index + 1).toString().padStart(2, '0')}</span>
-        <button className="context-menu-close" onClick={onClose}>&times;</button>
+        <span className="context-menu-title">
+          {t('editPad')} {(index + 1).toString().padStart(2, '0')}
+        </span>
+        <button className="context-menu-close" onClick={onClose}>
+          &times;
+        </button>
       </div>
 
-      <div className="menu-group">
-        <label className="menu-label">PAD NAME</label>
-        <input
-          type="text"
-          value={track.name}
-          onChange={(e) => onUpdate({ ...track, name: e.target.value })}
-          className="context-menu-input"
-        />
-      </div>
-
-      <div className="menu-group">
-        <div className="flex-between">
-          <label className="menu-label">GAIN</label>
-          <span className="gain-value" style={{ color: track.color }}>{(track.volume * 100).toFixed(0)}%</span>
+      <div className="menu-row">
+        <div className="menu-group flex-1">
+          <label className="menu-label">{t('padName')}</label>
+          <input
+            type="text"
+            value={track.name}
+            onChange={(e) => onUpdate({ ...track, name: e.target.value })}
+            className="context-menu-input"
+          />
         </div>
-        <input
-          type="range"
-          className="gain-slider"
-          min={MIN_TRACK_VOLUME}
-          max={MAX_TRACK_VOLUME}
-          step={VOLUME_STEP_INCREMENT}
-          value={track.volume}
-          onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
-          style={{ accentColor: track.color }}
-        />
       </div>
 
-      <div className="menu-group">
-        <label className="menu-label">ACTIVE COLOR</label>
-        <div className="color-presets">
-          {PRESET_COLORS.map(c => (
-             <div 
-               key={c} 
-               className={`color-circle ${track.color === c ? 'active' : ''}`}
-               style={{ backgroundColor: c }}
-               onClick={() => onUpdate({ ...track, color: c })}
-             />
-          ))}
-          <div className="color-circle custom-color-picker">
-            <input
-              type="color"
-              value={track.color}
-              onChange={(e) => onUpdate({ ...track, color: e.target.value })}
-            />
+      <div className="menu-row">
+        <div className="menu-group flex-1">
+          <div className="flex-between">
+            <label className="menu-label">{t('gain')}</label>
+            <span className="gain-value" style={{ color: track.color }}>
+              {(track.volume * 100).toFixed(0)}%
+            </span>
+          </div>
+          <input
+            type="range"
+            className="gain-slider"
+            min={MIN_TRACK_VOLUME}
+            max={MAX_TRACK_VOLUME}
+            step={VOLUME_STEP_INCREMENT}
+            value={track.volume}
+            onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
+            style={{ accentColor: track.color }}
+          />
+        </div>
+      </div>
+
+      <div className="menu-row">
+        <div className="menu-group flex-1">
+          <label className="menu-label">{t('activeColor')}</label>
+          <div className="color-presets">
+            {PRESET_COLORS.map((c) => (
+              <div
+                key={c}
+                className={`color-circle ${track.color === c ? 'active' : ''}`}
+                style={{ backgroundColor: c }}
+                onClick={() => onUpdate({ ...track, color: c })}
+              />
+            ))}
+            <div className="color-circle custom-color-picker">
+              <input
+                type="color"
+                value={track.color}
+                onChange={(e) => onUpdate({ ...track, color: e.target.value })}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <div className="menu-row">
         <div className="menu-group flex-1">
-          <label className="menu-label">KEY</label>
+          <label className="menu-label">{t('key')}</label>
           <button
             className={`key-record-btn ${isRecording ? 'recording' : ''}`}
             onClick={() => setIsRecording(true)}
           >
-            {isRecording ? '...' : track.keybinding || 'none'}
+            {isRecording ? '...' : track.keybinding || t('none')}
           </button>
         </div>
-        <div className="menu-group flex-1">
-          <label className="menu-label">SOURCE</label>
+        <div className="menu-group flex-2">
+          <label className="menu-label">{t('source')}</label>
           <button className="browse-btn" onClick={onChangeFile}>
-             Browse
+            {t('browse')}
           </button>
         </div>
       </div>
 
       <div className="menu-row">
         <div className="menu-group flex-1">
-          <label className="menu-label">BPM</label>
+          <label className="menu-label">{t('bpm')}</label>
           <BpmInput
             value={track.bpm}
-            placeholder="Global"
+            placeholder={t('global')}
             onChange={(newBpm) => onUpdate({ ...track, bpm: newBpm })}
           />
         </div>
         <div className="menu-group flex-2">
-          <label className="menu-label">TIME SIGNATURE</label>
+          <label className="menu-label">{t('timeSignature')}</label>
           <div className="time-sig-buttons">
-            {TIME_SIGNATURES.map(ts => (
-              <button 
-                key={ts} 
+            {TIME_SIGNATURES.map((ts) => (
+              <button
+                key={ts}
                 className={`time-sig-btn ${track.timeSignature === ts ? 'active' : ''}`}
                 onClick={() => onUpdate({ ...track, timeSignature: ts })}
               >
@@ -284,7 +307,7 @@ export const ContextMenu = ({
       </div>
 
       <button className="delete-pad-btn" onClick={onRemove}>
-        DELETE PAD
+        {t('deletePad')} {(index + 1).toString().padStart(2, '0')}
       </button>
     </div>
   );

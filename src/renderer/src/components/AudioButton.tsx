@@ -1,4 +1,5 @@
 import { AudioTrack } from '../types';
+import { useI18n } from '@renderer/hooks/useI18n';
 import { Spinner } from './Spinner';
 
 interface AudioButtonProps {
@@ -34,6 +35,8 @@ export const AudioButton = ({
   currentTime = 0,
   duration = 0
 }: AudioButtonProps) => {
+  const { t } = useI18n();
+
   const handleClick = () => {
     if (!isLoading) {
       onClick();
@@ -62,7 +65,7 @@ export const AudioButton = ({
       {isLoading && <Spinner />}
       <div className="audio-button-content" style={{ opacity: isLoading ? 0.5 : 1 }}>
         <div className="pad-header">
-          <span className="pad-index">PAD {(index + 1).toString().padStart(2, '0')}</span>
+          <span className="pad-index">{t('pad')} {(index + 1).toString().padStart(2, '0')}</span>
           {track.keybinding && <span className="keybinding-text">{track.keybinding}</span>}
         </div>
         <span className="track-name" title={track.name}>
@@ -75,9 +78,9 @@ export const AudioButton = ({
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             ) : isFadingOut ? (
-              <span className="fading-text">FADING...</span>
+              <span className="fading-text">{t('fading')}</span>
             ) : (
-              <span className="ready-text">READY</span>
+              <span className="ready-text">{t('ready')}</span>
             )}
             <div className="progress-bar-bg">
               <div
