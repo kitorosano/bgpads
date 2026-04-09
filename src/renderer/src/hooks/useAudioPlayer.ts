@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioTrack } from '../types';
 import { useAppConfig } from './useAppConfig';
 
@@ -11,6 +11,57 @@ export const useAudioPlayer = () => {
   const [loadingTrackIds, setLoadingTrackIds] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState<string | null>(null); // ID of playing track
   const [fadeOutDuration, setFadeOutDuration] = useState(2); // Seconds
+  const [fadingOutTrackId, setFadingOutTrackId] = useState<string | null>(null);
+  const fadeOutTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Playback progress tracking
+  const [playbackProgress, setPlaybackProgress] = useState(0); // 0 to 1
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const startTimeRef = useRef<number>(0);
+  const durationRef = useRef<number>(0);
+  const animFrameRef = useRef<number | null>(null);
+
+  // Animation loop for progress tracking
+  const updateProgress = useCallback(() => {
+    if (!audioContextRef.current || !startTimeRef.current || !durationRef.current) return;
+    const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
+    const progress = Math.min(elapsed / durationRef.current, 1);
+    setCurrentTime(elapsed);
+    setPlaybackProgress(progress);
+    if (progress < 1) {
+      animFrameRef.current = requestAnimationFrame(updateProgress);
+    }
+  }, []);
+
+  const startProgressTracking = useCallback((audioDuration: number) => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    startTimeRef.current = audioContextRef.current!.currentTime;
+    durationRef.current = audioDuration;
+    setDuration(audioDuration);
+    setCurrentTime(0);
+    setPlaybackProgress(0);
+    animFrameRef.current = requestAnimationFrame(updateProgress);
+  }, [updateProgress]);
+
+  const stopProgressTracking = useCallback(() => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    setPlaybackProgress(0);
+    setCurrentTime(0);
+    setDuration(0);
+    startTimeRef.current = 0;
+    durationRef.current = 0;
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
 
   const initAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
@@ -77,10 +128,23 @@ export const useAudioPlayer = () => {
         return;
       }
 
+      // Stop previous progress tracking
+      stopProgressTracking();
+
       // Fade out current if playing
       if (activeSourceRef.current && gainNodeRef.current) {
         const oldGain = gainNodeRef.current;
         const oldSource = activeSourceRef.current;
+
+        // Track the fading out pad for UI
+        if (isPlaying) {
+          if (fadeOutTimerRef.current) clearTimeout(fadeOutTimerRef.current);
+          setFadingOutTrackId(isPlaying);
+          fadeOutTimerRef.current = setTimeout(() => {
+            setFadingOutTrackId(null);
+            fadeOutTimerRef.current = null;
+          }, fadeOutDuration * 1000);
+        }
 
         // Cancel any scheduled updates
         oldGain.gain.cancelScheduledValues(ctx.currentTime);
@@ -130,11 +194,15 @@ export const useAudioPlayer = () => {
         gainNodeRef.current = gain;
         setIsPlaying(track.id);
 
+        // Start tracking progress
+        startProgressTracking(buffer.duration);
+
         source.onended = () => {
           if (activeSourceRef.current === source) {
             setIsPlaying(null);
             activeSourceRef.current = null;
             gainNodeRef.current = null;
+            stopProgressTracking();
           }
         };
       } catch (error) {
@@ -148,7 +216,7 @@ export const useAudioPlayer = () => {
         });
       }
     },
-    [isPlaying, fadeOutDuration, initAudioContext]
+    [isPlaying, fadeOutDuration, initAudioContext, startProgressTracking, stopProgressTracking]
   );
 
   const stop = useCallback(() => {
@@ -165,8 +233,9 @@ export const useAudioPlayer = () => {
       setIsPlaying(null);
       activeSourceRef.current = null;
       gainNodeRef.current = null;
+      stopProgressTracking();
     }
-  }, []);
+  }, [stopProgressTracking]);
 
   const setVolume = useCallback((volume: number) => {
     if (gainNodeRef.current && audioContextRef.current) {
@@ -183,6 +252,10 @@ export const useAudioPlayer = () => {
     loadingTrackIds,
     fadeOutDuration,
     setFadeOutDuration,
-    setVolume
+    setVolume,
+    playbackProgress,
+    currentTime,
+    duration,
+    fadingOutTrackId
   };
 };

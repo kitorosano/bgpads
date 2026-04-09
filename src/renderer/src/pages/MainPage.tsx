@@ -12,8 +12,18 @@ import { AudioTrack, ContextMenuState } from '../types';
 import { createTrackFromPath, validateTracks } from '../utils/trackUtils';
 
 export const MainPage = () => {
-  const { play, isPlaying, preload, setFadeOutDuration, loadingTrackIds, setVolume } =
-    useAudioPlayer();
+  const {
+    play,
+    isPlaying,
+    preload,
+    setFadeOutDuration,
+    loadingTrackIds,
+    setVolume,
+    playbackProgress,
+    currentTime,
+    duration,
+    fadingOutTrackId
+  } = useAudioPlayer();
   const { tracks, setTracks, updateTrack, removeTrack } = useTracks();
   const {
     fadeOutDuration: configFadeOut,
@@ -265,6 +275,11 @@ export const MainPage = () => {
             index={index}
             isPlaying={isPlaying === track.id}
             isLoading={loadingTrackIds.has(track.id)}
+            isFadingOut={fadingOutTrackId === track.id}
+            fadeOutDuration={configFadeOut}
+            playbackProgress={isPlaying === track.id ? playbackProgress : 0}
+            currentTime={isPlaying === track.id ? currentTime : 0}
+            duration={isPlaying === track.id ? duration : 0}
             onClick={() => {
               const updates: any = {};
               if (track.bpm) updates.bpm = track.bpm;

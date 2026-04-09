@@ -201,7 +201,7 @@ export const ContextMenu = ({
       <div className="menu-group">
         <div className="flex-between">
           <label className="menu-label">GAIN</label>
-          <span className="gain-value">{(track.volume * 100).toFixed(0)}%</span>
+          <span className="gain-value" style={{ color: track.color }}>{(track.volume * 100).toFixed(0)}%</span>
         </div>
         <input
           type="range"
@@ -211,6 +211,7 @@ export const ContextMenu = ({
           step={VOLUME_STEP_INCREMENT}
           value={track.volume}
           onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
+          style={{ accentColor: track.color }}
         />
       </div>
 
