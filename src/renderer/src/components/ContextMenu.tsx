@@ -70,6 +70,34 @@ const BpmInput = ({ value, placeholder, onChange }: BpmInputProps) => {
 const PRESET_COLORS = ['#a855f7', '#06b6d4', '#eab308', '#f43f5e'];
 const TIME_SIGNATURES = ['4/4', '4/8'];
 
+/**
+ * Truncates a filename to fit within a constrained space.
+ * Preserves the beginning of the name and the file extension,
+ * inserting an ellipsis (…) in the middle when truncation is needed.
+ */
+const truncateFilename = (filePath: string, maxLength = 18): string => {
+  // Extract just the filename from the full path
+  const filename = filePath.replace(/\\/g, '/').split('/').pop() || filePath;
+  if (filename.length <= maxLength) return filename;
+
+  const dotIndex = filename.lastIndexOf('.');
+  if (dotIndex === -1) {
+    // No extension — just truncate with ellipsis
+    return filename.slice(0, maxLength - 1) + '…';
+  }
+
+  const ext = filename.slice(dotIndex); // e.g. ".mp3"
+  const name = filename.slice(0, dotIndex);
+  const availableChars = maxLength - ext.length - 1; // -1 for the ellipsis
+
+  if (availableChars <= 2) {
+    // Very long extension or very short max — just show what we can
+    return filename.slice(0, maxLength - 1) + '…';
+  }
+
+  return name.slice(0, availableChars) + '…' + ext;
+};
+
 const CustomTimeSignatureInput = ({
   value,
   onChange
@@ -271,8 +299,8 @@ export const ContextMenu = ({
         </div>
         <div className="menu-group flex-2">
           <label className="menu-label">{t('source')}</label>
-          <button className="browse-btn" onClick={onChangeFile}>
-            {t('browse')}
+          <button className="browse-btn" onClick={onChangeFile} title={track.file || ''}>
+            {track.file ? truncateFilename(track.file) : t('browse')}
           </button>
         </div>
       </div>
