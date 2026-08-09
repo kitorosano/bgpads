@@ -14,6 +14,15 @@ interface AudioButtonProps {
   playbackProgress?: number; // 0 to 1
   currentTime?: number; // seconds
   duration?: number; // seconds
+  draggable?: boolean;
+  isDragging?: boolean;
+  isDragOver?: boolean;
+  onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnd?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnter?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
 }
 
 const formatTime = (seconds: number): string => {
@@ -33,25 +42,34 @@ export const AudioButton = ({
   index,
   playbackProgress = 0,
   currentTime = 0,
-  duration = 0
+  duration = 0,
+  draggable = false,
+  isDragging = false,
+  isDragOver = false,
+  onDragStart,
+  onDragEnd,
+  onDragEnter,
+  onDragOver,
+  onDragLeave,
+  onDrop
 }: AudioButtonProps) => {
   const { t } = useI18n();
 
   const handleClick = () => {
-    if (!isLoading) {
+    if (!isLoading && !isDragging) {
       onClick();
     }
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
-    if (!isLoading) {
+    if (!isLoading && !isDragging) {
       onContextMenu(e);
     }
   };
 
   return (
     <div
-      className={`audio-button-container ${isPlaying ? 'playing' : ''} ${isFadingOut ? 'fading' : ''}`}
+      className={`audio-button-container ${isPlaying ? 'playing' : ''} ${isFadingOut ? 'fading' : ''} ${isDragging ? 'dragging' : ''} ${isDragOver ? 'drag-over' : ''}`}
       style={
         {
           '--button-color': track.color,
@@ -61,6 +79,13 @@ export const AudioButton = ({
       }
       onClick={handleClick}
       onContextMenu={handleContextMenu}
+      draggable={draggable && !isLoading}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
       {isLoading && <Spinner />}
       <div className="audio-button-content" style={{ opacity: isLoading ? 0.5 : 1 }}>

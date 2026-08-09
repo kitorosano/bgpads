@@ -9,7 +9,12 @@ import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useMetronome } from '../hooks/useMetronome';
 import { useTracks } from '../hooks/useTracks';
 import { AudioTrack, ContextMenuState } from '../types';
-import { createTrackFromPath, validateTracks } from '../utils/trackUtils';
+import {
+  createTrackFromPath,
+  normalizeKeybindingsByIndex,
+  reorderTracksById,
+  validateTracks
+} from '../utils/trackUtils';
 
 export const MainPage = () => {
   const {
@@ -61,6 +66,8 @@ export const MainPage = () => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const initializedRef = useRef(false);
   const isManualUpdate = useRef(false);
+  const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
+  const [dragOverTrackId, setDragOverTrackId] = useState<string | null>(null);
 
   // Sync fadeOutDuration from config to player
   useEffect(() => {
@@ -216,6 +223,82 @@ export const MainPage = () => {
     setContextMenu(null);
   };
 
+  const clearDragState = () => {
+    setDraggedTrackId(null);
+    setDragOverTrackId(null);
+  };
+
+  const handleDragStart = (trackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', trackId);
+    setDraggedTrackId(trackId);
+  };
+
+  const handleDragEnter = (trackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (draggedTrackId && draggedTrackId !== trackId) {
+      setDragOverTrackId(trackId);
+    }
+  };
+
+  const handleDragOver = (trackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    if (draggedTrackId && draggedTrackId !== trackId && dragOverTrackId !== trackId) {
+      setDragOverTrackId(trackId);
+    }
+  };
+
+  const handleDragLeave = (trackId: string) => () => {
+    setDragOverTrackId((current) => (current === trackId ? null : current));
+  };
+
+  const handleDrop = (targetTrackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const sourceTrackId = draggedTrackId || event.dataTransfer.getData('text/plain');
+    if (!sourceTrackId || sourceTrackId === targetTrackId) {
+      clearDragState();
+      return;
+    }
+
+    setTracks((previousTracks) => {
+      const reorderedTracks = reorderTracksById(previousTracks, sourceTrackId, targetTrackId);
+      return normalizeKeybindingsByIndex(reorderedTracks);
+    });
+
+    clearDragState();
+  };
+
+  const handleDropInGrid = (event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+
+    const sourceTrackId = draggedTrackId || event.dataTransfer.getData('text/plain');
+    if (!sourceTrackId) {
+      clearDragState();
+      return;
+    }
+
+    if (dragOverTrackId) {
+      return;
+    }
+
+    setTracks((previousTracks) => {
+      const sourceIndex = previousTracks.findIndex((track) => track.id === sourceTrackId);
+      if (sourceIndex === -1 || sourceIndex === previousTracks.length - 1) {
+        return previousTracks;
+      }
+
+      const reorderedTracks = [...previousTracks];
+      const [draggedTrack] = reorderedTracks.splice(sourceIndex, 1);
+      reorderedTracks.push(draggedTrack);
+      return normalizeKeybindingsByIndex(reorderedTracks);
+    });
+
+    clearDragState();
+  };
+
   const handleChangeFile = async (trackId: string) => {
     // Determine the original track ahead of time
     const originalTrack = tracks.find((t) => t.id === trackId);
@@ -267,7 +350,14 @@ export const MainPage = () => {
         />
       </div>
 
-      <main className="grid-container">
+      <main
+        className="grid-container"
+        onDragOver={(event) => {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'move';
+        }}
+        onDrop={handleDropInGrid}
+      >
         {tracks.map((track, index) => (
           <AudioButton
             key={track.id}
@@ -280,6 +370,15 @@ export const MainPage = () => {
             playbackProgress={isPlaying === track.id ? playbackProgress : 0}
             currentTime={isPlaying === track.id ? currentTime : 0}
             duration={isPlaying === track.id ? duration : 0}
+            draggable
+            isDragging={draggedTrackId === track.id}
+            isDragOver={dragOverTrackId === track.id}
+            onDragStart={handleDragStart(track.id)}
+            onDragEnd={clearDragState}
+            onDragEnter={handleDragEnter(track.id)}
+            onDragOver={handleDragOver(track.id)}
+            onDragLeave={handleDragLeave(track.id)}
+            onDrop={handleDrop(track.id)}
             onClick={() => {
               const updates: any = {};
               if (track.bpm) updates.bpm = track.bpm;

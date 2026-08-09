@@ -217,19 +217,6 @@ export const useMetronome = (
     clearPendingTimeouts();
   }, [clearPendingTimeouts]);
 
-  const toggle = useCallback(() => {
-    // We need to check the current state ref or rely on the state variable.
-    // Since this is a toggle, functional update or play/stop is fine.
-    // However, we need to access `isPlaying` correctly.
-    // The `isPlaying` from scope might be stale if `toggle` isn't updated?
-    // `toggle` depends on `isPlaying`.
-    if (isPlaying) {
-      stop();
-    } else {
-      start();
-    }
-  }, [isPlaying, start, stop]);
-
   // Clean up on unmount
   useEffect(() => {
     return () => {
@@ -242,6 +229,19 @@ export const useMetronome = (
       }
     };
   }, [clearPendingTimeouts]);
+
+  const toggle = useCallback(() => {
+    // We need to check the current state ref or rely on the state variable.
+    // Since this is a toggle, functional update or play/stop is fine.
+    // However, we need to access `isPlaying` correctly.
+    // The `isPlaying` from scope might be stale if `toggle` isn't updated?
+    // `toggle` depends on `isPlaying`.
+    if (isPlaying) {
+      stop();
+    } else {
+      start();
+    }
+  }, [isPlaying, start, stop]);
 
   return { isPlaying, start, stop, toggle };
 };

@@ -2,7 +2,8 @@ import {
   COLORS,
   DEFAULT_BPM,
   DEFAULT_METRONOME_TIME_SIGNATURE,
-  DEFAULT_TRACK_VOLUME
+  DEFAULT_TRACK_VOLUME,
+  TOP_ROW_KEYS
 } from '../../../constants';
 import { AudioTrack } from '../types';
 
@@ -36,5 +37,31 @@ export const validateTracks = (tracks: any[]): AudioTrack[] => {
     volume: t.volume ?? DEFAULT_TRACK_VOLUME,
     bpm: t.bpm ?? DEFAULT_BPM,
     timeSignature: t.timeSignature ?? DEFAULT_METRONOME_TIME_SIGNATURE
+  }));
+};
+
+export const reorderTracksById = (
+  tracks: AudioTrack[],
+  draggedTrackId: string,
+  targetTrackId: string
+): AudioTrack[] => {
+  const sourceIndex = tracks.findIndex((track) => track.id === draggedTrackId);
+  const targetIndex = tracks.findIndex((track) => track.id === targetTrackId);
+
+  if (sourceIndex === -1 || targetIndex === -1 || sourceIndex === targetIndex) {
+    return tracks;
+  }
+
+  const reorderedTracks = [...tracks];
+  const [draggedTrack] = reorderedTracks.splice(sourceIndex, 1);
+  reorderedTracks.splice(targetIndex, 0, draggedTrack);
+
+  return reorderedTracks;
+};
+
+export const normalizeKeybindingsByIndex = (tracks: AudioTrack[]): AudioTrack[] => {
+  return tracks.map((track, index) => ({
+    ...track,
+    keybinding: TOP_ROW_KEYS[index] ?? null
   }));
 };
