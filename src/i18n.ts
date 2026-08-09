@@ -4,13 +4,13 @@ export const translations = {
 
     // Menu
     file: 'Archivo',
+    setlist: 'Setlist',
     pads: 'Pads',
-    metronome: 'Metrónomo',
     help: 'Ayuda',
 
     // File Menu
-    importTracks: 'Importar Pistas',
-    exportTracks: 'Exportar Pistas',
+    importTracks: 'Importar Setlist',
+    exportTracks: 'Exportar Setlist',
     preferences: 'Preferencias',
     quit: 'Salir',
 
@@ -27,13 +27,13 @@ export const translations = {
     clearShortcut: 'Borrar',
 
     // Pads Settings
-    addAudio: 'Agregar Audio',
+    addAudio: 'Agregar Pad',
     clearPads: 'Limpiar Pads',
-    padsSettings: 'Config. Pads',
+    padsSettings: 'Confiuración de Pads',
     autoAssignShortcuts: 'Autoasignar atajos',
 
     // Metronome Settings
-    metronomeSettings: 'Config. Metrónomo',
+    metronomeSettings: 'Configuración de Metrónomo',
     frequency: 'Frecuencia (Tono)',
     decay: 'Decaimiento (Duración)',
     harmonics: 'Armónicos (Riqueza)',
@@ -84,13 +84,13 @@ export const translations = {
 
     // Menu
     file: 'File',
+    setlist: 'Setlist',
     pads: 'Pads',
-    metronome: 'Metronome',
     help: 'Help',
 
     // File Menu
-    importTracks: 'Import Tracks',
-    exportTracks: 'Export Tracks',
+    importTracks: 'Import Setlist',
+    exportTracks: 'Export Setlist',
     preferences: 'Preferences',
     quit: 'Quit',
 
@@ -107,13 +107,13 @@ export const translations = {
     clearShortcut: 'Clear',
 
     // Pads Settings
-    addAudio: 'Add Audio',
+    addAudio: 'Add Pad',
     clearPads: 'Clear Pads',
-    padsSettings: 'Pads Config',
+    padsSettings: 'Pads Configuration',
     autoAssignShortcuts: 'Auto-assign Shortcuts',
 
     // Metronome Settings
-    metronomeSettings: 'Metronome Config',
+    metronomeSettings: 'Metronome Configuration',
     frequency: 'Frequency (Pitch)',
     decay: 'Decay (Duration)',
     harmonics: 'Harmonics (Richness)',

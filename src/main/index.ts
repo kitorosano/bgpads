@@ -25,18 +25,23 @@ const setMenu = (language: Language) => {
       label: t.file,
       submenu: [
         {
+          label: t.preferences,
+          click: () => ipcMain.emit('menu-open-settings')
+        },
+        { label: t.quit, role: 'quit' }
+      ]
+    },
+    {
+      label: t.setlist,
+      submenu: [
+        {
           label: t.importTracks,
           click: () => mainWindow?.webContents.send('menu-import-tracks')
         },
         {
           label: t.exportTracks,
           click: () => mainWindow?.webContents.send('menu-export-tracks')
-        },
-        {
-          label: t.preferences,
-          click: () => ipcMain.emit('menu-open-settings')
-        },
-        { label: t.quit, role: 'quit' }
+        }
       ]
     },
     {
@@ -49,19 +54,6 @@ const setMenu = (language: Language) => {
         {
           label: t.clearPads,
           click: () => mainWindow?.webContents.send('menu-clear-pads')
-        },
-        {
-          label: t.padsSettings,
-          click: () => ipcMain.emit('menu-open-pads-settings')
-        }
-      ]
-    },
-    {
-      label: t.metronome,
-      submenu: [
-        {
-          label: t.metronomeSettings,
-          click: () => ipcMain.emit('menu-open-metronome-settings')
         }
       ]
     },
@@ -205,8 +197,6 @@ app.whenReady().then(() => {
 
   // Window Management
   let settingsWindow: BrowserWindow | null = null;
-  let padSettingsWindow: BrowserWindow | null = null;
-  let metronomeSettingsWindow: BrowserWindow | null = null;
   let aboutWindow: BrowserWindow | null = null;
 
   const createAuxWindow = (
@@ -244,22 +234,6 @@ app.whenReady().then(() => {
       return;
     }
     settingsWindow = createAuxWindow('/settings', 'Preferences');
-  });
-
-  ipcMain.on('menu-open-pads-settings', () => {
-    if (padSettingsWindow && !padSettingsWindow.isDestroyed()) {
-      padSettingsWindow.focus();
-      return;
-    }
-    padSettingsWindow = createAuxWindow('/pads-settings', 'Pads Configuration');
-  });
-
-  ipcMain.on('menu-open-metronome-settings', () => {
-    if (metronomeSettingsWindow && !metronomeSettingsWindow.isDestroyed()) {
-      metronomeSettingsWindow.focus();
-      return;
-    }
-    metronomeSettingsWindow = createAuxWindow('/metronome-settings', 'Metronome Configuration');
   });
 
   ipcMain.on('menu-open-about', () => {

@@ -2,15 +2,13 @@ import { useAppConfig } from '@renderer/hooks/useAppConfig';
 import { useI18n } from '@renderer/hooks/useI18n';
 import { CROSSFADE_STEP_INCREMENT } from '../../../constants';
 
-export const PadSettingsPage = () => {
+export const PadSettingsSection = () => {
   const { t } = useI18n();
   const { fadeOutDuration, setFadeOutDuration, autoAssignShortcuts, setAutoAssignShortcuts } =
     useAppConfig();
 
   return (
-    <div className="app-container" style={{ padding: '20px', overflowY: 'auto' }}>
-      <h2>{t('padsSettings')}</h2>
-
+    <>
       <div className="control-group" style={{ marginBottom: '20px' }}>
         <label>
           {t('fadeOutDuration')}: {fadeOutDuration.toFixed(1)}s
@@ -43,6 +41,17 @@ export const PadSettingsPage = () => {
           style={{ width: '20px', height: '20px', cursor: 'pointer' }}
         />
       </div>
+    </>
+  );
+};
+
+export const PadSettingsPage = () => {
+  const { t } = useI18n();
+
+  return (
+    <div className="app-container" style={{ padding: '20px', overflowY: 'auto' }}>
+      <h2>{t('padsSettings')}</h2>
+      <PadSettingsSection />
     </div>
   );
 };

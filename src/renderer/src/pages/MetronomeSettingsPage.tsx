@@ -8,7 +8,7 @@ import {
   SHORTCUT_KEYS_TO_IGNORE
 } from '../../../constants';
 
-export const MetronomeSettingsPage = () => {
+export const MetronomeSettingsSection = () => {
   const { t } = useI18n();
   const {
     metronomeShortcut,
@@ -31,9 +31,7 @@ export const MetronomeSettingsPage = () => {
   } = useAppConfig();
 
   return (
-    <div className="app-container" style={{ padding: '20px', overflowY: 'auto' }}>
-      <h2>{t('metronomeSettings')}</h2>
-
+    <>
       {/* BPM Configuration */}
 
       <div className="control-group" style={{ marginBottom: '20px' }}>
@@ -184,6 +182,17 @@ export const MetronomeSettingsPage = () => {
           style={{ width: '100%' }}
         />
       </div>
+    </>
+  );
+};
+
+export const MetronomeSettingsPage = () => {
+  const { t } = useI18n();
+
+  return (
+    <div className="app-container" style={{ padding: '20px', overflowY: 'auto' }}>
+      <h2>{t('metronomeSettings')}</h2>
+      <MetronomeSettingsSection />
     </div>
   );
 };
