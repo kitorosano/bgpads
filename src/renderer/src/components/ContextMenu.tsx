@@ -57,6 +57,8 @@ const BpmInput = ({ value, placeholder, onChange }: BpmInputProps) => {
       type="number"
       min={MIN_BPM}
       max={MAX_BPM}
+      step="0.1"
+      inputMode="decimal"
       placeholder={placeholder}
       value={localValue}
       onChange={(e) => setLocalValue(e.target.value)}
