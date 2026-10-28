@@ -1,3 +1,4 @@
+import { AudioBufferCache } from '@renderer/engine/AudioBufferCache';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioTrack } from '../types';
 import { useAppConfig } from './useAppConfig';
@@ -7,7 +8,7 @@ export const useAudioPlayer = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
-  const bufferCache = useRef<Map<string, AudioBuffer>>(new Map());
+  const bufferCache = useRef(new AudioBufferCache());
   const [loadingTrackIds, setLoadingTrackIds] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState<string | null>(null); // ID of playing track
   const [fadeOutDuration, setFadeOutDuration] = useState(2); // Seconds
@@ -34,15 +35,18 @@ export const useAudioPlayer = () => {
     }
   }, []);
 
-  const startProgressTracking = useCallback((audioDuration: number) => {
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    startTimeRef.current = audioContextRef.current!.currentTime;
-    durationRef.current = audioDuration;
-    setDuration(audioDuration);
-    setCurrentTime(0);
-    setPlaybackProgress(0);
-    animFrameRef.current = requestAnimationFrame(updateProgress);
-  }, [updateProgress]);
+  const startProgressTracking = useCallback(
+    (audioDuration: number) => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      startTimeRef.current = audioContextRef.current!.currentTime;
+      durationRef.current = audioDuration;
+      setDuration(audioDuration);
+      setCurrentTime(0);
+      setPlaybackProgress(0);
+      animFrameRef.current = requestAnimationFrame(updateProgress);
+    },
+    [updateProgress]
+  );
 
   const stopProgressTracking = useCallback(() => {
     if (animFrameRef.current) {
