@@ -149,28 +149,14 @@ export const useAudioPlayer = ({ tracksOutputDeviceId }: UseAudioPlayerOptions) 
 
   const play = useCallback(
     async (track: AudioTrack) => {
-      // Toggle currently playing track
-      if (isPlayingRef.current === track.id) {
-        stop();
-        return;
-      }
-
       const previousTrackId = isPlayingRef.current;
 
       stopProgressTracking();
 
-      // Preserve the current UI indication while the previous pad fades out.
-      if (previousTrackId) {
-        if (fadeOutTimerRef.current) {
-          clearTimeout(fadeOutTimerRef.current);
-        }
-
-        setFadingOutTrackId(previousTrackId);
-
-        fadeOutTimerRef.current = setTimeout(() => {
-          setFadingOutTrackId(null);
-          fadeOutTimerRef.current = null;
-        }, fadeOutDuration * 1000);
+      // Toggle currently playing track
+      if (isPlayingRef.current === track.id) {
+        stop();
+        return;
       }
 
       const source = getTrackAudioSource(track);
@@ -193,6 +179,33 @@ export const useAudioPlayer = ({ tracksOutputDeviceId }: UseAudioPlayerOptions) 
           volume: track.volume,
           fadeOutDuration
         });
+        if (!buffer) {
+          setLoadingTrackIds((previous) => {
+            if (!previous.has(track.id)) {
+              return previous;
+            }
+
+            const next = new Set(previous);
+            next.delete(track.id);
+            return next;
+          });
+
+          return;
+        }
+
+        // Preserve the current UI indication while the previous pad fades out.
+        if (previousTrackId) {
+          if (fadeOutTimerRef.current) {
+            clearTimeout(fadeOutTimerRef.current);
+          }
+
+          setFadingOutTrackId(previousTrackId);
+
+          fadeOutTimerRef.current = setTimeout(() => {
+            setFadingOutTrackId(null);
+            fadeOutTimerRef.current = null;
+          }, fadeOutDuration * 1000);
+        }
 
         console.timeEnd('Loading Audio Buffer');
 

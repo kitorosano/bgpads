@@ -15,6 +15,7 @@ export class AudioEngine {
   private readonly bufferCache = new AudioBufferCache();
 
   private activeAudioKey: string | null = null;
+  private playRequestId = 0;
 
   private readonly endedListeners = new Set<AudioEndedListener>();
 
@@ -77,12 +78,18 @@ export class AudioEngine {
     audioKey: string,
     filePath: string,
     options: AudioEnginePlayOptions
-  ): Promise<AudioBuffer> {
-    const context = this.ensureAudioContext();
-
-    await this.fadeOutActiveSource(options.fadeOutDuration);
+  ): Promise<AudioBuffer | null> {
+    const requestId = ++this.playRequestId;
 
     const buffer = await this.loadBuffer(audioKey, filePath);
+
+    // Another play request was made while this buffer was loading.
+    // The newest request always wins.
+    if (requestId !== this.playRequestId) return null;
+
+    const context = this.ensureAudioContext();
+
+    this.fadeOutActiveSource(options.fadeOutDuration);
 
     const source = context.createBufferSource();
     source.buffer = buffer;
@@ -113,7 +120,8 @@ export class AudioEngine {
   }
 
   stop(fadeOutDuration: number): void {
-    void this.fadeOutActiveSource(fadeOutDuration);
+    this.playRequestId++;
+    this.fadeOutActiveSource(fadeOutDuration);
   }
 
   setVolume(volume: number): void {
@@ -144,10 +152,8 @@ export class AudioEngine {
     return this.bufferCache.getEstimatedMemoryUsage();
   }
 
-  private async fadeOutActiveSource(duration: number): Promise<void> {
-    if (!this.audioContext || !this.activeSource || !this.gainNode) {
-      return;
-    }
+  private fadeOutActiveSource(duration: number): void {
+    if (!this.audioContext || !this.activeSource || !this.gainNode) return;
 
     const context = this.audioContext;
     const source = this.activeSource;
