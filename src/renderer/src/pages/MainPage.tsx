@@ -12,8 +12,7 @@ import { AudioTrack, ContextMenuState } from '../types';
 import {
   createTrackFromPath,
   normalizeKeybindingsByIndex,
-  reorderTracksById,
-  validateTracks
+  reorderTracksById
 } from '../utils/trackUtils';
 
 export const MainPage = () => {
@@ -24,7 +23,6 @@ export const MainPage = () => {
     isLoading,
     bpm,
     metronomeShortcut,
-    tracks: configTracks,
     autoAssignShortcuts,
     updateConfig,
     timeSignature,
@@ -44,6 +42,9 @@ export const MainPage = () => {
     duration,
     fadingOutTrackId
   } = useAudioPlayer({ tracksOutputDeviceId });
+
+  // We use a ref to track whether the initial preload has been done to avoid re-preloading on every render
+  const initialPreloadDoneRef = useRef(false);
 
   // Metronome Visual State
   const [currentBeat, setCurrentBeat] = useState(0);
@@ -65,7 +66,6 @@ export const MainPage = () => {
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
-  const initializedRef = useRef(false);
   const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
   const [dragOverTrackId, setDragOverTrackId] = useState<string | null>(null);
 
@@ -75,22 +75,13 @@ export const MainPage = () => {
   }, [configFadeOut, setFadeOutDuration]);
 
   // Load tracks from config and preload
-  // Load tracks from config and preload
   useEffect(() => {
-    if (isLoading || initializedRef.current) return;
+    if (isLoading || initialPreloadDoneRef.current) return;
 
-    const init = () => {
-      const tracksWithVolume = validateTracks(configTracks);
+    tracks.forEach(preload);
 
-      tracksWithVolume.forEach((track: AudioTrack) => {
-        preload(track);
-      });
-
-      initializedRef.current = true;
-    };
-
-    init();
-  }, [isLoading, configTracks, preload]);
+    initialPreloadDoneRef.current = true;
+  }, [isLoading, tracks, preload]);
 
   // IPC Listeners for adding audio
   useEffect(() => {
@@ -138,19 +129,14 @@ export const MainPage = () => {
     const removeImportListener = window.api.onMenuImportTracks(async () => {
       try {
         const importedTracks = await window.api.loadTracksFile();
+
         if (importedTracks && Array.isArray(importedTracks)) {
-          // Validate structure minimally
-          const validTracks = validateTracks(importedTracks);
+          const tracks = importedTracks as AudioTrack[];
 
-          if (validTracks.length > 0) {
-            // Render tracks immediately
-            setTracks(validTracks);
+          if (tracks.length > 0) {
+            setTracks(tracks);
 
-            // Preload in background
-            validTracks.forEach((track) => preload(track));
-
-            // Trigger config update immediately to persist
-            updateConfig({ tracks: validTracks });
+            tracks.forEach(preload);
           }
         }
       } catch (error) {

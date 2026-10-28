@@ -30,15 +30,6 @@ export const createTrackFromPath = (
   };
 };
 
-export const validateTracks = (tracks: AudioTrack[]): AudioTrack[] => {
-  return tracks.map((track) => ({
-    ...track,
-    volume: track.volume ?? DEFAULT_TRACK_VOLUME,
-    bpm: track.bpm ?? DEFAULT_BPM,
-    timeSignature: track.timeSignature ?? DEFAULT_METRONOME_TIME_SIGNATURE
-  }));
-};
-
 export const reorderTracksById = (
   tracks: AudioTrack[],
   draggedTrackId: string,
