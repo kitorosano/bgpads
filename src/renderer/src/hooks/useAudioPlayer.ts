@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getTrackAudioSource, resolveAudioSource } from '../audio/AudioSource';
 import { audioEngine } from '../engine/AudioEngine';
 import { AudioTrack } from '../types';
-import { useAppConfig } from './useAppConfig';
 
-export const useAudioPlayer = () => {
-  const { tracksOutputDeviceId } = useAppConfig();
+interface UseAudioPlayerOptions {
+  tracksOutputDeviceId?: string;
+}
 
+export const useAudioPlayer = ({ tracksOutputDeviceId }: UseAudioPlayerOptions) => {
   const [loadingTrackIds, setLoadingTrackIds] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [fadeOutDuration, setFadeOutDuration] = useState(2);
@@ -121,7 +123,10 @@ export const useAudioPlayer = () => {
     });
 
     try {
-      await audioEngine.preload(track.file, track.file);
+      const source = getTrackAudioSource(track);
+      const resolved = resolveAudioSource(source);
+
+      await audioEngine.preload(resolved.key, resolved.path);
     } catch (error) {
       console.error(`Failed to preload track ${track.name}:`, error);
     } finally {
@@ -168,7 +173,10 @@ export const useAudioPlayer = () => {
         }, fadeOutDuration * 1000);
       }
 
-      const isCached = audioEngine.hasCached(track.file);
+      const source = getTrackAudioSource(track);
+      const resolved = resolveAudioSource(source);
+
+      const isCached = audioEngine.hasCached(resolved.key);
 
       if (!isCached) {
         setLoadingTrackIds((previous) => {
@@ -181,7 +189,7 @@ export const useAudioPlayer = () => {
       try {
         console.time('Loading Audio Buffer');
 
-        const buffer = await audioEngine.play(track.file, track.file, {
+        const buffer = await audioEngine.play(resolved.key, resolved.path, {
           volume: track.volume,
           fadeOutDuration
         });

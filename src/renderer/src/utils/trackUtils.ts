@@ -20,7 +20,7 @@ export const createTrackFromPath = (
 
   return {
     id: crypto.randomUUID(),
-    file: path,
+    source: { type: 'file', path },
     name,
     keybinding: options?.keybinding || null,
     color: options?.color || getRandomColor(),
@@ -30,13 +30,12 @@ export const createTrackFromPath = (
   };
 };
 
-export const validateTracks = (tracks: any[]): AudioTrack[] => {
-  const validTracks = tracks.filter((t: any) => t.file && typeof t.file === 'string');
-  return validTracks.map((t: any) => ({
-    ...t,
-    volume: t.volume ?? DEFAULT_TRACK_VOLUME,
-    bpm: t.bpm ?? DEFAULT_BPM,
-    timeSignature: t.timeSignature ?? DEFAULT_METRONOME_TIME_SIGNATURE
+export const validateTracks = (tracks: AudioTrack[]): AudioTrack[] => {
+  return tracks.map((track) => ({
+    ...track,
+    volume: track.volume ?? DEFAULT_TRACK_VOLUME,
+    bpm: track.bpm ?? DEFAULT_BPM,
+    timeSignature: track.timeSignature ?? DEFAULT_METRONOME_TIME_SIGNATURE
   }));
 };
 

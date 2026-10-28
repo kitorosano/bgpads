@@ -122,10 +122,14 @@ export class AudioEngine {
     this.gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
   }
 
+  retain(audioKey: string): void {
+    this.bufferCache.retain(audioKey);
+  }
+
   release(audioKey: string): boolean {
     if (audioKey === this.activeAudioKey) return false;
 
-    return this.bufferCache.delete(audioKey);
+    return this.bufferCache.release(audioKey);
   }
 
   clearCache(): void {

@@ -17,20 +17,9 @@ import {
 } from '../utils/trackUtils';
 
 export const MainPage = () => {
-  const {
-    play,
-    isPlaying,
-    preload,
-    setFadeOutDuration,
-    loadingTrackIds,
-    setVolume,
-    playbackProgress,
-    currentTime,
-    duration,
-    fadingOutTrackId
-  } = useAudioPlayer();
   const { tracks, setTracks, updateTrack, removeTrack } = useTracks();
   const {
+    tracksOutputDeviceId,
     fadeOutDuration: configFadeOut,
     isLoading,
     bpm,
@@ -43,6 +32,18 @@ export const MainPage = () => {
     beatAccents,
     setBeatAccents
   } = useAppConfig();
+  const {
+    play,
+    isPlaying,
+    preload,
+    setFadeOutDuration,
+    loadingTrackIds,
+    setVolume,
+    playbackProgress,
+    currentTime,
+    duration,
+    fadingOutTrackId
+  } = useAudioPlayer({ tracksOutputDeviceId });
 
   // Metronome Visual State
   const [currentBeat, setCurrentBeat] = useState(0);
@@ -65,7 +66,6 @@ export const MainPage = () => {
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const initializedRef = useRef(false);
-  const isManualUpdate = useRef(false);
   const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
   const [dragOverTrackId, setDragOverTrackId] = useState<string | null>(null);
 
@@ -79,20 +79,18 @@ export const MainPage = () => {
   useEffect(() => {
     if (isLoading || initializedRef.current) return;
 
-    const init = async () => {
-      if (configTracks) {
-        const tracksWithVolume = validateTracks(configTracks);
+    const init = () => {
+      const tracksWithVolume = validateTracks(configTracks);
 
-        // Render tracks immediately
-        setTracks(tracksWithVolume);
+      tracksWithVolume.forEach((track: AudioTrack) => {
+        preload(track);
+      });
 
-        // Preload in background (individual spinners will show)
-        tracksWithVolume.forEach((track: AudioTrack) => preload(track));
-      }
       initializedRef.current = true;
     };
+
     init();
-  }, [isLoading, configTracks, preload, setTracks]);
+  }, [isLoading, configTracks, preload]);
 
   // IPC Listeners for adding audio
   useEffect(() => {
@@ -152,7 +150,6 @@ export const MainPage = () => {
             validTracks.forEach((track) => preload(track));
 
             // Trigger config update immediately to persist
-            isManualUpdate.current = true;
             updateConfig({ tracks: validTracks });
           }
         }
@@ -168,19 +165,6 @@ export const MainPage = () => {
       removeImportListener();
     };
   }, [tracks, setTracks, autoAssignShortcuts, preload]);
-
-  // Save config on changes (only tracks, others handled by useAppConfig)
-  // Save config on changes (only tracks, others handled by useAppConfig)
-  useEffect(() => {
-    if (isLoading) return;
-    if (isManualUpdate.current) {
-      isManualUpdate.current = false;
-      return;
-    }
-    updateConfig({
-      tracks
-    });
-  }, [tracks, isLoading, updateConfig]);
 
   // Global keydown listener
   useEffect(() => {
@@ -309,11 +293,15 @@ export const MainPage = () => {
     if (!filePaths || filePaths.length === 0) return;
 
     const newPath = filePaths[0];
-    const newName = newPath.split(/[\\/]/).pop()?.replace('.mp3', '') || 'Unknown';
+    const newName =
+      newPath
+        .split(/[\\/]/)
+        .pop()
+        ?.replace(/\.mp3$/i, '') || 'Unknown';
 
     const updatedTrack: AudioTrack = {
       ...originalTrack,
-      file: newPath,
+      source: { type: 'file', path: newPath },
       name: newName
     };
 
@@ -410,7 +398,6 @@ export const MainPage = () => {
           onClose={() => setContextMenu(null)}
           onUpdate={(updatedTrack) => {
             const newTracks = tracks.map((t) => (t.id === updatedTrack.id ? updatedTrack : t));
-            isManualUpdate.current = true;
             setTracks(newTracks);
 
             const updates: any = { tracks: newTracks };

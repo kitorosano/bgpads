@@ -218,6 +218,8 @@ export const ContextMenu = ({
     setAdjustedPosition(newPos);
   }, [position]);
 
+  const customFilePath = track.source.type === 'file' ? track.source.path : null;
+
   return (
     <div
       ref={menuRef}
@@ -301,8 +303,8 @@ export const ContextMenu = ({
         </div>
         <div className="menu-group flex-2">
           <label className="menu-label">{t('source')}</label>
-          <button className="browse-btn" onClick={onChangeFile} title={track.file || ''}>
-            {track.file ? truncateFilename(track.file) : t('browse')}
+          <button className="browse-btn" onClick={onChangeFile} title={customFilePath ?? ''}>
+            {customFilePath ? truncateFilename(customFilePath) : t('browse')}
           </button>
         </div>
       </div>
