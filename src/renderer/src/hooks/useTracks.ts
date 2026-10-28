@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { DEFAULT_BPM, DEFAULT_TRACK_VOLUME } from '../../../constants';
 import { AudioTrack } from '../types';
+import { normalizeKeybindingsByIndex } from '../utils/trackUtils';
 import { useAppConfig } from './useAppConfig';
 
 export const useTracks = () => {
@@ -44,7 +45,11 @@ export const useTracks = () => {
 
   const removeTrack = useCallback(
     (id: string) => {
-      setTracks((previousTracks) => previousTracks.filter((track) => track.id !== id));
+      setTracks((previousTracks) => {
+        const remainingTracks = previousTracks.filter((track) => track.id !== id);
+
+        return normalizeKeybindingsByIndex(remainingTracks);
+      });
     },
     [setTracks]
   );
