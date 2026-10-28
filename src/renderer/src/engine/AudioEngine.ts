@@ -5,6 +5,8 @@ export interface AudioEnginePlayOptions {
   fadeOutDuration: number;
 }
 
+type AudioEndedListener = (audioKey: string) => void;
+
 export class AudioEngine {
   private audioContext: AudioContext | null = null;
   private activeSource: AudioBufferSourceNode | null = null;
@@ -13,6 +15,22 @@ export class AudioEngine {
   private readonly bufferCache = new AudioBufferCache();
 
   private activeAudioKey: string | null = null;
+
+  private readonly endedListeners = new Set<AudioEndedListener>();
+
+  onEnded(listener: AudioEndedListener): () => void {
+    this.endedListeners.add(listener);
+
+    return () => {
+      this.endedListeners.delete(listener);
+    };
+  }
+
+  private emitEnded(audioKey: string): void {
+    for (const listener of this.endedListeners) {
+      listener(audioKey);
+    }
+  }
 
   private ensureAudioContext(): AudioContext {
     if (!this.audioContext) {
@@ -23,20 +41,18 @@ export class AudioEngine {
   }
 
   async setOutputDevice(deviceId?: string): Promise<void> {
-    if (!deviceId || deviceId === 'default') return;
-
     const context = this.ensureAudioContext();
 
-    if ('setSinkId' in context) {
-      try {
-        await (
-          context as AudioContext & {
-            setSinkId: (sinkId: string) => Promise<void>;
-          }
-        ).setSinkId(deviceId);
-      } catch (error) {
-        console.warn('Failed to set audio output device:', error);
-      }
+    if (!('setSinkId' in context)) return;
+
+    try {
+      await (
+        context as AudioContext & {
+          setSinkId: (sinkId: string) => Promise<void>;
+        }
+      ).setSinkId(!deviceId || deviceId === 'default' ? '' : deviceId);
+    } catch (error) {
+      console.warn('Failed to set audio output device:', error);
     }
   }
 
@@ -82,6 +98,16 @@ export class AudioEngine {
     this.activeSource = source;
     this.gainNode = gain;
     this.activeAudioKey = audioKey;
+
+    source.onended = () => {
+      if (this.activeSource !== source) return;
+
+      this.activeSource = null;
+      this.gainNode = null;
+      this.activeAudioKey = null;
+
+      this.emitEnded(audioKey);
+    };
 
     return buffer;
   }
