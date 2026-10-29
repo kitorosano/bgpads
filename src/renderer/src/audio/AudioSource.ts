@@ -13,16 +13,9 @@ export const resolveAudioSource = (source: AudioSource): ResolvedAudioSource => 
         path: source.path
       };
 
-    case 'builtin':
-      return {
-        key: `builtin:${source.id}`,
-        path: resolveBuiltinAudioPath(source.id)
-      };
+    case 'tonal':
+      throw new Error(`Tonal audio source not implemented yet: ${source.key}`);
   }
-};
-
-const resolveBuiltinAudioPath = (id: Extract<AudioSource, { type: 'builtin' }>['id']): string => {
-  throw new Error(`Builtin audio source not implemented yet: ${id}`);
 };
 
 export const getTrackAudioSource = (track: AudioTrack): AudioSource => track.source;

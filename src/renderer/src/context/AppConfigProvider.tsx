@@ -58,6 +58,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     DEFAULT_METRONOME_ACCENT_HARMONIC_COUNT
   );
   const [beatAccents, setBeatAccents] = useState<number[]>(DEFAULT_BEAT_ACCENTS);
+  const [tonalPadBankPath, setTonalPadBankPath] = useState<string | undefined>();
 
   const configRef = useRef<AppConfig | null>(null);
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
@@ -125,6 +126,9 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (config.beatAccents) {
           setBeatAccents(config.beatAccents);
         }
+        if (config.tonalPadBankPath) {
+          setTonalPadBankPath(config.tonalPadBankPath);
+        }
       }
       setIsLoading(false);
     };
@@ -191,19 +195,14 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (newConfig.beatAccents) {
           setBeatAccents(newConfig.beatAccents);
         }
+        if (newConfig.tonalPadBankPath) {
+          setTonalPadBankPath(newConfig.tonalPadBankPath);
+        }
       }
     );
 
     return () => {
-      if (typeof removeSettingsChangedListener === 'function') {
-        removeSettingsChangedListener();
-      } else if (
-        removeSettingsChangedListener &&
-        'removeAllListeners' in removeSettingsChangedListener
-      ) {
-        // Fallback if it returns the emitter
-        removeSettingsChangedListener.removeAllListeners('settings-changed');
-      }
+      removeSettingsChangedListener?.();
     };
   }, []);
 
@@ -280,7 +279,9 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     if (updates.beatAccents !== undefined) {
       setBeatAccents(updates.beatAccents);
     }
-
+    if (updates.tonalPadBankPath !== undefined) {
+      setTonalPadBankPath(updates.tonalPadBankPath);
+    }
     // Serializamos las escrituras para que nunca puedan terminar fuera de orden.
     const snapshot = newConfig;
 
@@ -356,6 +357,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     metronomeAccentDecay,
     metronomeAccentHarmonicCount,
     beatAccents,
+    tonalPadBankPath,
 
     setMetronomeAccentFrequency: (f) => void updateConfig({ metronomeAccentFrequency: f }),
 
@@ -363,7 +365,9 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
 
     setMetronomeAccentHarmonicCount: (h) => void updateConfig({ metronomeAccentHarmonicCount: h }),
 
-    setBeatAccents: (a) => void updateConfig({ beatAccents: a })
+    setBeatAccents: (a) => void updateConfig({ beatAccents: a }),
+
+    setTonalPadBankPath: (path) => void updateConfig({ tonalPadBankPath: path })
   };
 
   return <AppConfigContext.Provider value={value}>{children}</AppConfigContext.Provider>;

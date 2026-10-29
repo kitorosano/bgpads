@@ -27,3 +27,9 @@ export interface Config {
   timeSignature?: string;
   metronomeColor?: string;
 }
+
+export interface TonalPadBankValidation {
+  path: string;
+  availableKeys: string[];
+  missingKeys: string[];
+}

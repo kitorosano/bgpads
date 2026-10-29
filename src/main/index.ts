@@ -1,5 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell, screen } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, screen, shell } from 'electron';
 import { join } from 'path';
 import icon from '../../resources/icon.png?asset';
 import {
@@ -14,6 +14,7 @@ import {
 import { translations } from '../i18n';
 import { Language } from '../types';
 import { readConfig, setupPersistence, writeConfig } from './persistence';
+import { validateTonalPadBank } from './tonalPadBank';
 
 // Global reference to main window
 let mainWindow: BrowserWindow | null = null;
@@ -306,6 +307,22 @@ app.whenReady().then(() => {
       console.error('Failed to load file:', e);
       return null;
     }
+  });
+
+  ipcMain.handle('select-tonal-pad-bank', async () => {
+    if (!mainWindow) return null;
+
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory']
+    });
+
+    if (canceled || filePaths.length === 0) return null;
+
+    return validateTonalPadBank(filePaths[0]);
+  });
+
+  ipcMain.handle('validate-tonal-pad-bank', (_event, directoryPath: string) => {
+    return validateTonalPadBank(directoryPath);
   });
 
   createWindow();

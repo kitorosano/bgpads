@@ -17,15 +17,7 @@ export const TONAL_PAD_KEYS = [
 
 export type TonalPadKey = (typeof TONAL_PAD_KEYS)[number];
 
-export type AudioSource =
-  | {
-      type: 'file';
-      path: string;
-    }
-  | {
-      type: 'builtin';
-      id: `tonal:${TonalPadKey}`;
-    };
+export type AudioSource = { type: 'file'; path: string } | { type: 'tonal'; key: TonalPadKey };
 
 export interface AudioTrack {
   id: string;
@@ -62,6 +54,8 @@ export interface AppConfig {
 
   beatAccents?: number[]; // indices of beats to accent
   autoAssignShortcuts?: boolean;
+
+  tonalPadBankPath?: string;
 }
 
 export interface Point {

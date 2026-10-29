@@ -25,6 +25,7 @@ export interface AppConfigContextValue {
   metronomeAccentDecay: number;
   metronomeAccentHarmonicCount: number;
   beatAccents: number[];
+  tonalPadBankPath?: string;
 
   updateConfig: (updates: Partial<AppConfig>) => Promise<void>;
 
@@ -47,6 +48,7 @@ export interface AppConfigContextValue {
   setMetronomeAccentDecay: (decay: number) => void;
   setMetronomeAccentHarmonicCount: (count: number) => void;
   setBeatAccents: (accents: number[]) => void;
+  setTonalPadBankPath: (path: string | undefined) => void;
 }
 
 const AppConfigContext = createContext<AppConfigContextValue | null>(null);
