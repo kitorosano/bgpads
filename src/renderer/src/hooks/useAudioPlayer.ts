@@ -5,9 +5,13 @@ import { AudioTrack } from '../types';
 
 interface UseAudioPlayerOptions {
   tracksOutputDeviceId?: string;
+  tonalPadBankPath?: string;
 }
 
-export const useAudioPlayer = ({ tracksOutputDeviceId }: UseAudioPlayerOptions) => {
+export const useAudioPlayer = ({
+  tracksOutputDeviceId,
+  tonalPadBankPath
+}: UseAudioPlayerOptions) => {
   const [loadingTrackIds, setLoadingTrackIds] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [fadeOutDuration, setFadeOutDuration] = useState(2);
@@ -115,28 +119,33 @@ export const useAudioPlayer = ({ tracksOutputDeviceId }: UseAudioPlayerOptions) 
     };
   }, []);
 
-  const preload = useCallback(async (track: AudioTrack) => {
-    setLoadingTrackIds((previous) => {
-      const next = new Set(previous);
-      next.add(track.id);
-      return next;
-    });
-
-    try {
-      const source = getTrackAudioSource(track);
-      const resolved = resolveAudioSource(source);
-
-      await audioEngine.preload(resolved.key, resolved.path);
-    } catch (error) {
-      console.error(`Failed to preload track ${track.name}:`, error);
-    } finally {
+  const preload = useCallback(
+    async (track: AudioTrack) => {
       setLoadingTrackIds((previous) => {
         const next = new Set(previous);
-        next.delete(track.id);
+        next.add(track.id);
         return next;
       });
-    }
-  }, []);
+
+      try {
+        const source = getTrackAudioSource(track);
+        const resolved = await resolveAudioSource(source, {
+          tonalPadBankPath
+        });
+
+        await audioEngine.preload(resolved.key, resolved.path);
+      } catch (error) {
+        console.error(`Failed to preload track ${track.name}:`, error);
+      } finally {
+        setLoadingTrackIds((previous) => {
+          const next = new Set(previous);
+          next.delete(track.id);
+          return next;
+        });
+      }
+    },
+    [tonalPadBankPath]
+  );
 
   const stop = useCallback(() => {
     audioEngine.stop(fadeOutDuration);
@@ -160,10 +169,11 @@ export const useAudioPlayer = ({ tracksOutputDeviceId }: UseAudioPlayerOptions) 
       }
 
       const source = getTrackAudioSource(track);
-      const resolved = resolveAudioSource(source);
+      const resolved = await resolveAudioSource(source, {
+        tonalPadBankPath
+      });
 
       const isCached = audioEngine.hasCached(resolved.key);
-
       if (!isCached) {
         setLoadingTrackIds((previous) => {
           const next = new Set(previous);

@@ -49,7 +49,9 @@ const api = {
   selectTonalPadBank: (): Promise<TonalPadBankValidation | null> =>
     ipcRenderer.invoke('select-tonal-pad-bank'),
   validateTonalPadBank: (path: string): Promise<TonalPadBankValidation> =>
-    ipcRenderer.invoke('validate-tonal-pad-bank', path)
+    ipcRenderer.invoke('validate-tonal-pad-bank', path),
+  resolveTonalPadPath: (directoryPath: string, key: string): Promise<string> =>
+    ipcRenderer.invoke('resolve-tonal-pad-path', directoryPath, key)
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

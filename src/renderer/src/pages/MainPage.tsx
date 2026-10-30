@@ -19,6 +19,7 @@ export const MainPage = () => {
   const { tracks, setTracks, updateTrack, removeTrack } = useTracks();
   const {
     tracksOutputDeviceId,
+    tonalPadBankPath,
     fadeOutDuration: configFadeOut,
     isLoading,
     bpm,
@@ -41,7 +42,7 @@ export const MainPage = () => {
     currentTime,
     duration,
     fadingOutTrackId
-  } = useAudioPlayer({ tracksOutputDeviceId });
+  } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
 
   // We use a ref to track whether the initial preload has been done to avoid re-preloading on every render
   const initialPreloadDoneRef = useRef(false);

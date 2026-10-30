@@ -31,5 +31,6 @@ interface Window {
 
     selectTonalPadBank: () => Promise<TonalPadBankValidation | null>;
     validateTonalPadBank: (path: string) => Promise<TonalPadBankValidation>;
+    resolveTonalPadPath: (directoryPath: string, key: string) => Promise<string>;
   };
 }

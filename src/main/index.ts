@@ -14,7 +14,7 @@ import {
 import { translations } from '../i18n';
 import { Language } from '../types';
 import { readConfig, setupPersistence, writeConfig } from './persistence';
-import { validateTonalPadBank } from './tonalPadBank';
+import { resolveTonalPadPath, validateTonalPadBank } from './tonalPadBank';
 
 // Global reference to main window
 let mainWindow: BrowserWindow | null = null;
@@ -323,6 +323,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('validate-tonal-pad-bank', (_event, directoryPath: string) => {
     return validateTonalPadBank(directoryPath);
+  });
+
+  ipcMain.handle('resolve-tonal-pad-path', (_event, directoryPath: string, key: string) => {
+    return resolveTonalPadPath(directoryPath, key);
   });
 
   createWindow();

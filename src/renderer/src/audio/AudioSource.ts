@@ -5,7 +5,14 @@ export interface ResolvedAudioSource {
   path: string;
 }
 
-export const resolveAudioSource = (source: AudioSource): ResolvedAudioSource => {
+export interface AudioSourceResolverOptions {
+  tonalPadBankPath?: string;
+}
+
+export const resolveAudioSource = async (
+  source: AudioSource,
+  options: AudioSourceResolverOptions = {}
+): Promise<ResolvedAudioSource> => {
   switch (source.type) {
     case 'file':
       return {
@@ -13,8 +20,18 @@ export const resolveAudioSource = (source: AudioSource): ResolvedAudioSource => 
         path: source.path
       };
 
-    case 'tonal':
-      throw new Error(`Tonal audio source not implemented yet: ${source.key}`);
+    case 'tonal': {
+      if (!options.tonalPadBankPath) {
+        throw new Error(`Cannot resolve tonal pad ${source.key}: no tonal pad bank configured`);
+      }
+
+      const path = await window.api.resolveTonalPadPath(options.tonalPadBankPath, source.key);
+
+      return {
+        key: `tonal:${options.tonalPadBankPath}:${source.key}`,
+        path
+      };
+    }
   }
 };
 
