@@ -1,8 +1,7 @@
 import { electronAPI } from '@electron-toolkit/preload';
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
-import type { TonalPadBankValidation } from '../types';
+import type { RemoteCommand, RemoteState, TonalPadBankValidation } from '../types';
 
-// Custom APIs for renderer
 const api = {
   loadConfig: (): Promise<unknown> => ipcRenderer.invoke('load-config'),
   saveConfig: (config: unknown): Promise<boolean> => ipcRenderer.invoke('save-config', config),
@@ -10,48 +9,60 @@ const api = {
   readBuffer: (path: string): Promise<Uint8Array> => ipcRenderer.invoke('read-buffer', path),
   getPathForFile: (file: File): string => webUtils.getPathForFile(file),
 
-  onMenuAddAudio: (callback: () => void) => {
-    const subscription = (_event: any) => callback();
-    ipcRenderer.on('menu-add-audio', subscription);
-    return () => ipcRenderer.removeListener('menu-add-audio', subscription);
-  },
-  onMenuClearPads: (callback: () => void) => {
-    const subscription = (_event: any) => callback();
-    ipcRenderer.on('menu-clear-pads', subscription);
-    return () => ipcRenderer.removeListener('menu-clear-pads', subscription);
-  },
-  onMenuOpenSettings: (callback: () => void) => {
-    const subscription = (_event: any) => callback();
-    ipcRenderer.on('menu-open-settings', subscription);
-    return () => ipcRenderer.removeListener('menu-open-settings', subscription);
-  },
-  onMenuOpenAbout: (callback: () => void) => {
-    const subscription = (_event: any) => callback();
-    ipcRenderer.on('menu-open-about', subscription);
-    return () => ipcRenderer.removeListener('menu-open-about', subscription);
-  },
   openFileDialog: (): Promise<string[] | null> => ipcRenderer.invoke('dialog-open-file'),
   saveTracksFile: (content: string): Promise<boolean> =>
     ipcRenderer.invoke('save-tracks-file', content),
-  loadTracksFile: (): Promise<any> => ipcRenderer.invoke('load-tracks-file'),
-
-  onMenuExportTracks: (callback: () => void) => {
-    const subscription = (_event: any) => callback();
-    ipcRenderer.on('menu-export-tracks', subscription);
-    return () => ipcRenderer.removeListener('menu-export-tracks', subscription);
-  },
-  onMenuImportTracks: (callback: () => void) => {
-    const subscription = (_event: any) => callback();
-    ipcRenderer.on('menu-import-tracks', subscription);
-    return () => ipcRenderer.removeListener('menu-import-tracks', subscription);
-  },
+  loadTracksFile: (): Promise<Electron.IpcRendererEvent> => ipcRenderer.invoke('load-tracks-file'),
 
   selectTonalPadBank: (): Promise<TonalPadBankValidation | null> =>
     ipcRenderer.invoke('select-tonal-pad-bank'),
   validateTonalPadBank: (path: string): Promise<TonalPadBankValidation> =>
     ipcRenderer.invoke('validate-tonal-pad-bank', path),
   resolveTonalPadPath: (directoryPath: string, key: string): Promise<string> =>
-    ipcRenderer.invoke('resolve-tonal-pad-path', directoryPath, key)
+    ipcRenderer.invoke('resolve-tonal-pad-path', directoryPath, key),
+
+  updateRemoteState: (state: RemoteState): void => {
+    ipcRenderer.send('remote-state-update', state);
+  },
+
+  onMenuAddAudio: (callback: () => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent) => callback();
+    ipcRenderer.on('menu-add-audio', subscription);
+    return () => ipcRenderer.removeListener('menu-add-audio', subscription);
+  },
+  onMenuClearPads: (callback: () => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent) => callback();
+    ipcRenderer.on('menu-clear-pads', subscription);
+    return () => ipcRenderer.removeListener('menu-clear-pads', subscription);
+  },
+  onMenuOpenSettings: (callback: () => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent) => callback();
+    ipcRenderer.on('menu-open-settings', subscription);
+    return () => ipcRenderer.removeListener('menu-open-settings', subscription);
+  },
+  onMenuOpenAbout: (callback: () => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent) => callback();
+    ipcRenderer.on('menu-open-about', subscription);
+    return () => ipcRenderer.removeListener('menu-open-about', subscription);
+  },
+
+  onMenuExportTracks: (callback: () => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent) => callback();
+    ipcRenderer.on('menu-export-tracks', subscription);
+    return () => ipcRenderer.removeListener('menu-export-tracks', subscription);
+  },
+  onMenuImportTracks: (callback: () => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent) => callback();
+    ipcRenderer.on('menu-import-tracks', subscription);
+    return () => ipcRenderer.removeListener('menu-import-tracks', subscription);
+  },
+
+  onRemoteCommand: (callback: (command: RemoteCommand) => void) => {
+    const subscription = (_event: Electron.IpcRendererEvent, command: RemoteCommand) =>
+      callback(command);
+    ipcRenderer.on('remote-command', subscription);
+    return () => ipcRenderer.removeListener('remote-command', subscription);
+  }
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

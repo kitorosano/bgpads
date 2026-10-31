@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload';
-import { TonalPadBankValidation } from '../types';
+import type { RemoteCommand, RemoteState, TonalPadBankValidation } from '../types';
 
 declare global {
   interface Window {
@@ -11,21 +11,25 @@ declare global {
       readBuffer: (path: string) => Promise<Uint8Array>;
       getPathForFile: (file: File) => string;
 
+      openFileDialog: () => Promise<string[] | null>;
+      saveTracksFile: (content: string) => Promise<boolean>;
+      loadTracksFile: () => Promise<any>;
+
+      selectTonalPadBank: () => Promise<TonalPadBankValidation | null>;
+      validateTonalPadBank: (path: string) => Promise<TonalPadBankValidation>;
+      resolveTonalPadPath: (directoryPath: string, key: string) => Promise<string>;
+
+      updateRemoteState: (state: RemoteState) => void;
+
       onMenuAddAudio: (callback: () => void) => () => void;
       onMenuClearPads: (callback: () => void) => () => void;
       onMenuOpenSettings: (callback: () => void) => () => void;
       onMenuOpenAbout: (callback: () => void) => () => void;
 
-      openFileDialog: () => Promise<string[] | null>;
-      saveTracksFile: (content: string) => Promise<boolean>;
-      loadTracksFile: () => Promise<any>;
-
       onMenuExportTracks: (callback: () => void) => () => void;
       onMenuImportTracks: (callback: () => void) => () => void;
 
-      selectTonalPadBank: () => Promise<TonalPadBankValidation | null>;
-      validateTonalPadBank: (path: string) => Promise<TonalPadBankValidation>;
-      resolveTonalPadPath: (directoryPath: string, key: string) => Promise<string>;
+      onRemoteCommand: (callback: (command: RemoteCommand) => void) => () => void;
     };
   }
 }

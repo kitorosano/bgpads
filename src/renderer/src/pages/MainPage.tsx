@@ -1,5 +1,7 @@
 import { AddPadFab } from '@renderer/components/AddPadFab';
 import { Loading } from '@renderer/components/Loading';
+import { usePlaybackActions } from '@renderer/hooks/usePlaybackActions';
+import { useRemoteControl } from '@renderer/hooks/useRemoteControl';
 import { useTrackDragAndDrop } from '@renderer/hooks/useTrackDragAndDrop';
 import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useTrackShortcuts } from '@renderer/hooks/useTrackShortcuts';
@@ -58,6 +60,12 @@ export const MainPage = () => {
     duration,
     fadingOutTrackId
   } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
+  const { playTrack, stopPlayback, applyTrackConfig } = usePlaybackActions({
+    tracks,
+    play,
+    stop,
+    updateConfig
+  });
 
   useTrackPreloader({
     tracks,
@@ -76,6 +84,18 @@ export const MainPage = () => {
 
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [isRecordingShortcut, setIsRecordingShortcut] = useState(false);
+
+  useRemoteControl({
+    tracks,
+    playingTrackId: isPlaying,
+    fadingOutTrackId,
+    bpm,
+    metronomePlaying: metronome.isPlaying,
+
+    playTrack,
+    stopPlayback,
+    toggleMetronome: metronome.toggle
+  });
 
   useEffect(() => {
     setFadeOutDuration(configFadeOut);
@@ -125,25 +145,6 @@ export const MainPage = () => {
     moveTrackToEnd
   });
 
-  const applyTrackConfig = useCallback(
-    (track: AudioTrack) => {
-      updateConfig({
-        bpm: track.bpm,
-        timeSignature: track.timeSignature,
-        metronomeColor: track.color
-      });
-    },
-    [updateConfig]
-  );
-
-  const handleClick = useCallback(
-    (track: AudioTrack) => {
-      applyTrackConfig(track);
-      play(track);
-    },
-    [applyTrackConfig, play]
-  );
-
   const handleUpdateTrack = (updatedTrack: AudioTrack) => {
     updateTrack(updatedTrack);
 
@@ -161,7 +162,7 @@ export const MainPage = () => {
   useTrackShortcuts({
     tracks,
     metronomeShortcut,
-    onTrackShortcut: handleClick,
+    onTrackShortcut: (track) => playTrack(track.id),
     onMetronomeShortcut: metronome.toggle,
     enabled: !isRecordingShortcut
   });
@@ -235,7 +236,7 @@ export const MainPage = () => {
             onDragOver={(event) => handleDragOver(track.id, event)}
             onDragLeave={() => handleDragLeave(track.id)}
             onDrop={(event) => handleDrop(track.id, event)}
-            onClick={() => handleClick(track)}
+            onClick={() => playTrack(track.id)}
             onContextMenu={(event) => handleContextMenu(track.id, index, event)}
           />
         ))}
@@ -252,7 +253,7 @@ export const MainPage = () => {
           onClose={() => setContextMenu(null)}
           onRemove={() => handleRemoveTrack(contextMenu.trackId)}
           onChangeFile={() => handleChangeFile(contextMenu.trackId)}
-          onStop={stop}
+          onStop={stopPlayback}
           onShortcutRecordingChange={setIsRecordingShortcut}
           onShortcutChange={(key) => updateTrackShortcut(contextMenu.trackId, key)}
         />
