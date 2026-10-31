@@ -49,7 +49,7 @@ export const AddPadFab = ({ onAddFiles }: AddPadFabProps) => {
 
       {view === 'tonal' && (
         <div className="add-pad-fab-panel">
-          <TonalPadSelector onPadAdded={() => setView('closed')} />
+          <TonalPadSelector />
         </div>
       )}
 

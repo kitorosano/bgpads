@@ -278,6 +278,10 @@ export const useAudioPlayer = ({
     return audioEngine.release(audioKey);
   }, []);
 
+  const releaseUnreferenced = useCallback((audioKey: string) => {
+    return audioEngine.releaseUnreferenced(audioKey);
+  }, []);
+
   return {
     isPlaying,
     loadingTrackIds,
@@ -292,6 +296,7 @@ export const useAudioPlayer = ({
     preload,
     retain,
     release,
+    releaseUnreferenced,
     setFadeOutDuration,
     setVolume
   };

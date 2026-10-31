@@ -6,15 +6,19 @@ interface UseTrackShortcutsOptions {
   metronomeShortcut?: string | null;
   onTrackShortcut: (track: AudioTrack) => void;
   onMetronomeShortcut: () => void;
+  enabled?: boolean;
 }
 
 export const useTrackShortcuts = ({
   tracks,
   metronomeShortcut,
   onTrackShortcut,
-  onMetronomeShortcut
+  onMetronomeShortcut,
+  enabled = true
 }: UseTrackShortcutsOptions) => {
   useEffect(() => {
+    if (!enabled) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
         return;
@@ -35,5 +39,5 @@ export const useTrackShortcuts = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [tracks, metronomeShortcut, onTrackShortcut, onMetronomeShortcut]);
+  }, [enabled, tracks, metronomeShortcut, onTrackShortcut, onMetronomeShortcut]);
 };

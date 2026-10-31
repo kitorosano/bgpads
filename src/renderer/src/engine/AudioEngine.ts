@@ -13,6 +13,7 @@ export class AudioEngine {
   private gainNode: GainNode | null = null;
 
   private readonly bufferCache = new AudioBufferCache();
+  private readonly pendingLoads = new Map<string, Promise<AudioBuffer>>();
 
   private activeAudioKey: string | null = null;
   private playRequestId = 0;
@@ -41,6 +42,17 @@ export class AudioEngine {
     return this.audioContext;
   }
 
+  private async loadAndDecodeBuffer(audioKey: string, filePath: string): Promise<AudioBuffer> {
+    const context = this.ensureAudioContext();
+
+    const fileBuffer = await window.api.readBuffer(filePath);
+
+    const decodedBuffer = await context.decodeAudioData(fileBuffer.buffer as ArrayBuffer);
+    this.bufferCache.set(audioKey, decodedBuffer);
+
+    return decodedBuffer;
+  }
+
   async setOutputDevice(deviceId?: string): Promise<void> {
     const context = this.ensureAudioContext();
 
@@ -61,13 +73,19 @@ export class AudioEngine {
     const cachedBuffer = this.bufferCache.get(audioKey);
     if (cachedBuffer) return cachedBuffer;
 
-    const context = this.ensureAudioContext();
-    const fileBuffer = await window.api.readBuffer(filePath);
-    const decodedBuffer = await context.decodeAudioData(fileBuffer.buffer as ArrayBuffer);
+    const pendingLoad = this.pendingLoads.get(audioKey);
+    if (pendingLoad) return pendingLoad;
 
-    this.bufferCache.set(audioKey, decodedBuffer);
+    const loadPromise = this.loadAndDecodeBuffer(audioKey, filePath);
+    this.pendingLoads.set(audioKey, loadPromise);
 
-    return decodedBuffer;
+    try {
+      return await loadPromise;
+    } finally {
+      if (this.pendingLoads.get(audioKey) === loadPromise) {
+        this.pendingLoads.delete(audioKey);
+      }
+    }
   }
 
   async preload(audioKey: string, filePath: string): Promise<void> {
@@ -138,6 +156,12 @@ export class AudioEngine {
     if (audioKey === this.activeAudioKey) return false;
 
     return this.bufferCache.release(audioKey);
+  }
+
+  releaseUnreferenced(audioKey: string): boolean {
+    if (audioKey === this.activeAudioKey) return false;
+
+    return this.bufferCache.deleteIfUnreferenced(audioKey);
   }
 
   clearCache(): void {

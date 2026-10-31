@@ -36,8 +36,9 @@ export const MainPage = () => {
     reorderTracks,
     moveTrackToEnd,
     updateTrack,
-    removeTrack,
-    changeTrackFile
+    changeTrackFile,
+    updateTrackShortcut,
+    removeTrack
   } = useTracks();
 
   const {
@@ -47,6 +48,7 @@ export const MainPage = () => {
     preload,
     retain,
     release,
+    releaseUnreferenced,
     setFadeOutDuration,
     loadingTrackIds,
     setVolume,
@@ -61,6 +63,7 @@ export const MainPage = () => {
     preload,
     retain,
     release,
+    releaseUnreferenced,
     tonalPadBankPath
   });
 
@@ -71,6 +74,7 @@ export const MainPage = () => {
   const metronome = useMetronome(bpm, timeSignature, onBeat);
 
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+  const [isRecordingShortcut, setIsRecordingShortcut] = useState(false);
 
   useEffect(() => {
     setFadeOutDuration(configFadeOut);
@@ -142,7 +146,8 @@ export const MainPage = () => {
     tracks,
     metronomeShortcut,
     onTrackShortcut: handleClick,
-    onMetronomeShortcut: metronome.toggle
+    onMetronomeShortcut: metronome.toggle,
+    enabled: !isRecordingShortcut
   });
 
   const handleToggleAccent = (beatIndex: number) => {
@@ -232,6 +237,8 @@ export const MainPage = () => {
           onRemove={() => handleRemoveTrack(contextMenu.trackId)}
           onChangeFile={() => handleChangeFile(contextMenu.trackId)}
           onStop={stop}
+          onShortcutRecordingChange={setIsRecordingShortcut}
+          onShortcutChange={(key) => updateTrackShortcut(contextMenu.trackId, key)}
         />
       )}
     </div>

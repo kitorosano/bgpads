@@ -53,6 +53,13 @@ export class AudioBufferCache {
     return this.buffers.delete(key);
   }
 
+  deleteIfUnreferenced(key: string): boolean {
+    const entry = this.buffers.get(key);
+    if (!entry || entry.references > 0) return false;
+
+    return this.buffers.delete(key);
+  }
+
   clear(): void {
     this.buffers.clear();
   }

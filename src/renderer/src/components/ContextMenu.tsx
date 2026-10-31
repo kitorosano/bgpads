@@ -16,13 +16,15 @@ interface Props {
   track: AudioTrack;
   index: number;
   position: { x: number; y: number };
+  isPlaying: boolean;
+  isFadingOut: boolean;
   onClose: () => void;
   onUpdate: (updatedTrack: AudioTrack) => void;
   onRemove: () => void;
   onStop: () => void;
   onChangeFile: () => void;
-  isPlaying: boolean;
-  isFadingOut: boolean;
+  onShortcutRecordingChange: (isRecording: boolean) => void;
+  onShortcutChange: (keybinding: string | null) => void;
 }
 
 interface BpmInputProps {
@@ -163,13 +165,15 @@ export const ContextMenu = ({
   track,
   index,
   position,
+  isPlaying,
+  isFadingOut,
   onClose,
   onUpdate,
   onRemove,
   onStop,
   onChangeFile,
-  isPlaying,
-  isFadingOut
+  onShortcutRecordingChange,
+  onShortcutChange
 }: Props) => {
   const { t } = useI18n();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -198,14 +202,21 @@ export const ContextMenu = ({
       const key = e.key.toUpperCase();
       if (SHORTCUT_KEYS_TO_IGNORE.includes(key)) return;
 
-      onUpdate({ ...track, keybinding: key });
+      onShortcutChange(key);
       setIsRecording(false);
+      onShortcutRecordingChange(false);
     };
 
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isRecording, track, onUpdate]);
+  }, [isRecording, track, onShortcutChange, onShortcutRecordingChange]);
+
+  useEffect(() => {
+    return () => {
+      onShortcutRecordingChange(false);
+    };
+  }, [onShortcutRecordingChange]);
 
   // Boundary detection
   useLayoutEffect(() => {
@@ -220,6 +231,11 @@ export const ContextMenu = ({
 
     setAdjustedPosition(newPos);
   }, [position]);
+
+  const handleClick = () => {
+    setIsRecording(true);
+    onShortcutRecordingChange(true);
+  };
 
   const customFilePath = track.source.type === 'file' ? track.source.path : null;
   const isTrackActive = isPlaying || isFadingOut;
@@ -304,7 +320,7 @@ export const ContextMenu = ({
           <label className="menu-label">{t('key')}</label>
           <button
             className={`key-record-btn ${isRecording ? 'recording' : ''}`}
-            onClick={() => setIsRecording(true)}
+            onClick={handleClick}
           >
             {isRecording ? '...' : track.keybinding || t('none')}
           </button>

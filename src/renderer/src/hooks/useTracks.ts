@@ -70,17 +70,6 @@ export const useTracks = () => {
     },
     [setTracks]
   );
-
-  const removeTrack = useCallback(
-    (id: string) => {
-      setTracks((previousTracks) => {
-        const remainingTracks = previousTracks.filter((track) => track.id !== id);
-        return applyShortcutPolicy(remainingTracks);
-      });
-    },
-    [setTracks, applyShortcutPolicy]
-  );
-
   const changeTrackFile = useCallback(
     (trackId: string, filePath: string) => {
       const track = tracks.find((track) => track.id === trackId);
@@ -98,6 +87,43 @@ export const useTracks = () => {
     [tracks, updateTrack]
   );
 
+  const updateTrackShortcut = useCallback(
+    (trackId: string, keybinding: string | null) => {
+      setTracks((previousTracks) =>
+        previousTracks.map((track) => {
+          if (track.id === trackId) {
+            return {
+              ...track,
+              keybinding,
+              keybindingMode: 'custom'
+            };
+          }
+
+          if (keybinding && track.keybinding?.toUpperCase() === keybinding.toUpperCase()) {
+            return {
+              ...track,
+              keybinding: null,
+              keybindingMode: 'custom'
+            };
+          }
+
+          return track;
+        })
+      );
+    },
+    [setTracks]
+  );
+
+  const removeTrack = useCallback(
+    (id: string) => {
+      setTracks((previousTracks) => {
+        const remainingTracks = previousTracks.filter((track) => track.id !== id);
+        return applyShortcutPolicy(remainingTracks);
+      });
+    },
+    [setTracks, applyShortcutPolicy]
+  );
+
   return {
     tracks,
     setTracks,
@@ -106,7 +132,8 @@ export const useTracks = () => {
     reorderTracks,
     moveTrackToEnd,
     updateTrack,
-    removeTrack,
-    changeTrackFile
+    changeTrackFile,
+    updateTrackShortcut,
+    removeTrack
   };
 };

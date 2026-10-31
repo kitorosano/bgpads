@@ -16,6 +16,7 @@ interface Props {
   preload: (track: AudioTrack) => Promise<string>;
   retain: (audioKey: string) => void;
   release: (audioKey: string) => boolean;
+  releaseUnreferenced: (audioKey: string) => boolean;
   tonalPadBankPath?: string;
 }
 
@@ -29,15 +30,26 @@ export const useTrackPreloader = ({
   preload,
   retain,
   release,
+  releaseUnreferenced,
   tonalPadBankPath
 }: Props) => {
-  const tracksRef = useRef(tracks);
+  const currentStateRef = useRef({
+    tracks,
+    tonalPadBankPath
+  });
   const retainedTracksRef = useRef(new Map<string, RetainedTrack>());
   const loadingTracksRef = useRef(new Map<string, string>());
+  const lifecycleRef = useRef({
+    release,
+    releaseUnreferenced
+  });
 
   useEffect(() => {
-    tracksRef.current = tracks;
-  }, [tracks]);
+    currentStateRef.current = {
+      tracks,
+      tonalPadBankPath
+    };
+  }, [tracks, tonalPadBankPath]);
 
   useEffect(() => {
     const currentTracks = new Map(
@@ -64,18 +76,25 @@ export const useTrackPreloader = ({
 
       loadingTracksRef.current.set(track.id, sourceKey);
 
-      void preload(track)
+      preload(track)
         .then((audioKey) => {
           if (loadingTracksRef.current.get(track.id) === sourceKey) {
             loadingTracksRef.current.delete(track.id);
           }
 
-          const currentTrack = tracksRef.current.find((candidate) => candidate.id === track.id);
+          const { tracks: currentTracks, tonalPadBankPath: currentTonalPadBankPath } =
+            currentStateRef.current;
+
+          const currentTrack = currentTracks.find((candidate) => candidate.id === track.id);
+
           const currentSourceKey = currentTrack
-            ? getTrackSourceKey(currentTrack, tonalPadBankPath)
+            ? getTrackSourceKey(currentTrack, currentTonalPadBankPath)
             : null;
-          // Track was deleted or changed while loading.
-          if (currentSourceKey !== sourceKey) return;
+          // Track was deleted, changed source or switched tonal pad bank while loading.
+          if (currentSourceKey !== sourceKey) {
+            releaseUnreferenced(audioKey);
+            return;
+          }
 
           retain(audioKey);
 
@@ -92,5 +111,30 @@ export const useTrackPreloader = ({
           console.error(`Failed to preload track "${track.name}":`, error);
         });
     }
-  }, [tracks, preload, retain, release, tonalPadBankPath]);
+  }, [tracks, preload, retain, release, releaseUnreferenced, tonalPadBankPath]);
+
+  useEffect(() => {
+    lifecycleRef.current = {
+      release,
+      releaseUnreferenced
+    };
+  }, [release, releaseUnreferenced]);
+
+  useEffect(() => {
+    return () => {
+      const { release: releaseCurrent } = lifecycleRef.current;
+
+      for (const { audioKey } of retainedTracksRef.current.values()) {
+        releaseCurrent(audioKey);
+      }
+
+      retainedTracksRef.current.clear();
+      loadingTracksRef.current.clear();
+
+      currentStateRef.current = {
+        tracks: [],
+        tonalPadBankPath: undefined
+      };
+    };
+  }, []);
 };
