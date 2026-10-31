@@ -247,7 +247,9 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     if (updates.tracksOutputDeviceId !== undefined) {
       setTracksOutputDeviceId(updates.tracksOutputDeviceId);
     }
-    setTonalPadBankPath(updates.tonalPadBankPath);
+    if ('tonalPadBankPath' in updates) {
+      setTonalPadBankPath(updates.tonalPadBankPath);
+    }
 
     if (updates.bpm !== undefined) {
       setBpm(updates.bpm);
