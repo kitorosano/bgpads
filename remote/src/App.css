@@ -37,3 +37,24 @@
   border-radius: 50%;
   background: currentColor;
 }
+
+.remote__connection {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.remote__connection input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+.remote__connection button {
+  padding: 0.75rem 1rem;
+}
+
+.remote__state {
+  margin-top: 2rem;
+}
+
