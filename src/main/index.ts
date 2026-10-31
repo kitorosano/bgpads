@@ -15,6 +15,7 @@ import {
 import { translations } from '../i18n';
 import { Language } from '../types';
 import { readConfig, setupPersistence, writeConfig } from './persistence';
+import { createRemoteControlServer } from './remoteControlServer';
 import { resolveTonalPadPath, validateTonalPadBank } from './tonalPadBank';
 
 // Global reference to main window
@@ -329,11 +330,20 @@ app.whenReady().then(() => {
   });
 
   createWindow();
+  const remoteControlServer = createRemoteControlServer({
+    onCommand: (command) => {
+      mainWindow?.webContents.send('remote-command', command);
+    }
+  });
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+
+  app.on('before-quit', () => {
+    remoteControlServer.close();
   });
 });
 
