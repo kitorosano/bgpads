@@ -6,16 +6,17 @@ interface Props {
   tracks: AudioTrack[];
   setTracks: React.Dispatch<React.SetStateAction<AudioTrack[]>>;
   onAddFiles: () => Promise<void>;
+  onClearTracks: () => void;
 }
 
-export const useTracksMenu = ({ tracks, setTracks, onAddFiles }: Props) => {
+export const useTracksMenu = ({ tracks, setTracks, onAddFiles, onClearTracks }: Props) => {
   const { autoAssignPositionBasedShortcuts } = useAppConfig();
 
   useEffect(() => {
     const removeAddAudioListener = window.api.onMenuAddAudio(() => onAddFiles());
 
     const removeClearPadsListener = window.api.onMenuClearPads(() => {
-      setTracks([]);
+      onClearTracks();
     });
 
     const removeExportListener = window.api.onMenuExportTracks(async () => {
@@ -47,5 +48,5 @@ export const useTracksMenu = ({ tracks, setTracks, onAddFiles }: Props) => {
       removeExportListener();
       removeImportListener();
     };
-  }, [tracks, setTracks, onAddFiles, autoAssignPositionBasedShortcuts]);
+  }, [tracks, setTracks, onAddFiles, onClearTracks, autoAssignPositionBasedShortcuts]);
 };

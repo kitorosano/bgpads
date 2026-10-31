@@ -70,6 +70,7 @@ export const useTracks = () => {
     },
     [setTracks]
   );
+
   const changeTrackFile = useCallback(
     (trackId: string, filePath: string) => {
       const track = tracks.find((track) => track.id === trackId);
@@ -124,6 +125,15 @@ export const useTracks = () => {
     [setTracks, applyShortcutPolicy]
   );
 
+  const clearTracks = useCallback(
+    (protectedTrackIds: Set<string>) => {
+      setTracks((previousTracks) =>
+        previousTracks.filter((track) => protectedTrackIds.has(track.id))
+      );
+    },
+    [setTracks]
+  );
+
   return {
     tracks,
     setTracks,
@@ -134,6 +144,7 @@ export const useTracks = () => {
     updateTrack,
     changeTrackFile,
     updateTrackShortcut,
-    removeTrack
+    removeTrack,
+    clearTracks
   };
 };

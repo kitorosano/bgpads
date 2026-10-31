@@ -80,11 +80,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
           setLanguage(config.language);
         }
 
-        if (config.fadeOutDuration) {
+        if (config.fadeOutDuration !== undefined) {
           setFadeOutDuration(config.fadeOutDuration);
-        }
-        if (config.tonalPadBankPath) {
-          setTonalPadBankPath(config.tonalPadBankPath);
         }
         if (config.autoAssignPositionBasedShortcuts !== undefined) {
           setAutoAssignPositionBasedShortcuts(config.autoAssignPositionBasedShortcuts);
@@ -95,6 +92,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (config.tracksOutputDeviceId) {
           setTracksOutputDeviceId(config.tracksOutputDeviceId);
         }
+        setTonalPadBankPath(config.tonalPadBankPath);
 
         if (config.bpm) {
           setBpm(config.bpm);
@@ -108,7 +106,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (config.metronomeVolume !== undefined) {
           setMetronomeVolume(config.metronomeVolume);
         }
-        if (config.metronomeShortcut) {
+        if (config.metronomeShortcut !== undefined) {
           setMetronomeShortcut(config.metronomeShortcut);
         }
         if (config.metronomeFrequency !== undefined) {
@@ -154,11 +152,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
           setLanguage(newConfig.language);
         }
 
-        if (newConfig.fadeOutDuration) {
+        if (newConfig.fadeOutDuration !== undefined) {
           setFadeOutDuration(newConfig.fadeOutDuration);
-        }
-        if (newConfig.tonalPadBankPath) {
-          setTonalPadBankPath(newConfig.tonalPadBankPath);
         }
         if (newConfig.autoAssignPositionBasedShortcuts !== undefined) {
           setAutoAssignPositionBasedShortcuts(newConfig.autoAssignPositionBasedShortcuts);
@@ -169,6 +164,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (newConfig.tracksOutputDeviceId) {
           setTracksOutputDeviceId(newConfig.tracksOutputDeviceId);
         }
+        setTonalPadBankPath(newConfig.tonalPadBankPath);
 
         if (newConfig.bpm) {
           setBpm(newConfig.bpm);
@@ -182,7 +178,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (newConfig.metronomeVolume !== undefined) {
           setMetronomeVolume(newConfig.metronomeVolume);
         }
-        if (newConfig.metronomeShortcut) {
+        if (newConfig.metronomeShortcut !== undefined) {
           setMetronomeShortcut(newConfig.metronomeShortcut);
         }
         if (newConfig.metronomeFrequency !== undefined) {
@@ -242,9 +238,6 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     if (updates.fadeOutDuration !== undefined) {
       setFadeOutDuration(updates.fadeOutDuration);
     }
-    if (updates.tonalPadBankPath !== undefined) {
-      setTonalPadBankPath(updates.tonalPadBankPath);
-    }
     if (updates.autoAssignPositionBasedShortcuts !== undefined) {
       setAutoAssignPositionBasedShortcuts(updates.autoAssignPositionBasedShortcuts);
     }
@@ -254,6 +247,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     if (updates.tracksOutputDeviceId !== undefined) {
       setTracksOutputDeviceId(updates.tracksOutputDeviceId);
     }
+    setTonalPadBankPath(updates.tonalPadBankPath);
 
     if (updates.bpm !== undefined) {
       setBpm(updates.bpm);

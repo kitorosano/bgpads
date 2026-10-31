@@ -38,7 +38,8 @@ export const MainPage = () => {
     updateTrack,
     changeTrackFile,
     updateTrackShortcut,
-    removeTrack
+    removeTrack,
+    clearTracks
   } = useTracks();
 
   const {
@@ -87,10 +88,25 @@ export const MainPage = () => {
     addTracks(filePaths);
   }, [addTracks]);
 
+  const handleClearTracks = useCallback(() => {
+    const protectedTrackIds = new Set<string>();
+
+    if (isPlaying) {
+      protectedTrackIds.add(isPlaying);
+    }
+
+    if (fadingOutTrackId) {
+      protectedTrackIds.add(fadingOutTrackId);
+    }
+
+    clearTracks(protectedTrackIds);
+  }, [isPlaying, fadingOutTrackId, clearTracks]);
+
   useTracksMenu({
     tracks,
     setTracks,
-    onAddFiles: handleAddFiles
+    onAddFiles: handleAddFiles,
+    onClearTracks: handleClearTracks
   });
 
   const {
