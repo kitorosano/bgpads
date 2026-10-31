@@ -5,10 +5,11 @@ import { AudioTrack } from '../types';
 interface Props {
   tracks: AudioTrack[];
   play: (track: AudioTrack) => void | Promise<void>;
+  stop: () => void;
   updateConfig: (updates: Partial<AppConfigContextValue>) => void | Promise<void>;
 }
 
-export const usePlaybackActions = ({ tracks, play, updateConfig }: Props) => {
+export const usePlaybackActions = ({ tracks, play, stop, updateConfig }: Props) => {
   const applyTrackConfig = useCallback(
     (track: AudioTrack) => {
       updateConfig({
@@ -31,8 +32,13 @@ export const usePlaybackActions = ({ tracks, play, updateConfig }: Props) => {
     [tracks, applyTrackConfig, play]
   );
 
+  const stopPlayback = useCallback(() => {
+    stop();
+  }, [stop]);
+
   return {
     playTrack,
+    stopPlayback,
     applyTrackConfig
   };
 };

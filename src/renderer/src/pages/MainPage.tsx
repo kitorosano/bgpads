@@ -59,9 +59,10 @@ export const MainPage = () => {
     duration,
     fadingOutTrackId
   } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
-  const { playTrack, applyTrackConfig } = usePlaybackActions({
+  const { playTrack, stopPlayback, applyTrackConfig } = usePlaybackActions({
     tracks,
     play,
+    stop,
     updateConfig
   });
 
@@ -239,7 +240,7 @@ export const MainPage = () => {
           onClose={() => setContextMenu(null)}
           onRemove={() => handleRemoveTrack(contextMenu.trackId)}
           onChangeFile={() => handleChangeFile(contextMenu.trackId)}
-          onStop={stop}
+          onStop={stopPlayback}
           onShortcutRecordingChange={setIsRecordingShortcut}
           onShortcutChange={(key) => updateTrackShortcut(contextMenu.trackId, key)}
         />
