@@ -16,7 +16,6 @@ export class AudioEngine {
   private readonly pendingLoads = new Map<string, Promise<AudioBuffer>>();
   private readonly playingAudioKeys = new Map<string, number>();
 
-  private activeAudioKey: string | null = null;
   private playRequestId = 0;
 
   private readonly endedListeners = new Set<AudioEndedListener>();
@@ -142,7 +141,6 @@ export class AudioEngine {
 
     this.activeSource = source;
     this.gainNode = gain;
-    this.activeAudioKey = audioKey;
 
     source.onended = () => {
       this.markAudioKeyStopped(audioKey);
@@ -151,7 +149,6 @@ export class AudioEngine {
 
       this.activeSource = null;
       this.gainNode = null;
-      this.activeAudioKey = null;
 
       this.emitEnded(audioKey);
     };
@@ -214,7 +211,6 @@ export class AudioEngine {
 
     this.activeSource = null;
     this.gainNode = null;
-    this.activeAudioKey = null;
   }
 }
 
