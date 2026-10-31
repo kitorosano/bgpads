@@ -28,9 +28,8 @@ export const useAudioPlayer = ({
   const durationRef = useRef<number>(0);
   const animFrameRef = useRef<number | null>(null);
 
-  // Keep the current playing ID available to callbacks without
-  // recreating play() every time React state changes.
   const isPlayingRef = useRef<string | null>(null);
+  const playingAudioKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     isPlayingRef.current = isPlaying;
@@ -84,23 +83,18 @@ export const useAudioPlayer = ({
     durationRef.current = 0;
   }, []);
 
-  // Audio output device
   useEffect(() => {
     audioEngine.setOutputDevice(tracksOutputDeviceId);
   }, [tracksOutputDeviceId]);
 
-  // Audio engine events
   useEffect(() => {
-    const unsubscribe = audioEngine.onEnded((audioKey) => {
-      // At this stage audioKey === track.file.
-      // Only clear the UI if this is still the active track.
+    const unsubscribe = audioEngine.onEnded(() => {
       if (isPlayingRef.current === null) return;
 
       setIsPlaying(null);
       isPlayingRef.current = null;
+      playingAudioKeyRef.current = null;
       stopProgressTracking();
-
-      console.debug(`Audio ended: ${audioKey}`);
     });
 
     return unsubscribe;
@@ -121,17 +115,20 @@ export const useAudioPlayer = ({
 
   const preload = useCallback(
     async (track: AudioTrack) => {
-      setLoadingTrackIds((previous) => {
-        const next = new Set(previous);
-        next.add(track.id);
-        return next;
+      const resolved = await resolveAudioSource(track.source, {
+        tonalPadBankPath
       });
 
-      try {
-        const resolved = await resolveAudioSource(track.source, {
-          tonalPadBankPath
+      const isCached = audioEngine.hasCached(resolved.key);
+      if (!isCached) {
+        setLoadingTrackIds((previous) => {
+          const next = new Set(previous);
+          next.add(track.id);
+          return next;
         });
+      }
 
+      try {
         await audioEngine.preload(resolved.key, resolved.path);
 
         return resolved.key;
@@ -139,11 +136,13 @@ export const useAudioPlayer = ({
         console.error(`Failed to preload track ${track.name}:`, error);
         throw error;
       } finally {
-        setLoadingTrackIds((previous) => {
-          const next = new Set(previous);
-          next.delete(track.id);
-          return next;
-        });
+        if (!isCached) {
+          setLoadingTrackIds((previous) => {
+            const next = new Set(previous);
+            next.delete(track.id);
+            return next;
+          });
+        }
       }
     },
     [tonalPadBankPath]
@@ -168,6 +167,7 @@ export const useAudioPlayer = ({
 
     setIsPlaying(null);
     isPlayingRef.current = null;
+    playingAudioKeyRef.current = null;
 
     stopProgressTracking();
   }, [fadeOutDuration, stopProgressTracking]);
@@ -178,15 +178,14 @@ export const useAudioPlayer = ({
 
       stopProgressTracking();
 
-      // Toggle currently playing track
-      if (isPlayingRef.current === track.id) {
-        stop();
-        return;
-      }
-
       const resolved = await resolveAudioSource(track.source, {
         tonalPadBankPath
       });
+
+      if (isPlayingRef.current === track.id && playingAudioKeyRef.current === resolved.key) {
+        stop();
+        return;
+      }
 
       const isCached = audioEngine.hasCached(resolved.key);
       if (!isCached) {
@@ -198,8 +197,6 @@ export const useAudioPlayer = ({
       }
 
       try {
-        console.time('Loading Audio Buffer');
-
         const buffer = await audioEngine.play(resolved.key, resolved.path, {
           volume: track.volume,
           fadeOutDuration
@@ -232,8 +229,6 @@ export const useAudioPlayer = ({
           }, fadeOutDuration * 1000);
         }
 
-        console.timeEnd('Loading Audio Buffer');
-
         setLoadingTrackIds((previous) => {
           if (!previous.has(track.id)) {
             return previous;
@@ -247,6 +242,7 @@ export const useAudioPlayer = ({
 
         setIsPlaying(track.id);
         isPlayingRef.current = track.id;
+        playingAudioKeyRef.current = resolved.key;
 
         startProgressTracking(buffer.duration);
       } catch (error) {
@@ -263,7 +259,7 @@ export const useAudioPlayer = ({
         });
       }
     },
-    [fadeOutDuration, startProgressTracking, stop, stopProgressTracking]
+    [fadeOutDuration, startProgressTracking, stop, stopProgressTracking, tonalPadBankPath]
   );
 
   const setVolume = useCallback((volume: number) => {

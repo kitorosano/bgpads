@@ -36,13 +36,13 @@ export class AudioBufferCache {
     }
   }
 
-  release(key: string): boolean {
+  release(key: string, deleteIfUnreferenced = true): boolean {
     const entry = this.buffers.get(key);
     if (!entry) return false;
 
     entry.references = Math.max(0, entry.references - 1);
 
-    if (entry.references === 0) {
+    if (deleteIfUnreferenced && entry.references === 0) {
       return this.buffers.delete(key);
     }
 

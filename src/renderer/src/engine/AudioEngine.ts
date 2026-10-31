@@ -14,8 +14,8 @@ export class AudioEngine {
 
   private readonly bufferCache = new AudioBufferCache();
   private readonly pendingLoads = new Map<string, Promise<AudioBuffer>>();
+  private readonly playingAudioKeys = new Map<string, number>();
 
-  private activeAudioKey: string | null = null;
   private playRequestId = 0;
 
   private readonly endedListeners = new Set<AudioEndedListener>();
@@ -51,6 +51,24 @@ export class AudioEngine {
     this.bufferCache.set(audioKey, decodedBuffer);
 
     return decodedBuffer;
+  }
+
+  private markAudioKeyPlaying(audioKey: string): void {
+    const count = this.playingAudioKeys.get(audioKey) ?? 0;
+    this.playingAudioKeys.set(audioKey, count + 1);
+  }
+
+  private markAudioKeyStopped(audioKey: string): void {
+    const count = this.playingAudioKeys.get(audioKey) ?? 0;
+
+    if (count <= 1) {
+      this.playingAudioKeys.delete(audioKey);
+
+      this.bufferCache.deleteIfUnreferenced(audioKey);
+      return;
+    }
+
+    this.playingAudioKeys.set(audioKey, count - 1);
   }
 
   async setOutputDevice(deviceId?: string): Promise<void> {
@@ -119,17 +137,18 @@ export class AudioEngine {
     gain.connect(context.destination);
 
     source.start();
+    this.markAudioKeyPlaying(audioKey);
 
     this.activeSource = source;
     this.gainNode = gain;
-    this.activeAudioKey = audioKey;
 
     source.onended = () => {
+      this.markAudioKeyStopped(audioKey);
+
       if (this.activeSource !== source) return;
 
       this.activeSource = null;
       this.gainNode = null;
-      this.activeAudioKey = null;
 
       this.emitEnded(audioKey);
     };
@@ -153,13 +172,13 @@ export class AudioEngine {
   }
 
   release(audioKey: string): boolean {
-    if (audioKey === this.activeAudioKey) return false;
+    const isPlaying = this.playingAudioKeys.has(audioKey);
 
-    return this.bufferCache.release(audioKey);
+    return this.bufferCache.release(audioKey, !isPlaying);
   }
 
   releaseUnreferenced(audioKey: string): boolean {
-    if (audioKey === this.activeAudioKey) return false;
+    if (this.playingAudioKeys.has(audioKey)) return false;
 
     return this.bufferCache.deleteIfUnreferenced(audioKey);
   }
@@ -192,7 +211,6 @@ export class AudioEngine {
 
     this.activeSource = null;
     this.gainNode = null;
-    this.activeAudioKey = null;
   }
 }
 
