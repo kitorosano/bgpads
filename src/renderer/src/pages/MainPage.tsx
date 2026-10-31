@@ -1,5 +1,6 @@
 import { AddPadFab } from '@renderer/components/AddPadFab';
 import { Loading } from '@renderer/components/Loading';
+import { usePlaybackActions } from '@renderer/hooks/usePlaybackActions';
 import { useTrackDragAndDrop } from '@renderer/hooks/useTrackDragAndDrop';
 import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useTrackShortcuts } from '@renderer/hooks/useTrackShortcuts';
@@ -58,6 +59,11 @@ export const MainPage = () => {
     duration,
     fadingOutTrackId
   } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
+  const { playTrack, applyTrackConfig } = usePlaybackActions({
+    tracks,
+    play,
+    updateConfig
+  });
 
   useTrackPreloader({
     tracks,
@@ -125,25 +131,6 @@ export const MainPage = () => {
     moveTrackToEnd
   });
 
-  const applyTrackConfig = useCallback(
-    (track: AudioTrack) => {
-      updateConfig({
-        bpm: track.bpm,
-        timeSignature: track.timeSignature,
-        metronomeColor: track.color
-      });
-    },
-    [updateConfig]
-  );
-
-  const handleClick = useCallback(
-    (track: AudioTrack) => {
-      applyTrackConfig(track);
-      play(track);
-    },
-    [applyTrackConfig, play]
-  );
-
   const handleUpdateTrack = (updatedTrack: AudioTrack) => {
     updateTrack(updatedTrack);
 
@@ -161,7 +148,7 @@ export const MainPage = () => {
   useTrackShortcuts({
     tracks,
     metronomeShortcut,
-    onTrackShortcut: handleClick,
+    onTrackShortcut: (track) => playTrack(track.id),
     onMetronomeShortcut: metronome.toggle,
     enabled: !isRecordingShortcut
   });
@@ -235,7 +222,7 @@ export const MainPage = () => {
             onDragOver={(event) => handleDragOver(track.id, event)}
             onDragLeave={() => handleDragLeave(track.id)}
             onDrop={(event) => handleDrop(track.id, event)}
-            onClick={() => handleClick(track)}
+            onClick={() => playTrack(track.id)}
             onContextMenu={(event) => handleContextMenu(track.id, index, event)}
           />
         ))}
