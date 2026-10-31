@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload';
-import { RemoteCommand, TonalPadBankValidation } from '../types';
+import type { RemoteCommand, RemoteState, TonalPadBankValidation } from '../types';
 
 declare global {
   interface Window {
