@@ -4,6 +4,7 @@ import { AudioTrack } from '../types';
 import {
   createTonalTrack,
   createTrackFromPath,
+  getFileNameWithoutExtension,
   moveTrackToEndById,
   reorderTracksById,
   syncPositionBasedKeybindings
@@ -80,6 +81,23 @@ export const useTracks = () => {
     [setTracks, applyShortcutPolicy]
   );
 
+  const changeTrackFile = useCallback(
+    (trackId: string, filePath: string) => {
+      const track = tracks.find((track) => track.id === trackId);
+      if (!track) return;
+
+      updateTrack({
+        ...track,
+        name: getFileNameWithoutExtension(filePath),
+        source: {
+          type: 'file',
+          path: filePath
+        }
+      });
+    },
+    [tracks, updateTrack]
+  );
+
   return {
     tracks,
     setTracks,
@@ -88,6 +106,7 @@ export const useTracks = () => {
     reorderTracks,
     moveTrackToEnd,
     updateTrack,
-    removeTrack
+    removeTrack,
+    changeTrackFile
   };
 };

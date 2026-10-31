@@ -4,7 +4,7 @@ import { useTrackDragAndDrop } from '@renderer/hooks/useTrackDragAndDrop';
 import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useTrackShortcuts } from '@renderer/hooks/useTrackShortcuts';
 import { useTracksMenu } from '@renderer/hooks/useTracksMenu';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { MetronomeIndicator } from '../components/MetronomeIndicator';
@@ -15,8 +15,6 @@ import { useTracks } from '../hooks/useTracks';
 import { AudioTrack, ContextMenuState } from '../types';
 
 export const MainPage = () => {
-  const { tracks, setTracks, addTracks, reorderTracks, moveTrackToEnd, updateTrack, removeTrack } =
-    useTracks();
   const {
     tracksOutputDeviceId,
     tonalPadBankPath,
@@ -30,6 +28,18 @@ export const MainPage = () => {
     beatAccents,
     setBeatAccents
   } = useAppConfig();
+
+  const {
+    tracks,
+    setTracks,
+    addTracks,
+    reorderTracks,
+    moveTrackToEnd,
+    updateTrack,
+    removeTrack,
+    changeTrackFile
+  } = useTracks();
+
   const {
     play,
     stop,
@@ -53,19 +63,12 @@ export const MainPage = () => {
     release,
     tonalPadBankPath
   });
-  const activeTrack = tracks.find((t) => t.id === isPlaying);
-  const fallbackTrack = tracks[0];
 
+  const [currentBeat, setCurrentBeat] = useState(0);
   const onBeat = useCallback((beat: number) => {
     setCurrentBeat(beat);
-    if (beatTimeoutRef.current) clearTimeout(beatTimeoutRef.current);
-    // Don't need to clear beat state anymore because we switch active dot
   }, []);
-
   const metronome = useMetronome(bpm, timeSignature, onBeat);
-  const [currentBeat, setCurrentBeat] = useState(0);
-  const beatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const activeMetronomeColor = metronomeColor || activeTrack?.color || fallbackTrack?.color;
 
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
@@ -102,27 +105,38 @@ export const MainPage = () => {
     moveTrackToEnd
   });
 
-  const handleToggleAccent = (beatIndex: number) => {
-    const newAccents = beatAccents.includes(beatIndex)
-      ? beatAccents.filter((b) => b !== beatIndex)
-      : [...beatAccents, beatIndex];
-    setBeatAccents(newAccents);
-  };
+  const applyTrackConfig = useCallback(
+    (track: AudioTrack) => {
+      updateConfig({
+        bpm: track.bpm,
+        timeSignature: track.timeSignature,
+        metronomeColor: track.color
+      });
+    },
+    [updateConfig]
+  );
 
   const handleClick = useCallback(
     (track: AudioTrack) => {
-      const updates: any = {};
-      if (track.bpm) updates.bpm = track.bpm;
-      if (track.timeSignature) updates.timeSignature = track.timeSignature;
-      if (track.color) updates.metronomeColor = track.color;
-
-      if (Object.keys(updates).length > 0) {
-        updateConfig(updates);
-      }
+      applyTrackConfig(track);
       play(track);
     },
-    [play, updateConfig]
+    [applyTrackConfig, play]
   );
+
+  const handleUpdateTrack = (updatedTrack: AudioTrack) => {
+    updateTrack(updatedTrack);
+
+    if (isPlaying !== updatedTrack.id) return;
+
+    applyTrackConfig(updatedTrack);
+    setVolume(updatedTrack.volume);
+  };
+
+  const handleRemoveTrack = (id: string) => {
+    removeTrack(id);
+    setContextMenu(null);
+  };
 
   useTrackShortcuts({
     tracks,
@@ -131,25 +145,11 @@ export const MainPage = () => {
     onMetronomeShortcut: metronome.toggle
   });
 
-  const handleUpdateTrack = (updatedTrack: AudioTrack) => {
-    const newTracks = tracks.map((t) => (t.id === updatedTrack.id ? updatedTrack : t));
-    setTracks(newTracks);
-
-    const updates: any = { tracks: newTracks };
-    // If the playing track is updated and has a specific BPM, update the global engine immediately
-    if (isPlaying === updatedTrack.id) {
-      if (updatedTrack.bpm) updates.bpm = updatedTrack.bpm;
-      if (updatedTrack.timeSignature) updates.timeSignature = updatedTrack.timeSignature;
-      if (updatedTrack.color) updates.metronomeColor = updatedTrack.color;
-      // Update volume in real-time if playing
-      setVolume(updatedTrack.volume);
-    }
-    updateConfig(updates);
-  };
-
-  const handleRemoveTrack = (id: string) => {
-    removeTrack(id);
-    setContextMenu(null);
+  const handleToggleAccent = (beatIndex: number) => {
+    const newAccents = beatAccents.includes(beatIndex)
+      ? beatAccents.filter((b) => b !== beatIndex)
+      : [...beatAccents, beatIndex];
+    setBeatAccents(newAccents);
   };
 
   const handleContextMenu = (trackId: string, index: number, event: React.MouseEvent) => {
@@ -163,34 +163,19 @@ export const MainPage = () => {
   };
 
   const handleChangeFile = async (trackId: string) => {
-    // Determine the original track ahead of time
-    const originalTrack = tracks.find((t) => t.id === trackId);
-    if (!originalTrack) return;
-
     const filePaths = await window.api.openFileDialog();
     if (!filePaths || filePaths.length === 0) return;
 
-    const newPath = filePaths[0];
-    const newName =
-      newPath
-        .split(/[\\/]/)
-        .pop()
-        ?.replace(/\.mp3$/i, '') || 'Unknown';
-
-    const updatedTrack: AudioTrack = {
-      ...originalTrack,
-      source: { type: 'file', path: newPath },
-      name: newName
-    };
+    changeTrackFile(trackId, filePaths[0]);
 
     setContextMenu(null);
-
-    updateTrack(updatedTrack);
   };
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  if (isLoading) return <Loading />;
+
+  const activeTrack = tracks.find((t) => t.id === isPlaying);
+  const fallbackTrack = tracks[0];
+  const activeMetronomeColor = metronomeColor || activeTrack?.color || fallbackTrack?.color;
 
   return (
     <div className="app-container">
