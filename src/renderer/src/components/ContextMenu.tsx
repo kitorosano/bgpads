@@ -23,9 +23,9 @@ interface ContextMenuProps {
 }
 
 interface BpmInputProps {
-  value?: number;
+  value: number;
   placeholder?: string;
-  onChange: (value?: number) => void;
+  onChange: (value: number) => void;
 }
 
 const BpmInput = ({ value, placeholder, onChange }: BpmInputProps) => {
@@ -36,10 +36,7 @@ const BpmInput = ({ value, placeholder, onChange }: BpmInputProps) => {
   }, [value]);
 
   const commitChange = () => {
-    if (localValue === '') {
-      onChange(undefined);
-      return;
-    }
+    if (localValue === '') return;
     const clamped = clampBpm(localValue);
     // Update local value to clamped version for visual feedback
     setLocalValue(clamped.toString());

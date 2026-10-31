@@ -25,7 +25,7 @@ export const useTrackPreloader = (
 
       preloadedSourcesRef.current.add(sourceKey);
 
-      void preload(track).catch((error) => {
+      preload(track).catch((error) => {
         preloadedSourcesRef.current.delete(sourceKey);
 
         console.error(`Failed to preload track "${track.name}":`, error);

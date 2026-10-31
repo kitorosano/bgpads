@@ -86,7 +86,7 @@ export const useAudioPlayer = ({
 
   // Audio output device
   useEffect(() => {
-    void audioEngine.setOutputDevice(tracksOutputDeviceId);
+    audioEngine.setOutputDevice(tracksOutputDeviceId);
   }, [tracksOutputDeviceId]);
 
   // Audio engine events

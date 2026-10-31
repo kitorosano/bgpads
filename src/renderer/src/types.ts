@@ -32,31 +32,30 @@ export interface AudioTrack {
 }
 
 export interface AppConfig {
-  tracks: AudioTrack[];
-  fadeOutDuration: number;
-  bpm: number;
-  metronomeShortcut: string | null;
   theme: Theme;
   language: Language;
 
+  fadeOutDuration: number;
+  tonalPadBankPath?: string;
+  autoAssignPositionBasedShortcuts?: boolean;
+  tracks: AudioTrack[];
   tracksOutputDeviceId?: string;
-  metronomeOutputDeviceId?: string;
+
+  bpm: number;
   timeSignature: string;
   metronomeColor: string;
   metronomeVolume: number;
+  metronomeShortcut: string | null;
 
   metronomeFrequency?: number;
   metronomeDecay?: number;
   metronomeHarmonicCount?: number;
 
+  beatAccents?: number[]; // indices of beats to accent
   metronomeAccentFrequency?: number;
   metronomeAccentDecay?: number;
   metronomeAccentHarmonicCount?: number;
-
-  beatAccents?: number[]; // indices of beats to accent
-  autoAssignPositionBasedShortcuts?: boolean;
-
-  tonalPadBankPath?: string;
+  metronomeOutputDeviceId?: string;
 }
 
 export interface Point {
