@@ -1,4 +1,5 @@
 import { Loading } from '@renderer/components/Loading';
+import { TonalPadSelector } from '@renderer/components/TonalPadSelector';
 import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioButton } from '../components/AudioButton';
@@ -11,16 +12,8 @@ import { useTracks } from '../hooks/useTracks';
 import { AudioTrack, ContextMenuState } from '../types';
 
 export const MainPage = () => {
-  const {
-    tracks,
-    setTracks,
-    addTracks,
-    addTonalTrack,
-    reorderTracks,
-    moveTrackToEnd,
-    updateTrack,
-    removeTrack
-  } = useTracks();
+  const { tracks, setTracks, addTracks, reorderTracks, moveTrackToEnd, updateTrack, removeTrack } =
+    useTracks();
   const {
     tracksOutputDeviceId,
     tonalPadBankPath,
@@ -300,7 +293,8 @@ export const MainPage = () => {
           onToggleAccent={handleToggleAccent}
         />
       </div>
-      <button onClick={() => addTonalTrack('C')}>Add tonal C</button>
+
+      <TonalPadSelector />
 
       <main className="grid-container" onDragOver={handleDragOverGrid} onDrop={handleDropInGrid}>
         {tracks.map((track, index) => (

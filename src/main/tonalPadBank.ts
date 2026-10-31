@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { TonalPadBankValidation } from '../types';
+import { TonalPadBankValidation, TonalPadKey } from '../types';
 
-const TONAL_PAD_FILES: Record<string, string> = {
+const TONAL_PAD_FILES: Record<TonalPadKey, string> = {
   C: 'C.mp3',
   'C#': 'Db.mp3',
   D: 'D.mp3',
@@ -18,16 +18,16 @@ const TONAL_PAD_FILES: Record<string, string> = {
 };
 
 export const validateTonalPadBank = (directoryPath: string): TonalPadBankValidation => {
-  const availableKeys: string[] = [];
-  const missingKeys: string[] = [];
+  const availableKeys: TonalPadKey[] = [];
+  const missingKeys: TonalPadKey[] = [];
 
   for (const [key, fileName] of Object.entries(TONAL_PAD_FILES)) {
     const filePath = path.join(directoryPath, fileName);
 
     if (fs.existsSync(filePath)) {
-      availableKeys.push(key);
+      availableKeys.push(key as TonalPadKey);
     } else {
-      missingKeys.push(key);
+      missingKeys.push(key as TonalPadKey);
     }
   }
 

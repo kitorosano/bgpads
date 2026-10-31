@@ -1,3 +1,4 @@
+import { TonalPadKey } from 'src/types';
 import {
   COLORS,
   DEFAULT_BPM,
@@ -7,7 +8,7 @@ import {
   DEFAULT_TRACK_VOLUME,
   TOP_ROW_KEYS
 } from '../../../constants';
-import { AudioTrack, TonalPadKey } from '../types';
+import { AudioTrack } from '../types';
 
 export const getRandomColor = () => {
   return COLORS[Math.floor(Math.random() * COLORS.length)];

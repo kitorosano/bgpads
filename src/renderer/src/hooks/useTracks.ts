@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { AudioTrack, TonalPadKey } from '../types';
+import { TonalPadKey } from 'src/types';
+import { AudioTrack } from '../types';
 import {
   createTonalTrack,
   createTrackFromPath,

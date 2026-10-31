@@ -28,8 +28,25 @@ export interface Config {
   metronomeColor?: string;
 }
 
+export const TONAL_PAD_KEYS = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B'
+] as const;
+
+export type TonalPadKey = (typeof TONAL_PAD_KEYS)[number];
+
 export interface TonalPadBankValidation {
   path: string;
-  availableKeys: string[];
-  missingKeys: string[];
+  availableKeys: TonalPadKey[];
+  missingKeys: TonalPadKey[];
 }
