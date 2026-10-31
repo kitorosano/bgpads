@@ -8,6 +8,8 @@ export const DEFAULT_CROSSFADE_DURATION = 4;
 export const CROSSFADE_STEP_INCREMENT = 0.5;
 
 export const TOP_ROW_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+export const DEFAULT_KEYBINDING = null;
+export const DEFAULT_KEYBINDING_MODE = 'auto';
 
 export const MIN_BPM = 50;
 export const MAX_BPM = 500;
@@ -17,6 +19,7 @@ export const DEFAULT_METRONOME_FREQUENCY = 1050; // Hz
 export const DEFAULT_METRONOME_DECAY = 0.06; // Seconds
 export const DEFAULT_METRONOME_HARMONIC_COUNT = 3;
 export const DEFAULT_METRONOME_VOLUME = 0.5;
+export const DEFAULT_METRONOME_COLOR = 'var(--accent-color)';
 export const MIN_METRONOME_VOLUME = 0;
 export const MAX_METRONOME_VOLUME = 1;
 export const METRONOME_VOLUME_STEP_INCREMENT = 0.1;
@@ -27,6 +30,7 @@ export const DEFAULT_METRONOME_ACCENT_HARMONIC_COUNT = 3;
 export const DEFAULT_BEAT_ACCENTS = [0]; // First beat accented by default
 
 export const DEFAULT_METRONOME_TIME_SIGNATURE = '4/4';
+export const DEFAULT_METRONOME_TIME_SIGNATURES = ['4/4', '4/8'];
 
 export const DEFAULT_TRACK_VOLUME = 1;
 export const VOLUME_STEP_INCREMENT = 0.1;
@@ -47,7 +51,6 @@ export const DEFAULT_SETTINGS_WINDOW_HEIGHT = 600;
 export const DEFAULT_ABOUT_WINDOW_WIDTH = 400;
 export const DEFAULT_ABOUT_WINDOW_HEIGHT = 500;
 
-// Basic color palette for random selection
 export const COLORS = [
   '#ef4444', // red
   '#f97316', // orange
@@ -67,3 +70,5 @@ export const COLORS = [
   '#ec4899', // pink
   '#f43f5e' // rose
 ];
+export const DEFAULT_COLORS = ['#a855f7', '#06b6d4', '#eab308', '#f43f5e'];
+export const DEFAULT_COLOR = '#666666';

@@ -1,33 +1,46 @@
-import { Language, Theme } from 'src/types';
+import { Language, Theme, TonalPadKey } from 'src/types';
+
+export type FileSource = { type: 'file'; path: string };
+export type TonalSource = { type: 'tonal'; key: TonalPadKey };
+export type AudioSource = FileSource | TonalSource;
 
 export interface AudioTrack {
   id: string;
-  file: string;
+  source: AudioSource;
   name: string;
   keybinding: string | null;
+  keybindingMode: 'auto' | 'custom';
   color: string;
   volume: number;
-  bpm?: number;
-  timeSignature?: string;
+  bpm: number;
+  timeSignature: string;
 }
 
 export interface AppConfig {
-  tracks: AudioTrack[];
-  fadeOutDuration: number;
-  bpm: number;
-  metronomeShortcut: string | null;
   theme: Theme;
   language: Language;
+
+  fadeOutDuration: number;
+  tonalPadBankPath?: string;
+  autoAssignPositionBasedShortcuts?: boolean;
+  tracks: AudioTrack[];
   tracksOutputDeviceId?: string;
-  metronomeOutputDeviceId?: string;
-  timeSignature?: string;
-  metronomeColor?: string;
-  metronomeVolume?: number;
-  // Accent Configuration
+
+  bpm: number;
+  timeSignature: string;
+  metronomeColor: string;
+  metronomeVolume: number;
+  metronomeShortcut: string | null;
+
+  metronomeFrequency?: number;
+  metronomeDecay?: number;
+  metronomeHarmonicCount?: number;
+
+  beatAccents?: number[]; // indices of beats to accent
   metronomeAccentFrequency?: number;
   metronomeAccentDecay?: number;
   metronomeAccentHarmonicCount?: number;
-  beatAccents?: number[]; // indices of beats to accent
+  metronomeOutputDeviceId?: string;
 }
 
 export interface Point {

@@ -1,5 +1,6 @@
 import { electronAPI } from '@electron-toolkit/preload';
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
+import type { TonalPadBankValidation } from '../types';
 
 // Custom APIs for renderer
 const api = {
@@ -43,7 +44,14 @@ const api = {
     const subscription = (_event: any) => callback();
     ipcRenderer.on('menu-import-tracks', subscription);
     return () => ipcRenderer.removeListener('menu-import-tracks', subscription);
-  }
+  },
+
+  selectTonalPadBank: (): Promise<TonalPadBankValidation | null> =>
+    ipcRenderer.invoke('select-tonal-pad-bank'),
+  validateTonalPadBank: (path: string): Promise<TonalPadBankValidation> =>
+    ipcRenderer.invoke('validate-tonal-pad-bank', path),
+  resolveTonalPadPath: (directoryPath: string, key: string): Promise<string> =>
+    ipcRenderer.invoke('resolve-tonal-pad-path', directoryPath, key)
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
