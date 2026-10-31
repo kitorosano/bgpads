@@ -30,7 +30,7 @@ export const translations = {
     addAudio: 'Agregar Pad',
     clearPads: 'Limpiar Pads',
     padsSettings: 'Confiuración de Pads',
-    autoAssignShortcuts: 'Autoasignar atajos',
+    autoAssignPositionBasedShortcuts: 'Asignar atajos automáticamente según posición',
 
     // Metronome Settings
     metronomeSettings: 'Configuración de Metrónomo',
@@ -110,7 +110,7 @@ export const translations = {
     addAudio: 'Add Pad',
     clearPads: 'Clear Pads',
     padsSettings: 'Pads Configuration',
-    autoAssignShortcuts: 'Auto-assign Shortcuts',
+    autoAssignPositionBasedShortcuts: 'Auto-assign position-based shortcuts',
 
     // Metronome Settings
     metronomeSettings: 'Metronome Configuration',

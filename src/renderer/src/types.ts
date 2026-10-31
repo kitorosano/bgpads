@@ -24,10 +24,11 @@ export interface AudioTrack {
   source: AudioSource;
   name: string;
   keybinding: string | null;
+  keybindingMode: 'auto' | 'custom';
   color: string;
   volume: number;
-  bpm?: number;
-  timeSignature?: string;
+  bpm: number;
+  timeSignature: string;
 }
 
 export interface AppConfig {
@@ -40,9 +41,9 @@ export interface AppConfig {
 
   tracksOutputDeviceId?: string;
   metronomeOutputDeviceId?: string;
-  timeSignature?: string;
-  metronomeColor?: string;
-  metronomeVolume?: number;
+  timeSignature: string;
+  metronomeColor: string;
+  metronomeVolume: number;
 
   metronomeFrequency?: number;
   metronomeDecay?: number;
@@ -53,7 +54,7 @@ export interface AppConfig {
   metronomeAccentHarmonicCount?: number;
 
   beatAccents?: number[]; // indices of beats to accent
-  autoAssignShortcuts?: boolean;
+  autoAssignPositionBasedShortcuts?: boolean;
 
   tonalPadBankPath?: string;
 }

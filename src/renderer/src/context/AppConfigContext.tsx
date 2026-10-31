@@ -12,7 +12,7 @@ export interface AppConfigContextValue {
   metronomeFrequency: number;
   metronomeDecay: number;
   metronomeHarmonicCount: number;
-  autoAssignShortcuts: boolean;
+  autoAssignPositionBasedShortcuts: boolean;
   isLoading: boolean;
 
   tracksOutputDeviceId: string;
@@ -37,7 +37,7 @@ export interface AppConfigContextValue {
   setMetronomeFrequency: (frequency: number) => void;
   setMetronomeDecay: (decay: number) => void;
   setMetronomeHarmonicCount: (count: number) => void;
-  setAutoAssignShortcuts: (enabled: boolean) => void;
+  setAutoAssignPositionBasedShortcuts: (enabled: boolean) => void;
   setTracks: Dispatch<SetStateAction<AudioTrack[]>>;
   setTracksOutputDeviceId: (id: string) => void;
   setMetronomeOutputDeviceId: (id: string) => void;

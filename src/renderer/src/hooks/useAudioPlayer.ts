@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getTrackAudioSource, resolveAudioSource } from '../audio/AudioSource';
+import { resolveAudioSource } from '../audio/AudioSource';
 import { audioEngine } from '../engine/AudioEngine';
 import { AudioTrack } from '../types';
 
@@ -128,8 +128,7 @@ export const useAudioPlayer = ({
       });
 
       try {
-        const source = getTrackAudioSource(track);
-        const resolved = await resolveAudioSource(source, {
+        const resolved = await resolveAudioSource(track.source, {
           tonalPadBankPath
         });
 
@@ -168,8 +167,7 @@ export const useAudioPlayer = ({
         return;
       }
 
-      const source = getTrackAudioSource(track);
-      const resolved = await resolveAudioSource(source, {
+      const resolved = await resolveAudioSource(track.source, {
         tonalPadBankPath
       });
 

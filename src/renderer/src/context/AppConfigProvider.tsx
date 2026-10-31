@@ -17,6 +17,7 @@ import {
   DEFAULT_METRONOME_ACCENT_DECAY,
   DEFAULT_METRONOME_ACCENT_FREQUENCY,
   DEFAULT_METRONOME_ACCENT_HARMONIC_COUNT,
+  DEFAULT_METRONOME_COLOR,
   DEFAULT_METRONOME_DECAY,
   DEFAULT_METRONOME_FREQUENCY,
   DEFAULT_METRONOME_HARMONIC_COUNT,
@@ -44,11 +45,11 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
   const [metronomeHarmonicCount, setMetronomeHarmonicCount] = useState(
     DEFAULT_METRONOME_HARMONIC_COUNT
   );
-  const [autoAssignShortcuts, setAutoAssignShortcuts] = useState(false);
+  const [autoAssignPositionBasedShortcuts, setAutoAssignPositionBasedShortcuts] = useState(false);
   const [tracksOutputDeviceId, setTracksOutputDeviceId] = useState<string>('default');
   const [metronomeOutputDeviceId, setMetronomeOutputDeviceId] = useState<string>('default');
   const [timeSignature, setTimeSignature] = useState<string>(DEFAULT_METRONOME_TIME_SIGNATURE);
-  const [metronomeColor, setMetronomeColor] = useState<string>('var(--accent-color)');
+  const [metronomeColor, setMetronomeColor] = useState<string>(DEFAULT_METRONOME_COLOR);
   const [metronomeVolume, setMetronomeVolume] = useState(DEFAULT_METRONOME_VOLUME);
   const [metronomeAccentFrequency, setMetronomeAccentFrequency] = useState(
     DEFAULT_METRONOME_ACCENT_FREQUENCY
@@ -93,8 +94,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (config.metronomeHarmonicCount !== undefined) {
           setMetronomeHarmonicCount(config.metronomeHarmonicCount);
         }
-        if (config.autoAssignShortcuts !== undefined) {
-          setAutoAssignShortcuts(config.autoAssignShortcuts);
+        if (config.autoAssignPositionBasedShortcuts !== undefined) {
+          setAutoAssignPositionBasedShortcuts(config.autoAssignPositionBasedShortcuts);
         }
         if (config.tracksOutputDeviceId) {
           setTracksOutputDeviceId(config.tracksOutputDeviceId);
@@ -162,8 +163,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
         if (newConfig.metronomeHarmonicCount !== undefined) {
           setMetronomeHarmonicCount(newConfig.metronomeHarmonicCount);
         }
-        if (newConfig.autoAssignShortcuts !== undefined) {
-          setAutoAssignShortcuts(newConfig.autoAssignShortcuts);
+        if (newConfig.autoAssignPositionBasedShortcuts !== undefined) {
+          setAutoAssignPositionBasedShortcuts(newConfig.autoAssignPositionBasedShortcuts);
         }
         if (newConfig.tracksOutputDeviceId) {
           setTracksOutputDeviceId(newConfig.tracksOutputDeviceId);
@@ -218,10 +219,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
       ...configRef.current,
       ...updates
     };
-    // Actualizamos inmediatamente nuestra fuente de verdad.
     configRef.current = newConfig;
 
-    // Sincronizamos los estados React afectados.
     if (updates.theme !== undefined) {
       setTheme(updates.theme);
     }
@@ -246,8 +245,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     if (updates.metronomeHarmonicCount !== undefined) {
       setMetronomeHarmonicCount(updates.metronomeHarmonicCount);
     }
-    if (updates.autoAssignShortcuts !== undefined) {
-      setAutoAssignShortcuts(updates.autoAssignShortcuts);
+    if (updates.autoAssignPositionBasedShortcuts !== undefined) {
+      setAutoAssignPositionBasedShortcuts(updates.autoAssignPositionBasedShortcuts);
     }
     if (updates.tracksOutputDeviceId !== undefined) {
       setTracksOutputDeviceId(updates.tracksOutputDeviceId);
@@ -317,7 +316,7 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     metronomeFrequency,
     metronomeDecay,
     metronomeHarmonicCount,
-    autoAssignShortcuts,
+    autoAssignPositionBasedShortcuts,
     isLoading,
     updateConfig,
 
@@ -333,7 +332,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
 
     setMetronomeHarmonicCount: (h) => void updateConfig({ metronomeHarmonicCount: h }),
 
-    setAutoAssignShortcuts: (a) => void updateConfig({ autoAssignShortcuts: a }),
+    setAutoAssignPositionBasedShortcuts: (a) =>
+      void updateConfig({ autoAssignPositionBasedShortcuts: a }),
 
     setTracks: updateTracks,
 

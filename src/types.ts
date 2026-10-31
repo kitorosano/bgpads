@@ -21,7 +21,7 @@ export interface Config {
   metronomeFrequency?: number;
   metronomeDecay?: number;
   metronomeHarmonicCount?: number;
-  autoAssignShortcuts?: boolean;
+  autoAssignPositionBasedShortcuts?: boolean;
   tracks?: any[];
   windowState?: WindowState;
   timeSignature?: string;

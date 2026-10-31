@@ -9,8 +9,8 @@ export const PadSettingsSection = () => {
   const {
     fadeOutDuration,
     setFadeOutDuration,
-    autoAssignShortcuts,
-    setAutoAssignShortcuts,
+    autoAssignPositionBasedShortcuts,
+    setAutoAssignPositionBasedShortcuts,
     tonalPadBankPath,
     setTonalPadBankPath
   } = useAppConfig();
@@ -83,11 +83,11 @@ export const PadSettingsSection = () => {
           marginBottom: '20px'
         }}
       >
-        <label style={{ margin: 0 }}>{t('autoAssignShortcuts')}</label>
+        <label style={{ margin: 0 }}>{t('autoAssignPositionBasedShortcuts')}</label>
         <input
           type="checkbox"
-          checked={!!autoAssignShortcuts}
-          onChange={(e) => setAutoAssignShortcuts(e.target.checked)}
+          checked={!!autoAssignPositionBasedShortcuts}
+          onChange={(e) => setAutoAssignPositionBasedShortcuts(e.target.checked)}
           style={{ width: '20px', height: '20px', cursor: 'pointer' }}
         />
       </div>

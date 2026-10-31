@@ -1,37 +1,63 @@
 import { useCallback } from 'react';
-import { DEFAULT_BPM, DEFAULT_TRACK_VOLUME } from '../../../constants';
-import { AudioTrack } from '../types';
-import { normalizeKeybindingsByIndex } from '../utils/trackUtils';
+import { AudioTrack, TonalPadKey } from '../types';
+import {
+  createTonalTrack,
+  createTrackFromPath,
+  moveTrackToEndById,
+  reorderTracksById,
+  syncPositionBasedKeybindings
+} from '../utils/trackUtils';
 import { useAppConfig } from './useAppConfig';
 
 export const useTracks = () => {
-  const { tracks, setTracks } = useAppConfig();
+  const { tracks, setTracks, autoAssignPositionBasedShortcuts } = useAppConfig();
 
-  const addFiles = useCallback(
-    (files: FileList) => {
-      const newTracks: AudioTrack[] = [];
-
-      Array.from(files).forEach((file) => {
-        const path = window.api.getPathForFile(file);
-
-        if (path) {
-          newTracks.push({
-            id: crypto.randomUUID(),
-            source: { type: 'file', path },
-            name: file.name.replace(/\.mp3$/i, ''),
-            keybinding: null,
-            color: '#4a90e2',
-            volume: DEFAULT_TRACK_VOLUME,
-            bpm: DEFAULT_BPM
-          });
-        }
-      });
-
-      if (newTracks.length === 0) return;
-
-      setTracks((previousTracks) => [...previousTracks, ...newTracks]);
+  const applyShortcutPolicy = useCallback(
+    (tracks: AudioTrack[]) => {
+      if (!autoAssignPositionBasedShortcuts) return tracks;
+      return syncPositionBasedKeybindings(tracks);
     },
-    [setTracks]
+    [autoAssignPositionBasedShortcuts]
+  );
+
+  const addTracks = useCallback(
+    (filePaths: string[]) => {
+      setTracks((previousTracks) => {
+        const newTracks = filePaths.map(createTrackFromPath);
+        return applyShortcutPolicy([...previousTracks, ...newTracks]);
+      });
+    },
+    [setTracks, applyShortcutPolicy]
+  );
+
+  const addTonalTrack = useCallback(
+    (key: TonalPadKey) => {
+      setTracks((previousTracks) => {
+        const newTrack = createTonalTrack(key);
+        return applyShortcutPolicy([...previousTracks, newTrack]);
+      });
+    },
+    [setTracks, applyShortcutPolicy]
+  );
+
+  const reorderTracks = useCallback(
+    (draggedTrackId: string, targetTrackId: string) => {
+      setTracks((previousTracks) => {
+        const reorderedTracks = reorderTracksById(previousTracks, draggedTrackId, targetTrackId);
+        return applyShortcutPolicy(reorderedTracks);
+      });
+    },
+    [setTracks, applyShortcutPolicy]
+  );
+
+  const moveTrackToEnd = useCallback(
+    (trackId: string) => {
+      setTracks((previousTracks) => {
+        const reorderedTracks = moveTrackToEndById(previousTracks, trackId);
+        return applyShortcutPolicy(reorderedTracks);
+      });
+    },
+    [setTracks, applyShortcutPolicy]
   );
 
   const updateTrack = useCallback(
@@ -47,17 +73,19 @@ export const useTracks = () => {
     (id: string) => {
       setTracks((previousTracks) => {
         const remainingTracks = previousTracks.filter((track) => track.id !== id);
-
-        return normalizeKeybindingsByIndex(remainingTracks);
+        return applyShortcutPolicy(remainingTracks);
       });
     },
-    [setTracks]
+    [setTracks, applyShortcutPolicy]
   );
 
   return {
     tracks,
     setTracks,
-    addFiles,
+    addTracks,
+    addTonalTrack,
+    reorderTracks,
+    moveTrackToEnd,
     updateTrack,
     removeTrack
   };

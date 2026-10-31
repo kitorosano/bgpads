@@ -1,6 +1,6 @@
 import { Loading } from '@renderer/components/Loading';
+import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { TOP_ROW_KEYS } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { MetronomeIndicator } from '../components/MetronomeIndicator';
@@ -9,14 +9,18 @@ import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useMetronome } from '../hooks/useMetronome';
 import { useTracks } from '../hooks/useTracks';
 import { AudioTrack, ContextMenuState } from '../types';
-import {
-  createTrackFromPath,
-  normalizeKeybindingsByIndex,
-  reorderTracksById
-} from '../utils/trackUtils';
 
 export const MainPage = () => {
-  const { tracks, setTracks, updateTrack, removeTrack } = useTracks();
+  const {
+    tracks,
+    setTracks,
+    addTracks,
+    addTonalTrack,
+    reorderTracks,
+    moveTrackToEnd,
+    updateTrack,
+    removeTrack
+  } = useTracks();
   const {
     tracksOutputDeviceId,
     tonalPadBankPath,
@@ -24,7 +28,7 @@ export const MainPage = () => {
     isLoading,
     bpm,
     metronomeShortcut,
-    autoAssignShortcuts,
+    autoAssignPositionBasedShortcuts,
     updateConfig,
     timeSignature,
     metronomeColor,
@@ -44,8 +48,7 @@ export const MainPage = () => {
     fadingOutTrackId
   } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
 
-  // We use a ref to track whether the initial preload has been done to avoid re-preloading on every render
-  const initialPreloadDoneRef = useRef(false);
+  useTrackPreloader(tracks, preload, tonalPadBankPath);
 
   // Metronome Visual State
   const [currentBeat, setCurrentBeat] = useState(0);
@@ -70,59 +73,25 @@ export const MainPage = () => {
   const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
   const [dragOverTrackId, setDragOverTrackId] = useState<string | null>(null);
 
-  // Sync fadeOutDuration from config to player
   useEffect(() => {
     setFadeOutDuration(configFadeOut);
   }, [configFadeOut, setFadeOutDuration]);
 
-  // Load tracks from config and preload
-  useEffect(() => {
-    if (isLoading || initialPreloadDoneRef.current) return;
-
-    tracks.forEach(preload);
-
-    initialPreloadDoneRef.current = true;
-  }, [isLoading, tracks, preload]);
-
-  // IPC Listeners for adding audio
   useEffect(() => {
     const removeAddAudioListener = window.api.onMenuAddAudio(async () => {
       const filePaths = await window.api.openFileDialog();
-      if (filePaths && filePaths.length > 0) {
-        const newTracks: AudioTrack[] = [];
-        const usedKeys = new Set(tracks.map((t) => t.keybinding).filter(Boolean));
+      if (!filePaths || filePaths.length === 0) return;
 
-        filePaths.forEach((path) => {
-          let keybinding: string | null = null;
-
-          if (autoAssignShortcuts) {
-            // Find first available key from 1-9
-            const availableKey = TOP_ROW_KEYS.find((k) => !usedKeys.has(k));
-            if (availableKey) {
-              keybinding = availableKey;
-              usedKeys.add(availableKey);
-            }
-          }
-
-          const newTrack = createTrackFromPath(path, { keybinding });
-          newTracks.push(newTrack);
-          // Preload immediately
-          preload(newTrack);
-        });
-
-        setTracks((prev) => [...prev, ...newTracks]);
-      }
+      addTracks(filePaths);
     });
 
     const removeClearPadsListener = window.api.onMenuClearPads(() => {
       setTracks([]);
     });
 
-    // Import/Export Listeners
     const removeExportListener = window.api.onMenuExportTracks(async () => {
       if (tracks.length === 0) return;
 
-      // We export the tracks array as JSON
       const content = JSON.stringify(tracks, null, 2);
       await window.api.saveTracksFile(content);
     });
@@ -136,8 +105,6 @@ export const MainPage = () => {
 
           if (tracks.length > 0) {
             setTracks(tracks);
-
-            tracks.forEach(preload);
           }
         }
       } catch (error) {
@@ -151,45 +118,32 @@ export const MainPage = () => {
       removeExportListener();
       removeImportListener();
     };
-  }, [tracks, setTracks, autoAssignShortcuts, preload]);
+  }, [tracks, setTracks, addTracks, autoAssignPositionBasedShortcuts]);
 
-  // Global keydown listener
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+  const handleToggleAccent = (beatIndex: number) => {
+    const newAccents = beatAccents.includes(beatIndex)
+      ? beatAccents.filter((b) => b !== beatIndex)
+      : [...beatAccents, beatIndex];
+    setBeatAccents(newAccents);
+  };
 
-      const key = e.key.toUpperCase();
+  const handleUpdateTrack = (updatedTrack: AudioTrack) => {
+    const newTracks = tracks.map((t) => (t.id === updatedTrack.id ? updatedTrack : t));
+    setTracks(newTracks);
 
-      // Metronome Shortcut
-      if (metronomeShortcut && key === metronomeShortcut) {
-        metronome.toggle();
-        return;
-      }
+    const updates: any = { tracks: newTracks };
+    // If the playing track is updated and has a specific BPM, update the global engine immediately
+    if (isPlaying === updatedTrack.id) {
+      if (updatedTrack.bpm) updates.bpm = updatedTrack.bpm;
+      if (updatedTrack.timeSignature) updates.timeSignature = updatedTrack.timeSignature;
+      if (updatedTrack.color) updates.metronomeColor = updatedTrack.color;
+      // Update volume in real-time if playing
+      setVolume(updatedTrack.volume);
+    }
+    updateConfig(updates);
+  };
 
-      const track = tracks.find((t) => t.keybinding === key);
-      if (track) {
-        // Prevent play if track is loading
-        if (loadingTrackIds.has(track.id)) {
-          return;
-        }
-
-        const updates: any = {};
-        if (track.bpm) updates.bpm = track.bpm;
-        if (track.timeSignature) updates.timeSignature = track.timeSignature;
-        if (track.color) updates.metronomeColor = track.color;
-
-        if (Object.keys(updates).length > 0) {
-          updateConfig(updates);
-        }
-        play(track);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [tracks, play, metronomeShortcut, metronome, loadingTrackIds, updateConfig]);
-
-  const onRemoveTrack = (id: string) => {
+  const handleRemoveTrack = (id: string) => {
     removeTrack(id);
     setContextMenu(null);
   };
@@ -199,20 +153,41 @@ export const MainPage = () => {
     setDragOverTrackId(null);
   };
 
-  const handleDragStart = (trackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOverGrid = (event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDropInGrid = (event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+
+    const sourceTrackId = draggedTrackId || event.dataTransfer.getData('text/plain');
+
+    if (!sourceTrackId) {
+      clearDragState();
+      return;
+    }
+    if (dragOverTrackId) return;
+
+    moveTrackToEnd(sourceTrackId);
+
+    clearDragState();
+  };
+
+  const handleDragStart = (trackId: string, event: React.DragEvent<HTMLDivElement>) => {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', trackId);
     setDraggedTrackId(trackId);
   };
 
-  const handleDragEnter = (trackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = (trackId: string, event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     if (draggedTrackId && draggedTrackId !== trackId) {
       setDragOverTrackId(trackId);
     }
   };
 
-  const handleDragOver = (trackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (trackId: string, event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
     if (draggedTrackId && draggedTrackId !== trackId && dragOverTrackId !== trackId) {
@@ -220,11 +195,11 @@ export const MainPage = () => {
     }
   };
 
-  const handleDragLeave = (trackId: string) => () => {
+  const handleDragLeave = (trackId: string) => {
     setDragOverTrackId((current) => (current === trackId ? null : current));
   };
 
-  const handleDrop = (targetTrackId: string) => (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (targetTrackId: string, event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -234,48 +209,60 @@ export const MainPage = () => {
       return;
     }
 
-    setTracks((previousTracks) => {
-      const reorderedTracks = reorderTracksById(previousTracks, sourceTrackId, targetTrackId);
-      return normalizeKeybindingsByIndex(reorderedTracks);
-    });
+    reorderTracks(sourceTrackId, targetTrackId);
 
     clearDragState();
   };
 
-  const handleDropInGrid = (event: React.DragEvent<HTMLElement>) => {
+  const handleClick = useCallback(
+    (track: AudioTrack) => {
+      const updates: any = {};
+      if (track.bpm) updates.bpm = track.bpm;
+      if (track.timeSignature) updates.timeSignature = track.timeSignature;
+      if (track.color) updates.metronomeColor = track.color;
+
+      if (Object.keys(updates).length > 0) {
+        updateConfig(updates);
+      }
+      play(track);
+    },
+    [play, updateConfig]
+  );
+
+  const handleContextMenu = (trackId: string, index: number, event: React.MouseEvent) => {
     event.preventDefault();
 
-    const sourceTrackId = draggedTrackId || event.dataTransfer.getData('text/plain');
-    if (!sourceTrackId) {
-      clearDragState();
-      return;
-    }
+    setContextMenu({
+      trackId,
+      index,
+      position: { x: event.clientX, y: event.clientY }
+    });
+  };
 
-    if (dragOverTrackId) {
-      return;
-    }
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-    setTracks((previousTracks) => {
-      const sourceIndex = previousTracks.findIndex((track) => track.id === sourceTrackId);
-      if (sourceIndex === -1 || sourceIndex === previousTracks.length - 1) {
-        return previousTracks;
+      const key = e.key.toUpperCase();
+
+      if (metronomeShortcut && key === metronomeShortcut) {
+        metronome.toggle();
+        return;
       }
 
-      const reorderedTracks = [...previousTracks];
-      const [draggedTrack] = reorderedTracks.splice(sourceIndex, 1);
-      reorderedTracks.push(draggedTrack);
-      return normalizeKeybindingsByIndex(reorderedTracks);
-    });
+      const track = tracks.find((t) => t.keybinding === key);
+      if (track) handleClick(track);
+    };
 
-    clearDragState();
-  };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [tracks, metronomeShortcut, metronome, handleClick]);
 
   const handleChangeFile = async (trackId: string) => {
     // Determine the original track ahead of time
     const originalTrack = tracks.find((t) => t.id === trackId);
     if (!originalTrack) return;
 
-    // Use native file dialog
     const filePaths = await window.api.openFileDialog();
     if (!filePaths || filePaths.length === 0) return;
 
@@ -292,13 +279,8 @@ export const MainPage = () => {
       name: newName
     };
 
-    // Close menu immediately
     setContextMenu(null);
 
-    // 1. Preload immediately (shows spinner)
-    preload(updatedTrack);
-
-    // 2. Update state
     updateTrack(updatedTrack);
   };
 
@@ -308,7 +290,6 @@ export const MainPage = () => {
 
   return (
     <div className="app-container">
-      {/* Visual Metronome - Needs to be flexible to push grid down */}
       <div style={{ flexShrink: 0 }}>
         <MetronomeIndicator
           isPlaying={metronome.isPlaying}
@@ -316,23 +297,12 @@ export const MainPage = () => {
           activeColor={activeMetronomeColor}
           beatsPerBar={parseInt(timeSignature.split('/')[0]) || 4}
           accents={beatAccents}
-          onToggleAccent={(beatIndex) => {
-            const newAccents = beatAccents.includes(beatIndex)
-              ? beatAccents.filter((b) => b !== beatIndex)
-              : [...beatAccents, beatIndex];
-            setBeatAccents(newAccents);
-          }}
+          onToggleAccent={handleToggleAccent}
         />
       </div>
+      <button onClick={() => addTonalTrack('C')}>Add tonal C</button>
 
-      <main
-        className="grid-container"
-        onDragOver={(event) => {
-          event.preventDefault();
-          event.dataTransfer.dropEffect = 'move';
-        }}
-        onDrop={handleDropInGrid}
-      >
+      <main className="grid-container" onDragOver={handleDragOverGrid} onDrop={handleDropInGrid}>
         {tracks.map((track, index) => (
           <AudioButton
             key={track.id}
@@ -348,31 +318,14 @@ export const MainPage = () => {
             draggable
             isDragging={draggedTrackId === track.id}
             isDragOver={dragOverTrackId === track.id}
-            onDragStart={handleDragStart(track.id)}
-            onDragEnd={clearDragState}
-            onDragEnter={handleDragEnter(track.id)}
-            onDragOver={handleDragOver(track.id)}
-            onDragLeave={handleDragLeave(track.id)}
-            onDrop={handleDrop(track.id)}
-            onClick={() => {
-              const updates: any = {};
-              if (track.bpm) updates.bpm = track.bpm;
-              if (track.timeSignature) updates.timeSignature = track.timeSignature;
-              if (track.color) updates.metronomeColor = track.color;
-
-              if (Object.keys(updates).length > 0) {
-                updateConfig(updates);
-              }
-              play(track);
-            }}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              setContextMenu({
-                trackId: track.id,
-                position: { x: e.clientX, y: e.clientY },
-                index: index
-              });
-            }}
+            onDragStart={(event) => handleDragStart(track.id, event)}
+            onDragEnd={() => clearDragState()}
+            onDragEnter={(event) => handleDragEnter(track.id, event)}
+            onDragOver={(event) => handleDragOver(track.id, event)}
+            onDragLeave={() => handleDragLeave(track.id)}
+            onDrop={(event) => handleDrop(track.id, event)}
+            onClick={() => handleClick(track)}
+            onContextMenu={(event) => handleContextMenu(track.id, index, event)}
           />
         ))}
       </main>
@@ -383,22 +336,8 @@ export const MainPage = () => {
           index={contextMenu.index}
           position={contextMenu.position}
           onClose={() => setContextMenu(null)}
-          onUpdate={(updatedTrack) => {
-            const newTracks = tracks.map((t) => (t.id === updatedTrack.id ? updatedTrack : t));
-            setTracks(newTracks);
-
-            const updates: any = { tracks: newTracks };
-            // If the playing track is updated and has a specific BPM, update the global engine immediately
-            if (isPlaying === updatedTrack.id) {
-              if (updatedTrack.bpm) updates.bpm = updatedTrack.bpm;
-              if (updatedTrack.timeSignature) updates.timeSignature = updatedTrack.timeSignature;
-              if (updatedTrack.color) updates.metronomeColor = updatedTrack.color;
-              // Update volume in real-time if playing
-              setVolume(updatedTrack.volume);
-            }
-            updateConfig(updates);
-          }}
-          onRemove={() => onRemoveTrack(contextMenu.trackId)}
+          onUpdate={handleUpdateTrack}
+          onRemove={() => handleRemoveTrack(contextMenu.trackId)}
           onChangeFile={() => handleChangeFile(contextMenu.trackId)}
         />
       )}

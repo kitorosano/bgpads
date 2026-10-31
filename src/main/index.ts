@@ -1,5 +1,6 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { app, BrowserWindow, dialog, ipcMain, Menu, screen, shell } from 'electron';
+import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import icon from '../../resources/icon.png?asset';
 import {
@@ -281,8 +282,7 @@ app.whenReady().then(() => {
     if (canceled || !filePath) return false;
 
     try {
-      const fs = require('fs');
-      fs.writeFileSync(filePath, content, 'utf-8');
+      writeFileSync(filePath, content, 'utf-8');
       return true;
     } catch (e) {
       console.error('Failed to save file:', e);
@@ -300,8 +300,7 @@ app.whenReady().then(() => {
     if (canceled || filePaths.length === 0) return null;
 
     try {
-      const fs = require('fs');
-      const content = fs.readFileSync(filePaths[0], 'utf-8');
+      const content = readFileSync(filePaths[0], 'utf-8');
       return JSON.parse(content);
     } catch (e) {
       console.error('Failed to load file:', e);

@@ -1,4 +1,4 @@
-import { AudioSource, AudioTrack } from '../types';
+import { AudioSource } from '../types';
 
 export interface ResolvedAudioSource {
   key: string;
@@ -34,5 +34,3 @@ export const resolveAudioSource = async (
     }
   }
 };
-
-export const getTrackAudioSource = (track: AudioTrack): AudioSource => track.source;
