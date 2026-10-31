@@ -11,3 +11,15 @@ export interface RemoteState {
   bpm: number;
   metronomePlaying: boolean;
 }
+
+export type RemoteCommand =
+  | {
+      type: 'track.play';
+      trackId: string;
+    }
+  | {
+      type: 'track.stop';
+    }
+  | {
+      type: 'metronome.toggle';
+    };

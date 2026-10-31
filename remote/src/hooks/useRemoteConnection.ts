@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { RemoteState } from '../types/remote';
+import type { RemoteCommand, RemoteState } from '../types/remote';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
 
@@ -58,6 +58,14 @@ export const useRemoteConnection = () => {
     };
   }, []);
 
+  const sendCommand = useCallback((command: RemoteCommand) => {
+    const socket = socketRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return false;
+
+    socket.send(JSON.stringify(command));
+    return true;
+  }, []);
+
   useEffect(() => {
     return () => {
       socketRef.current?.close();
@@ -68,6 +76,7 @@ export const useRemoteConnection = () => {
     status,
     remoteState,
     connect,
-    disconnect
+    disconnect,
+    sendCommand
   };
 };

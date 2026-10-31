@@ -3,9 +3,9 @@ import './App.css';
 import { useRemoteConnection } from './hooks/useRemoteConnection';
 
 function App() {
-  const { status, remoteState, connect, disconnect } = useRemoteConnection();
+  const { status, remoteState, connect, disconnect, sendCommand } = useRemoteConnection();
 
-  const [host, setHost] = useState('localhost');
+  const [host, setHost] = useState('192.168.1.2'); // TODO: Change default to empty string when testing is done
   const isConnected = status === 'connected';
 
   return (
@@ -48,15 +48,41 @@ function App() {
             <p>Metronome: {remoteState.metronomePlaying ? 'On' : 'Off'}</p>
             <p>Pads: {remoteState.tracks.length}</p>
 
-            <ul>
-              {remoteState.tracks.map((track) => (
-                <li key={track.id}>
-                  {track.name}
-                  {track.id === remoteState.playingTrackId && ' — Playing'}
-                  {track.id === remoteState.fadingOutTrackId && ' — Fading'}
-                </li>
-              ))}
-            </ul>
+            <div className="remote__tracks">
+              {remoteState.tracks.map((track) => {
+                const isPlaying = track.id === remoteState.playingTrackId;
+                const isFading = track.id === remoteState.fadingOutTrackId;
+
+                return (
+                  <button
+                    key={track.id}
+                    type="button"
+                    className="remote__track"
+                    onClick={() =>
+                      sendCommand({
+                        type: 'track.play',
+                        trackId: track.id
+                      })
+                    }
+                  >
+                    <strong>{track.name}</strong>
+
+                    {isPlaying && <span>Playing</span>}
+                    {isFading && <span>Fading</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="remote__controls">
+              <button type="button" onClick={() => sendCommand({ type: 'track.stop' })}>
+                Stop
+              </button>
+
+              <button type="button" onClick={() => sendCommand({ type: 'metronome.toggle' })}>
+                {remoteState.metronomePlaying ? 'Stop metronome' : 'Start metronome'}
+              </button>
+            </div>
           </div>
         )}
       </section>
