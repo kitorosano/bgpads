@@ -11,25 +11,86 @@ const getTrackSourceKey = (track: AudioTrack, tonalPadBankPath?: string): string
   }
 };
 
-export const useTrackPreloader = (
-  tracks: AudioTrack[],
-  preload: (track: AudioTrack) => Promise<void>,
-  tonalPadBankPath?: string
-) => {
-  const preloadedSourcesRef = useRef(new Set<string>());
+interface Props {
+  tracks: AudioTrack[];
+  preload: (track: AudioTrack) => Promise<string>;
+  retain: (audioKey: string) => void;
+  release: (audioKey: string) => boolean;
+  tonalPadBankPath?: string;
+}
+
+interface RetainedTrack {
+  sourceKey: string;
+  audioKey: string;
+}
+
+export const useTrackPreloader = ({
+  tracks,
+  preload,
+  retain,
+  release,
+  tonalPadBankPath
+}: Props) => {
+  const tracksRef = useRef(tracks);
+  const retainedTracksRef = useRef(new Map<string, RetainedTrack>());
+  const loadingTracksRef = useRef(new Map<string, string>());
 
   useEffect(() => {
-    tracks.forEach((track) => {
+    tracksRef.current = tracks;
+  }, [tracks]);
+
+  useEffect(() => {
+    const currentTracks = new Map(
+      tracks.map((track) => [track.id, getTrackSourceKey(track, tonalPadBankPath)])
+    );
+
+    // Release tracks that were removed or whose source changed.
+    for (const [trackId, retained] of retainedTracksRef.current) {
+      const currentSourceKey = currentTracks.get(trackId);
+
+      if (currentSourceKey === retained.sourceKey) continue;
+
+      release(retained.audioKey);
+      retainedTracksRef.current.delete(trackId);
+    }
+
+    // Preload tracks that are new or whose source changed.
+    for (const track of tracks) {
       const sourceKey = getTrackSourceKey(track, tonalPadBankPath);
-      if (preloadedSourcesRef.current.has(sourceKey)) return;
+      const retained = retainedTracksRef.current.get(track.id);
 
-      preloadedSourcesRef.current.add(sourceKey);
+      if (retained?.sourceKey === sourceKey) continue;
+      if (loadingTracksRef.current.get(track.id) === sourceKey) continue;
 
-      preload(track).catch((error) => {
-        preloadedSourcesRef.current.delete(sourceKey);
+      loadingTracksRef.current.set(track.id, sourceKey);
 
-        console.error(`Failed to preload track "${track.name}":`, error);
-      });
-    });
-  }, [tracks, preload, tonalPadBankPath]);
+      void preload(track)
+        .then((audioKey) => {
+          if (loadingTracksRef.current.get(track.id) === sourceKey) {
+            loadingTracksRef.current.delete(track.id);
+          }
+
+          const currentTrack = tracksRef.current.find((candidate) => candidate.id === track.id);
+          const currentSourceKey = currentTrack
+            ? getTrackSourceKey(currentTrack, tonalPadBankPath)
+            : null;
+          // Track was deleted or changed while loading.
+          if (currentSourceKey !== sourceKey) return;
+
+          retain(audioKey);
+
+          retainedTracksRef.current.set(track.id, {
+            sourceKey,
+            audioKey
+          });
+        })
+        .catch((error) => {
+          if (loadingTracksRef.current.get(track.id) === sourceKey) {
+            loadingTracksRef.current.delete(track.id);
+          }
+
+          console.error(`Failed to preload track "${track.name}":`, error);
+        });
+    }
+  }, [tracks, preload, retain, release, tonalPadBankPath]);
 };

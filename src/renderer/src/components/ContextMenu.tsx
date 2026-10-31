@@ -12,14 +12,17 @@ import { AudioTrack } from '../types';
 import { calculateMenuPosition } from '../utils/uiUtils';
 import { clampBpm } from '../utils/validationUtils';
 
-interface ContextMenuProps {
+interface Props {
   track: AudioTrack;
   index: number;
   position: { x: number; y: number };
   onClose: () => void;
   onUpdate: (updatedTrack: AudioTrack) => void;
   onRemove: () => void;
+  onStop: () => void;
   onChangeFile: () => void;
+  isPlaying: boolean;
+  isFadingOut: boolean;
 }
 
 interface BpmInputProps {
@@ -163,8 +166,11 @@ export const ContextMenu = ({
   onClose,
   onUpdate,
   onRemove,
-  onChangeFile
-}: ContextMenuProps) => {
+  onStop,
+  onChangeFile,
+  isPlaying,
+  isFadingOut
+}: Props) => {
   const { t } = useI18n();
   const menuRef = useRef<HTMLDivElement>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -335,8 +341,16 @@ export const ContextMenu = ({
         </div>
       </div>
 
-      <button className="delete-pad-btn" onClick={onRemove}>
-        {t('deletePad')} {(index + 1).toString().padStart(2, '0')}
+      <button
+        className="delete-pad-btn"
+        onClick={isPlaying ? onStop : onRemove}
+        disabled={isFadingOut}
+      >
+        {isFadingOut
+          ? 'DETENIENDO...'
+          : isPlaying
+            ? 'DETENER'
+            : `${t('deletePad')} ${(index + 1).toString().padStart(2, '0')}`}
       </button>
     </div>
   );

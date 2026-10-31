@@ -133,8 +133,11 @@ export const useAudioPlayer = ({
         });
 
         await audioEngine.preload(resolved.key, resolved.path);
+
+        return resolved.key;
       } catch (error) {
         console.error(`Failed to preload track ${track.name}:`, error);
+        throw error;
       } finally {
         setLoadingTrackIds((previous) => {
           const next = new Set(previous);
@@ -148,6 +151,20 @@ export const useAudioPlayer = ({
 
   const stop = useCallback(() => {
     audioEngine.stop(fadeOutDuration);
+
+    const trackId = isPlayingRef.current;
+    if (trackId) {
+      setFadingOutTrackId(trackId);
+
+      if (fadeOutTimerRef.current) {
+        clearTimeout(fadeOutTimerRef.current);
+      }
+
+      fadeOutTimerRef.current = setTimeout(() => {
+        setFadingOutTrackId(null);
+        fadeOutTimerRef.current = null;
+      }, fadeOutDuration * 1000);
+    }
 
     setIsPlaying(null);
     isPlayingRef.current = null;
@@ -253,18 +270,29 @@ export const useAudioPlayer = ({
     audioEngine.setVolume(volume);
   }, []);
 
+  const retain = useCallback((audioKey: string) => {
+    audioEngine.retain(audioKey);
+  }, []);
+
+  const release = useCallback((audioKey: string) => {
+    return audioEngine.release(audioKey);
+  }, []);
+
   return {
-    play,
-    stop,
-    preload,
     isPlaying,
     loadingTrackIds,
     fadeOutDuration,
-    setFadeOutDuration,
-    setVolume,
     playbackProgress,
     currentTime,
     duration,
-    fadingOutTrackId
+    fadingOutTrackId,
+
+    play,
+    stop,
+    preload,
+    retain,
+    release,
+    setFadeOutDuration,
+    setVolume
   };
 };

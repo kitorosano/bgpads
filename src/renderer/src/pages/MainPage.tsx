@@ -32,8 +32,11 @@ export const MainPage = () => {
   } = useAppConfig();
   const {
     play,
+    stop,
     isPlaying,
     preload,
+    retain,
+    release,
     setFadeOutDuration,
     loadingTrackIds,
     setVolume,
@@ -43,7 +46,13 @@ export const MainPage = () => {
     fadingOutTrackId
   } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
 
-  useTrackPreloader(tracks, preload, tonalPadBankPath);
+  useTrackPreloader({
+    tracks,
+    preload,
+    retain,
+    release,
+    tonalPadBankPath
+  });
   const activeTrack = tracks.find((t) => t.id === isPlaying);
   const fallbackTrack = tracks[0];
 
@@ -231,10 +240,13 @@ export const MainPage = () => {
           track={tracks.find((t) => t.id === contextMenu.trackId)!}
           index={contextMenu.index}
           position={contextMenu.position}
-          onClose={() => setContextMenu(null)}
+          isPlaying={isPlaying === contextMenu.trackId}
+          isFadingOut={fadingOutTrackId === contextMenu.trackId}
           onUpdate={handleUpdateTrack}
+          onClose={() => setContextMenu(null)}
           onRemove={() => handleRemoveTrack(contextMenu.trackId)}
           onChangeFile={() => handleChangeFile(contextMenu.trackId)}
+          onStop={stop}
         />
       )}
     </div>
