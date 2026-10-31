@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { REMOTE_CONTROL_PORT } from '../constants';
-import type { RemoteCommand } from '../types';
+import type { RemoteCommand, RemoteState } from '../types';
 
 interface Props {
   onCommand: (command: RemoteCommand) => void;
@@ -30,9 +30,14 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
   const server = new WebSocketServer({
     port: REMOTE_CONTROL_PORT
   });
+  let currentState: RemoteState | null = null;
 
   server.on('connection', (socket) => {
     console.log('[RemoteControl] Client connected');
+
+    if (currentState) {
+      socket.send(JSON.stringify(currentState));
+    }
 
     socket.on('message', (data) => {
       try {
@@ -62,5 +67,20 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
     console.error('[RemoteControl] Server error:', error);
   });
 
-  return server;
+  const updateState = (state: RemoteState) => {
+    currentState = state;
+
+    const message = JSON.stringify(state);
+
+    server.clients.forEach((client) => {
+      if (client.readyState === client.OPEN) {
+        client.send(message);
+      }
+    });
+  };
+
+  return {
+    updateState,
+    close: () => server.close()
+  };
 };

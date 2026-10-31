@@ -86,6 +86,12 @@ export const MainPage = () => {
   const [isRecordingShortcut, setIsRecordingShortcut] = useState(false);
 
   useRemoteControl({
+    tracks,
+    playingTrackId: isPlaying,
+    fadingOutTrackId,
+    bpm,
+    metronomePlaying: metronome.isPlaying,
+
     playTrack,
     stopPlayback,
     toggleMetronome: metronome.toggle

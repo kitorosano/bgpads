@@ -19,6 +19,8 @@ declare global {
       validateTonalPadBank: (path: string) => Promise<TonalPadBankValidation>;
       resolveTonalPadPath: (directoryPath: string, key: string) => Promise<string>;
 
+      updateRemoteState: (state: RemoteState) => void;
+
       onMenuAddAudio: (callback: () => void) => () => void;
       onMenuClearPads: (callback: () => void) => () => void;
       onMenuOpenSettings: (callback: () => void) => () => void;

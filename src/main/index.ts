@@ -13,7 +13,7 @@ import {
   MAIN_WINDOW_MIN_WIDTH
 } from '../constants';
 import { translations } from '../i18n';
-import { Language } from '../types';
+import type { Language, RemoteState } from '../types';
 import { readConfig, setupPersistence, writeConfig } from './persistence';
 import { createRemoteControlServer } from './remoteControlServer';
 import { resolveTonalPadPath, validateTonalPadBank } from './tonalPadBank';
@@ -252,6 +252,15 @@ app.whenReady().then(() => {
     );
   });
 
+  const remoteControlServer = createRemoteControlServer({
+    onCommand: (command) => {
+      mainWindow?.webContents.send('remote-command', command);
+    }
+  });
+  ipcMain.on('remote-state-update', (_event, state: RemoteState) => {
+    remoteControlServer.updateState(state);
+  });
+
   ipcMain.handle('broadcast-settings-change', (_event, config) => {
     // Update menu language if changed
     if (config.language) {
@@ -330,11 +339,6 @@ app.whenReady().then(() => {
   });
 
   createWindow();
-  const remoteControlServer = createRemoteControlServer({
-    onCommand: (command) => {
-      mainWindow?.webContents.send('remote-command', command);
-    }
-  });
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

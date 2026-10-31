@@ -1,6 +1,6 @@
 import { electronAPI } from '@electron-toolkit/preload';
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
-import type { RemoteCommand, TonalPadBankValidation } from '../types';
+import type { RemoteCommand, RemoteState, TonalPadBankValidation } from '../types';
 
 const api = {
   loadConfig: (): Promise<unknown> => ipcRenderer.invoke('load-config'),
@@ -20,6 +20,10 @@ const api = {
     ipcRenderer.invoke('validate-tonal-pad-bank', path),
   resolveTonalPadPath: (directoryPath: string, key: string): Promise<string> =>
     ipcRenderer.invoke('resolve-tonal-pad-path', directoryPath, key),
+
+  updateRemoteState: (state: RemoteState): void => {
+    ipcRenderer.send('remote-state-update', state);
+  },
 
   onMenuAddAudio: (callback: () => void) => {
     const subscription = (_event: Electron.IpcRendererEvent) => callback();
@@ -56,9 +60,7 @@ const api = {
   onRemoteCommand: (callback: (command: RemoteCommand) => void) => {
     const subscription = (_event: Electron.IpcRendererEvent, command: RemoteCommand) =>
       callback(command);
-
     ipcRenderer.on('remote-command', subscription);
-
     return () => ipcRenderer.removeListener('remote-command', subscription);
   }
 };
