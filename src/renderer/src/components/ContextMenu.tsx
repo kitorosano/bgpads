@@ -222,6 +222,13 @@ export const ContextMenu = ({
   }, [position]);
 
   const customFilePath = track.source.type === 'file' ? track.source.path : null;
+  const isTrackActive = isPlaying || isFadingOut;
+
+  const padNumber = (index + 1).toString().padStart(2, '0');
+  const title = `${t('editPad')} ${padNumber}`;
+  const stoppingPadText = `${t('stoppingPad')} ${padNumber}`;
+  const stopPadText = `${t('stopPad')} ${padNumber}`;
+  const deletePadText = `${t('deletePad')} ${padNumber}`;
 
   return (
     <div
@@ -230,9 +237,7 @@ export const ContextMenu = ({
       style={{ top: adjustedPosition.y, left: adjustedPosition.x }}
     >
       <div className="context-menu-header">
-        <span className="context-menu-title">
-          {t('editPad')} {(index + 1).toString().padStart(2, '0')}
-        </span>
+        <span className="context-menu-title">{title}</span>
         <button className="context-menu-close" onClick={onClose}>
           &times;
         </button>
@@ -306,7 +311,12 @@ export const ContextMenu = ({
         </div>
         <div className="menu-group flex-2">
           <label className="menu-label">{t('source')}</label>
-          <button className="browse-btn" onClick={onChangeFile} title={customFilePath ?? ''}>
+          <button
+            className="browse-btn"
+            onClick={onChangeFile}
+            title={customFilePath ?? ''}
+            disabled={isTrackActive}
+          >
             {customFilePath ? truncateFilename(customFilePath) : t('browse')}
           </button>
         </div>
@@ -315,11 +325,7 @@ export const ContextMenu = ({
       <div className="menu-row">
         <div className="menu-group flex-1">
           <label className="menu-label">{t('bpm')}</label>
-          <BpmInput
-            value={track.bpm}
-            placeholder={t('global')}
-            onChange={(newBpm) => onUpdate({ ...track, bpm: newBpm })}
-          />
+          <BpmInput value={track.bpm} onChange={(newBpm) => onUpdate({ ...track, bpm: newBpm })} />
         </div>
         <div className="menu-group flex-2">
           <label className="menu-label">{t('timeSignature')}</label>
@@ -342,15 +348,11 @@ export const ContextMenu = ({
       </div>
 
       <button
-        className="delete-pad-btn"
+        className={isTrackActive ? 'stop-pad-btn' : 'delete-pad-btn'}
         onClick={isPlaying ? onStop : onRemove}
         disabled={isFadingOut}
       >
-        {isFadingOut
-          ? 'DETENIENDO...'
-          : isPlaying
-            ? 'DETENER'
-            : `${t('deletePad')} ${(index + 1).toString().padStart(2, '0')}`}
+        {isFadingOut ? stoppingPadText : isPlaying ? stopPadText : deletePadText}
       </button>
     </div>
   );
