@@ -1,6 +1,7 @@
 import { AddPadFab } from '@renderer/components/AddPadFab';
 import { Loading } from '@renderer/components/Loading';
 import { usePlaybackActions } from '@renderer/hooks/usePlaybackActions';
+import { useRemoteControl } from '@renderer/hooks/useRemoteControl';
 import { useTrackDragAndDrop } from '@renderer/hooks/useTrackDragAndDrop';
 import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useTrackShortcuts } from '@renderer/hooks/useTrackShortcuts';
@@ -83,6 +84,12 @@ export const MainPage = () => {
 
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [isRecordingShortcut, setIsRecordingShortcut] = useState(false);
+
+  useRemoteControl({
+    playTrack,
+    stopPlayback,
+    toggleMetronome: metronome.toggle
+  });
 
   useEffect(() => {
     setFadeOutDuration(configFadeOut);

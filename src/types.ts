@@ -50,3 +50,15 @@ export interface TonalPadBankValidation {
   availableKeys: TonalPadKey[];
   missingKeys: TonalPadKey[];
 }
+
+export type RemoteCommand =
+  | {
+      type: 'track.play';
+      trackId: string;
+    }
+  | {
+      type: 'track.stop';
+    }
+  | {
+      type: 'metronome.toggle';
+    };
