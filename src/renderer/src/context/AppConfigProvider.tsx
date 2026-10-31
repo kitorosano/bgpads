@@ -139,6 +139,8 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
     const removeSettingsChangedListener = window.electron.ipcRenderer.on(
       'settings-changed',
       (_event, newConfig) => {
+        configRef.current = newConfig;
+
         if (newConfig.theme) {
           setTheme(newConfig.theme);
         }
@@ -299,11 +301,15 @@ const AppConfigProvider = ({ children }: AppConfigProviderProps) => {
 
   const updateTracks: Dispatch<SetStateAction<AudioTrack[]>> = useCallback(
     (action) => {
+      const currentTracks = configRef.current?.tracks ?? [];
+
+      const nextTracks = typeof action === 'function' ? action(currentTracks) : action;
+
       void updateConfig({
-        tracks: typeof action === 'function' ? action(tracks) : action
+        tracks: nextTracks
       });
     },
-    [tracks, updateConfig]
+    [updateConfig]
   );
 
   const value: AppConfigContextValue = {
