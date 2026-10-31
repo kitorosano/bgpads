@@ -22,3 +22,26 @@ export const calculateMenuPosition = (
 
   return { x: newX, y: newY };
 };
+
+export const truncateFilename = (filePath: string, maxLength = 18): string => {
+  // Extract just the filename from the full path
+  const filename = filePath.replace(/\\/g, '/').split('/').pop() || filePath;
+  if (filename.length <= maxLength) return filename;
+
+  const dotIndex = filename.lastIndexOf('.');
+  if (dotIndex === -1) {
+    // No extension — just truncate with ellipsis
+    return filename.slice(0, maxLength - 1) + '…';
+  }
+
+  const ext = filename.slice(dotIndex); // e.g. ".mp3"
+  const name = filename.slice(0, dotIndex);
+  const availableChars = maxLength - ext.length - 1; // -1 for the ellipsis
+
+  if (availableChars <= 2) {
+    // Very long extension or very short max — just show what we can
+    return filename.slice(0, maxLength - 1) + '…';
+  }
+
+  return name.slice(0, availableChars) + '…' + ext;
+};
