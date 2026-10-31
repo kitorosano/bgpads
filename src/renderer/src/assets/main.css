@@ -955,3 +955,48 @@ body.light .custom-time-sig {
 .delete-pad-btn:hover {
   background-color: #5c2229;
 }
+
+.add-pad-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.add-pad-fab-button {
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.add-pad-fab-panel {
+  min-width: 220px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--background-color);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tonal-pad-selector {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.tonal-pad-selector button {
+  min-width: 40px;
+  padding: 8px 6px;
+}

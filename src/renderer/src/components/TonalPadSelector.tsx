@@ -1,8 +1,12 @@
-import { TonalPadKey } from 'src/types';
+import { TONAL_PAD_KEYS, TonalPadKey } from '../../../types';
 import { useTonalPadBank } from '../hooks/useTonalPadBank';
 import { useTracks } from '../hooks/useTracks';
 
-export const TonalPadSelector = () => {
+interface Props {
+  onPadAdded?: () => void;
+}
+
+export const TonalPadSelector = ({ onPadAdded }: Props) => {
   const { validation, isConfigured, isValidating } = useTonalPadBank();
   const { addTonalTrack } = useTracks();
 
@@ -22,17 +26,29 @@ export const TonalPadSelector = () => {
     );
   }
 
+  const availableKeys = new Set(validation?.availableKeys ?? []);
+
   const handleOnClick = (key: TonalPadKey) => {
     addTonalTrack(key);
+    onPadAdded?.();
   };
 
   return (
     <div className="tonal-pad-selector">
-      {validation?.availableKeys.map((key) => (
-        <button key={key} type="button" onClick={() => handleOnClick(key)}>
-          {key}
-        </button>
-      ))}
+      {TONAL_PAD_KEYS.map((key) => {
+        const isAvailable = availableKeys.has(key);
+
+        return (
+          <button
+            key={key}
+            type="button"
+            disabled={!isAvailable}
+            onClick={() => handleOnClick(key)}
+          >
+            {key}
+          </button>
+        );
+      })}
     </div>
   );
 };

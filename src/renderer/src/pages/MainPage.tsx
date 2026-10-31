@@ -1,5 +1,5 @@
+import { AddPadFab } from '@renderer/components/AddPadFab';
 import { Loading } from '@renderer/components/Loading';
-import { TonalPadSelector } from '@renderer/components/TonalPadSelector';
 import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AudioButton } from '../components/AudioButton';
@@ -70,13 +70,15 @@ export const MainPage = () => {
     setFadeOutDuration(configFadeOut);
   }, [configFadeOut, setFadeOutDuration]);
 
-  useEffect(() => {
-    const removeAddAudioListener = window.api.onMenuAddAudio(async () => {
-      const filePaths = await window.api.openFileDialog();
-      if (!filePaths || filePaths.length === 0) return;
+  const handleAddFiles = useCallback(async () => {
+    const filePaths = await window.api.openFileDialog();
+    if (!filePaths || filePaths.length === 0) return;
 
-      addTracks(filePaths);
-    });
+    addTracks(filePaths);
+  }, [addTracks]);
+
+  useEffect(() => {
+    const removeAddAudioListener = window.api.onMenuAddAudio(() => handleAddFiles());
 
     const removeClearPadsListener = window.api.onMenuClearPads(() => {
       setTracks([]);
@@ -111,7 +113,7 @@ export const MainPage = () => {
       removeExportListener();
       removeImportListener();
     };
-  }, [tracks, setTracks, addTracks, autoAssignPositionBasedShortcuts]);
+  }, [tracks, setTracks, handleAddFiles, autoAssignPositionBasedShortcuts]);
 
   const handleToggleAccent = (beatIndex: number) => {
     const newAccents = beatAccents.includes(beatIndex)
@@ -294,7 +296,7 @@ export const MainPage = () => {
         />
       </div>
 
-      <TonalPadSelector />
+      <AddPadFab onAddFiles={handleAddFiles} />
 
       <main className="grid-container" onDragOver={handleDragOverGrid} onDrop={handleDropInGrid}>
         {tracks.map((track, index) => (

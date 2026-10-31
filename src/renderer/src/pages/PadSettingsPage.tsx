@@ -63,11 +63,10 @@ export const PadSettingsSection = () => {
         <button onClick={selectBank}>Select folder</button>
 
         <div>
-          {tonalBankValidation?.availableKeys && tonalBankValidation.availableKeys.length > 0 && (
+          {/* {tonalBankValidation?.availableKeys && tonalBankValidation.availableKeys.length > 0 && (
             <p>Available: {tonalBankValidation.availableKeys.join(' - ') || 'None'}</p>
-          )}
+          )} */}
 
-          {/*// TODO: Think if I really want to display missing keys */}
           {tonalBankValidation?.missingKeys && tonalBankValidation.missingKeys.length > 0 && (
             <p>Missing: {tonalBankValidation.missingKeys.join(' - ') || 'None'}</p>
           )}
