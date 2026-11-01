@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import { createReadStream, existsSync, statSync } from 'fs';
 import { createServer } from 'http';
-import { extname, join, normalize } from 'path';
+import { extname, join, relative, resolve } from 'path';
 import { WebSocketServer } from 'ws';
 import { REMOTE_CONTROL_PORT } from '../constants';
 import type { RemoteCommand, RemoteState } from '../types';
@@ -47,10 +47,14 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
   const remoteDistPath = getRemoteDistPath();
 
   const httpServer = createServer((request, response) => {
-    const requestPath = request.url === '/' ? '/index.html' : request.url;
-    const filePath = normalize(join(remoteDistPath, requestPath ?? ''));
+    const url = new URL(request.url ?? '/', 'http://localhost');
+    const requestPath = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
 
-    if (!filePath.startsWith(normalize(remoteDistPath))) {
+    const rootPath = resolve(remoteDistPath);
+    const filePath = resolve(rootPath, requestPath);
+    const relativePath = relative(rootPath, filePath);
+
+    if (relativePath.startsWith('..') || relativePath.includes(':')) {
       response.writeHead(403);
       response.end();
       return;

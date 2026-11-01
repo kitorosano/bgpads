@@ -1,6 +1,6 @@
 import { Language, Theme } from './types';
 
-export const CONFIG_FILE_NAME = 'bgpads-config-test.json';
+export const CONFIG_FILE_NAME = 'bgpads-config-test.json'; // TODO: Restore this to 'bgpads-config.json' when ready for migration to the new config file format
 export const REMOTE_CONTROL_PORT = 17891;
 
 export const SHORTCUT_KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
