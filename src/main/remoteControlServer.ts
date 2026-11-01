@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import { createReadStream, existsSync, statSync } from 'fs';
 import { createServer } from 'http';
 import { extname, join, normalize } from 'path';
@@ -29,7 +30,10 @@ const isRemoteCommand = (value: unknown): value is RemoteCommand => {
   }
 };
 
-const REMOTE_DIST_PATH = join(process.cwd(), 'remote', 'dist');
+const getRemoteDistPath = (): string => {
+  if (app.isPackaged) return join(process.resourcesPath, 'remote');
+  else return join(process.cwd(), 'remote', 'dist');
+};
 const CONTENT_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -40,11 +44,13 @@ const CONTENT_TYPES: Record<string, string> = {
 };
 
 export const createRemoteControlServer = ({ onCommand }: Props) => {
+  const remoteDistPath = getRemoteDistPath();
+
   const httpServer = createServer((request, response) => {
     const requestPath = request.url === '/' ? '/index.html' : request.url;
-    const filePath = normalize(join(REMOTE_DIST_PATH, requestPath ?? ''));
+    const filePath = normalize(join(remoteDistPath, requestPath ?? ''));
 
-    if (!filePath.startsWith(normalize(REMOTE_DIST_PATH))) {
+    if (!filePath.startsWith(normalize(remoteDistPath))) {
       response.writeHead(403);
       response.end();
       return;
