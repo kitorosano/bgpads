@@ -1,3 +1,6 @@
+import { createReadStream, existsSync, statSync } from 'fs';
+import { createServer } from 'http';
+import { extname, join, normalize } from 'path';
 import { WebSocketServer } from 'ws';
 import { REMOTE_CONTROL_PORT } from '../constants';
 import type { RemoteCommand, RemoteState } from '../types';
@@ -26,10 +29,48 @@ const isRemoteCommand = (value: unknown): value is RemoteCommand => {
   }
 };
 
+const REMOTE_DIST_PATH = join(process.cwd(), 'remote', 'dist');
+const CONTENT_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon'
+};
+
 export const createRemoteControlServer = ({ onCommand }: Props) => {
-  const server = new WebSocketServer({
-    port: REMOTE_CONTROL_PORT
+  const httpServer = createServer((request, response) => {
+    const requestPath = request.url === '/' ? '/index.html' : request.url;
+    const filePath = normalize(join(REMOTE_DIST_PATH, requestPath ?? ''));
+
+    if (!filePath.startsWith(normalize(REMOTE_DIST_PATH))) {
+      response.writeHead(403);
+      response.end();
+      return;
+    }
+
+    if (!existsSync(filePath) || !statSync(filePath).isFile()) {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+
+    const contentType =
+      CONTENT_TYPES[extname(filePath).toLowerCase()] ?? 'application/octet-stream';
+
+    response.writeHead(200, {
+      'Content-Type': contentType
+    });
+
+    createReadStream(filePath).pipe(response);
   });
+
+  const server = new WebSocketServer({
+    server: httpServer
+  });
+
+  httpServer.listen(REMOTE_CONTROL_PORT);
   let currentState: RemoteState | null = null;
 
   server.on('connection', (socket) => {
@@ -81,6 +122,9 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
 
   return {
     updateState,
-    close: () => server.close()
+    close: () => {
+      server.close();
+      httpServer.close();
+    }
   };
 };

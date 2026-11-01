@@ -1,4 +1,5 @@
-import { REMOTE_CONTROL_PORT, REMOTE_PROTOCOL_VERSION } from '../constants';
+import { hostname } from 'os';
+import { REMOTE_CONTROL_PORT } from '../constants';
 import type { RemoteConnectionInfo } from '../types';
 import { getPreferredLanAddress } from './network';
 
@@ -13,12 +14,8 @@ export const getRemoteConnectionInfo = (): RemoteConnectionInfo | null => {
   };
 };
 
-export const createRemoteConnectionPayload = (connectionInfo: RemoteConnectionInfo): string => {
-  const params = new URLSearchParams({
-    v: String(REMOTE_PROTOCOL_VERSION),
-    host: connectionInfo.host,
-    port: String(connectionInfo.port)
-  });
+export const createRemoteConnectionPayload = (): string => {
+  const localHostname = hostname();
 
-  return `bgpads://connect?${params.toString()}`;
+  return `http://${localHostname}.local:${REMOTE_CONTROL_PORT}`;
 };

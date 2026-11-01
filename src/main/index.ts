@@ -360,7 +360,7 @@ app.whenReady().then(() => {
     const connectionInfo = getRemoteConnectionInfo();
     if (!connectionInfo) return null;
 
-    return createRemoteConnectionPayload(connectionInfo);
+    return createRemoteConnectionPayload();
   });
 
   createWindow();

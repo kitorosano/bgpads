@@ -124,6 +124,13 @@ export const useRemoteConnection = () => {
   }, []);
 
   useEffect(() => {
+    const pageHost = window.location.hostname;
+    if (!pageHost.endsWith('.local')) return;
+
+    connect(pageHost);
+  }, [connect]);
+
+  useEffect(() => {
     return () => {
       manualDisconnectRef.current = true;
       clearReconnectTimer();

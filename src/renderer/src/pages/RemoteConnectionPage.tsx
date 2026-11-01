@@ -23,16 +23,16 @@ export const RemoteConnectionPage = () => {
 
       {connectionInfo && connectionPayload ? (
         <>
-          <p>Scan this QR code with BGPads Remote.</p>
+          <p>Scan this QR code with your phone to open BGPads Remote.</p>
 
           <QRCodeSVG value={connectionPayload} size={220} level="M" />
 
           <p>
-            <strong>{connectionInfo.interfaceName}</strong>
+            <strong>{connectionPayload}</strong>
           </p>
 
           <p>
-            {connectionInfo.host}:{connectionInfo.port}
+            {connectionInfo.interfaceName} · {connectionInfo.host}:{connectionInfo.port}
           </p>
         </>
       ) : (
