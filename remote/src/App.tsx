@@ -60,22 +60,62 @@ function App() {
       <header className="playback-header">
         <div className="playback-header__brand">
           <strong>BGPads</strong>
-          <span className="playback-header__connection">
+          <span
+            className={`playback-header__connection playback-header__connection--${status}`}
+            title={status}
+            aria-label={`Connection status: ${status}`}
+          >
             <span className="playback-header__connection-indicator" />
-            {status}
           </span>
         </div>
 
-        <button
-          type="button"
-          className={`playback-header__metronome ${
-            remoteState.metronomePlaying ? 'playback-header__metronome--active' : ''
-          }`}
-          onClick={() => sendCommand({ type: 'metronome.toggle' })}
-        >
-          <strong>{remoteState.bpm}</strong>
-          <span>BPM</span>
-        </button>
+        <div className="playback-header__tempo">
+          <div className="playback-header__bpm">
+            <strong>{remoteState.bpm}</strong>
+            <span>BPM</span>
+          </div>
+
+          <button
+            type="button"
+            className={`playback-header__metronome ${
+              remoteState.metronomePlaying ? 'playback-header__metronome--active' : ''
+            }`}
+            onClick={() => sendCommand({ type: 'metronome.toggle' })}
+            aria-label={remoteState.metronomePlaying ? 'Stop metronome' : 'Start metronome'}
+            aria-pressed={remoteState.metronomePlaying}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="playback-header__metronome-icon">
+              <path
+                d="M9 3h6l3 18H6L9 3Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M12 7v8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+              <path
+                d="M12 11l3-2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+              <path
+                d="M8 17h8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
       </header>
 
       <section className={`pad-grid pad-grid--${gridSize}`} data-track-count={trackCount}>
