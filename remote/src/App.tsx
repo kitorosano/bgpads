@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import './App.css';
+import './assets/App.css';
 import { useRemoteConnection } from './hooks/useRemoteConnection';
 
 function App() {
-  const { status, remoteState, connect, disconnect, sendCommand } = useRemoteConnection();
+  const { status, remoteState, lastHost, connect, disconnect, sendCommand } = useRemoteConnection();
 
-  const [host, setHost] = useState('192.168.1.2'); // TODO: Change default to empty string when testing is done
-  const isConnected = status === 'connected';
+  const [host, setHost] = useState(lastHost);
+  const hasActiveConnection =
+    status === 'connecting' ||
+    status === 'connected' ||
+    status === 'reconnecting' ||
+    status === 'disconnecting';
 
   return (
     <main className="app">
@@ -26,18 +30,17 @@ function App() {
             type="text"
             value={host}
             onChange={(event) => setHost(event.target.value)}
-            disabled={isConnected}
+            disabled={hasActiveConnection}
             placeholder="Desktop IP"
           />
 
-          {isConnected ? (
-            <button onClick={disconnect}>Disconnect</button>
+          {hasActiveConnection ? (
+            <button onClick={disconnect} disabled={status === 'disconnecting'}>
+              {status === 'disconnecting' ? 'Disconnecting...' : 'Disconnect'}
+            </button>
           ) : (
-            <button
-              onClick={() => connect(host)}
-              disabled={status === 'connecting' || !host.trim()}
-            >
-              {status === 'connecting' ? 'Connecting...' : 'Connect'}
+            <button onClick={() => connect(host)} disabled={!host.trim()}>
+              Connect
             </button>
           )}
         </div>
@@ -91,4 +94,3 @@ function App() {
 }
 
 export default App;
-

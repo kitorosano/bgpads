@@ -1,62 +1,119 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { RemoteCommand, RemoteState } from '../types/remote';
-
-export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
+import { LAST_HOST_STORAGE_KEY, RECONNECT_DELAY_MS } from '../constants';
+import type { ConnectionStatus, RemoteCommand, RemoteState } from '../types';
 
 export const useRemoteConnection = () => {
   const socketRef = useRef<WebSocket | null>(null);
+  const manualDisconnectRef = useRef(false);
+
+  const hostRef = useRef<string | null>(null);
+  const reconnectTimerRef = useRef<number | null>(null);
 
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [remoteState, setRemoteState] = useState<RemoteState | null>(null);
+  const [lastHost, setLastHost] = useState<string>(() => {
+    return localStorage.getItem(LAST_HOST_STORAGE_KEY) ?? '';
+  });
+
+  const clearReconnectTimer = useCallback(() => {
+    if (reconnectTimerRef.current !== null) {
+      window.clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+  }, []);
+
+  const openConnection = useCallback(
+    (host: string, reconnecting = false) => {
+      clearReconnectTimer();
+
+      setStatus(reconnecting ? 'reconnecting' : 'connecting');
+
+      const socket = new WebSocket(`ws://${host}:17891`);
+      socketRef.current = socket;
+
+      socket.onopen = () => {
+        if (socketRef.current !== socket) return;
+
+        localStorage.setItem(LAST_HOST_STORAGE_KEY, host);
+        setLastHost(host);
+        setStatus('connected');
+      };
+
+      socket.onmessage = (event) => {
+        if (socketRef.current !== socket) return;
+
+        try {
+          const state = JSON.parse(event.data) as RemoteState;
+          setRemoteState(state);
+        } catch (error) {
+          console.warn('[Remote] Invalid state received:', error);
+        }
+      };
+
+      socket.onerror = () => {
+        if (socketRef.current !== socket) return;
+
+        // onclose handles reconnection.
+      };
+
+      socket.onclose = () => {
+        if (socketRef.current !== socket) return;
+
+        socketRef.current = null;
+        setRemoteState(null);
+
+        if (manualDisconnectRef.current) {
+          manualDisconnectRef.current = false;
+          setStatus('disconnected');
+          return;
+        }
+
+        setStatus('reconnecting');
+
+        reconnectTimerRef.current = window.setTimeout(() => {
+          const currentHost = hostRef.current;
+          if (!currentHost || manualDisconnectRef.current) return;
+
+          openConnection(currentHost, true);
+        }, RECONNECT_DELAY_MS);
+      };
+    },
+    [clearReconnectTimer]
+  );
+
+  const connect = useCallback(
+    (host: string) => {
+      const normalizedHost = host.trim();
+      if (!normalizedHost) return;
+
+      manualDisconnectRef.current = false;
+      hostRef.current = normalizedHost;
+
+      clearReconnectTimer();
+      socketRef.current?.close();
+
+      setRemoteState(null);
+      openConnection(normalizedHost);
+    },
+    [clearReconnectTimer, openConnection]
+  );
 
   const disconnect = useCallback(() => {
-    socketRef.current?.close();
-    socketRef.current = null;
+    manualDisconnectRef.current = true;
+    clearReconnectTimer();
 
-    setStatus('disconnected');
-    setRemoteState(null);
-  }, []);
-
-  const connect = useCallback((host: string) => {
-    socketRef.current?.close();
-
-    setStatus('connecting');
-    setRemoteState(null);
-
-    const socket = new WebSocket(`ws://${host}:17891`);
-
-    socketRef.current = socket;
-
-    socket.onopen = () => {
-      if (socketRef.current !== socket) return;
-
-      setStatus('connected');
-    };
-
-    socket.onmessage = (event) => {
-      if (socketRef.current !== socket) return;
-
-      try {
-        const state = JSON.parse(event.data) as RemoteState;
-        setRemoteState(state);
-      } catch (error) {
-        console.warn('[Remote] Invalid state received:', error);
-      }
-    };
-
-    socket.onerror = () => {
-      if (socketRef.current !== socket) return;
+    const socket = socketRef.current;
+    if (!socket) {
+      manualDisconnectRef.current = false;
 
       setStatus('disconnected');
-    };
+      setRemoteState(null);
+      return;
+    }
 
-    socket.onclose = () => {
-      if (socketRef.current !== socket) return;
-
-      socketRef.current = null;
-      setStatus('disconnected');
-    };
-  }, []);
+    setStatus('disconnecting');
+    socket.close();
+  }, [clearReconnectTimer]);
 
   const sendCommand = useCallback((command: RemoteCommand) => {
     const socket = socketRef.current;
@@ -68,13 +125,16 @@ export const useRemoteConnection = () => {
 
   useEffect(() => {
     return () => {
+      manualDisconnectRef.current = true;
+      clearReconnectTimer();
       socketRef.current?.close();
     };
-  }, []);
+  }, [clearReconnectTimer]);
 
   return {
     status,
     remoteState,
+    lastHost,
     connect,
     disconnect,
     sendCommand

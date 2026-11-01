@@ -23,3 +23,6 @@ export type RemoteCommand =
   | {
       type: 'metronome.toggle';
     };
+
+export type ConnectionStatus =
+  'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'disconnecting';
