@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { LAST_HOST_STORAGE_KEY, RECONNECT_DELAY_MS } from '../constants';
+import { LAST_HOST_STORAGE_KEY, RECONNECT_DELAY_MS, REMOTE_CONTROL_PORT } from '../constants';
 import type { ConnectionStatus, RemoteCommand, RemoteState } from '../types';
 
 export const useRemoteConnection = () => {
@@ -28,7 +28,7 @@ export const useRemoteConnection = () => {
 
       setStatus(reconnecting ? 'reconnecting' : 'connecting');
 
-      const socket = new WebSocket(`ws://${host}:17891`);
+      const socket = new WebSocket(`ws://${host}:${REMOTE_CONTROL_PORT}`);
       socketRef.current = socket;
 
       socket.onopen = () => {
