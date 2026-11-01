@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import './assets/App.css';
 import { useRemoteConnection } from './hooks/useRemoteConnection';
 
@@ -12,82 +12,97 @@ function App() {
     status === 'reconnecting' ||
     status === 'disconnecting';
 
-  return (
-    <main className="app">
-      <section className="remote">
-        <header className="remote__header">
-          <h1>BGPads Remote</h1>
-          <p>Remote control for BGPads Desktop</p>
-        </header>
+  if (!remoteState) {
+    return (
+      <main className="app app--connection">
+        <section className="connection">
+          <header className="connection__header">
+            <h1>BGPads Remote</h1>
+            <p>Remote control for BGPads Desktop</p>
+          </header>
 
-        <div className="remote__status">
-          <span className="remote__status-indicator" />
-          <span>{status}</span>
-        </div>
-
-        <div className="remote__connection">
-          <input
-            type="text"
-            value={host}
-            onChange={(event) => setHost(event.target.value)}
-            disabled={hasActiveConnection}
-            placeholder="Desktop IP"
-          />
-
-          {hasActiveConnection ? (
-            <button onClick={disconnect} disabled={status === 'disconnecting'}>
-              {status === 'disconnecting' ? 'Disconnecting...' : 'Disconnect'}
-            </button>
-          ) : (
-            <button onClick={() => connect(host)} disabled={!host.trim()}>
-              Connect
-            </button>
-          )}
-        </div>
-
-        {remoteState && (
-          <div className="remote__state">
-            <p>BPM: {remoteState.bpm}</p>
-            <p>Metronome: {remoteState.metronomePlaying ? 'On' : 'Off'}</p>
-            <p>Pads: {remoteState.tracks.length}</p>
-
-            <div className="remote__tracks">
-              {remoteState.tracks.map((track) => {
-                const isPlaying = track.id === remoteState.playingTrackId;
-                const isFading = track.id === remoteState.fadingOutTrackId;
-
-                return (
-                  <button
-                    key={track.id}
-                    type="button"
-                    className="remote__track"
-                    onClick={() =>
-                      sendCommand({
-                        type: 'track.play',
-                        trackId: track.id
-                      })
-                    }
-                  >
-                    <strong>{track.name}</strong>
-
-                    {isPlaying && <span>Playing</span>}
-                    {isFading && <span>Fading</span>}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="remote__controls">
-              <button type="button" onClick={() => sendCommand({ type: 'track.stop' })}>
-                Stop
-              </button>
-
-              <button type="button" onClick={() => sendCommand({ type: 'metronome.toggle' })}>
-                {remoteState.metronomePlaying ? 'Stop metronome' : 'Start metronome'}
-              </button>
-            </div>
+          <div className="connection__status">
+            <span className="connection__status-indicator" />
+            <span>{status}</span>
           </div>
-        )}
+
+          <div className="connection__form">
+            <input
+              type="text"
+              value={host}
+              onChange={(event) => setHost(event.target.value)}
+              disabled={hasActiveConnection}
+              placeholder="Desktop IP"
+            />
+
+            {hasActiveConnection ? (
+              <button onClick={disconnect} disabled={status === 'disconnecting'}>
+                {status === 'disconnecting' ? 'Disconnecting...' : 'Disconnect'}
+              </button>
+            ) : (
+              <button onClick={() => connect(host)} disabled={!host.trim()}>
+                Connect
+              </button>
+            )}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  const trackCount = remoteState.tracks.length;
+
+  const gridSize =
+    trackCount <= 2 ? 'small' : trackCount <= 6 ? 'medium' : trackCount <= 12 ? 'large' : 'dense';
+
+  return (
+    <main className="app app--playback">
+      <header className="playback-header">
+        <div className="playback-header__brand">
+          <strong>BGPads</strong>
+          <span className="playback-header__connection">
+            <span className="playback-header__connection-indicator" />
+            {status}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          className={`playback-header__metronome ${
+            remoteState.metronomePlaying ? 'playback-header__metronome--active' : ''
+          }`}
+          onClick={() => sendCommand({ type: 'metronome.toggle' })}
+        >
+          <strong>{remoteState.bpm}</strong>
+          <span>BPM</span>
+        </button>
+      </header>
+
+      <section className={`pad-grid pad-grid--${gridSize}`} data-track-count={trackCount}>
+        {remoteState.tracks.map((track) => {
+          const isPlaying = track.id === remoteState.playingTrackId;
+          const isFading = track.id === remoteState.fadingOutTrackId;
+
+          return (
+            <button
+              key={track.id}
+              type="button"
+              className={`pad ${isPlaying ? 'pad--playing' : isFading ? 'pad--fading' : ''}`}
+              style={{ '--pad-color': track.color } as CSSProperties}
+              onClick={() =>
+                sendCommand({
+                  type: 'track.play',
+                  trackId: track.id
+                })
+              }
+            >
+              <strong className="pad__name">{track.name}</strong>
+
+              {isPlaying && <span className="pad__state">Playing</span>}
+              {isFading && <span className="pad__state">Fading</span>}
+            </button>
+          );
+        })}
       </section>
     </main>
   );
