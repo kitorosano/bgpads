@@ -25,6 +25,7 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@fontsource/space-grotesk": "^5.2.10",
     "electron-updater": "^6.3.9",
+    "qrcode.react": "^4.2.0",
     "react-router-dom": "^7.10.1",
     "ws": "^8.22.0"
   },

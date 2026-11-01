@@ -29,6 +29,10 @@ const setMenu = (language: Language) => {
       label: t.file,
       submenu: [
         {
+          label: t.remoteControl,
+          click: () => ipcMain.emit('menu-open-remote')
+        },
+        {
           label: t.preferences,
           click: () => ipcMain.emit('menu-open-settings')
         },
@@ -201,6 +205,7 @@ app.whenReady().then(() => {
 
   // Window Management
   let settingsWindow: BrowserWindow | null = null;
+  let remoteWindow: BrowserWindow | null = null;
   let aboutWindow: BrowserWindow | null = null;
 
   const createAuxWindow = (
@@ -231,6 +236,15 @@ app.whenReady().then(() => {
 
     return win;
   };
+
+  ipcMain.on('menu-open-remote', () => {
+    if (remoteWindow && !remoteWindow.isDestroyed()) {
+      remoteWindow.focus();
+      return;
+    }
+
+    remoteWindow = createAuxWindow('/remote', 'BGPads Remote', 400, 500);
+  });
 
   ipcMain.on('menu-open-settings', () => {
     if (settingsWindow && !settingsWindow.isDestroyed()) {
