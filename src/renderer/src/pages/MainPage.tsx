@@ -91,7 +91,9 @@ export const MainPage = () => {
     fadingOutTrackId,
     bpm,
     metronomePlaying: metronome.isPlaying,
-
+    currentBeat,
+    timeSignature,
+    beatAccents,
     playTrack,
     stopPlayback,
     toggleMetronome: metronome.toggle

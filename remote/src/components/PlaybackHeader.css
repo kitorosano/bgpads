@@ -45,6 +45,38 @@
   gap: 0.65rem;
 }
 
+.playback-header__beat {
+  width: 0.65rem;
+  height: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playback-header__beat span {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.2;
+}
+
+.playback-header__beat--active span {
+  animation: metronome-beat 180ms ease-out;
+}
+
+@keyframes metronome-beat {
+  0% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+
+  100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+}
+
 .playback-header__bpm {
   display: flex;
   align-items: baseline;

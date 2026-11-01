@@ -75,6 +75,9 @@ export interface RemoteState {
   fadingOutTrackId: string | null;
   bpm: number;
   metronomePlaying: boolean;
+  currentBeat: number;
+  timeSignature: string;
+  beatAccents: number[];
 }
 
 export interface RemoteConnectionInfo {

@@ -2,16 +2,30 @@ import { useI18n } from '../hooks/useI18n';
 import type { TranslationKey } from '../i18n';
 import type { ConnectionStatus, RemoteCommand } from '../types';
 import MetronomeIcon from './icons/MetronomeIcon';
+import { MetronomeBeatIndicator } from './MetronomeBeatIndicator';
 import './PlaybackHeader.css';
 
 interface Props {
   bpm: number;
   metronomePlaying: boolean;
+  currentBeat: number;
+  timeSignature: string;
+  beatAccents: number[];
+  metronomeColor?: string;
   status: ConnectionStatus;
   sendCommand: (command: RemoteCommand) => boolean;
 }
 
-export function PlaybackHeader({ bpm, metronomePlaying, status, sendCommand }: Props) {
+export function PlaybackHeader({
+  bpm,
+  metronomePlaying,
+  currentBeat,
+  timeSignature,
+  beatAccents,
+  metronomeColor,
+  status,
+  sendCommand
+}: Props) {
   const { t } = useI18n();
 
   const statusKey: Record<ConnectionStatus, TranslationKey> = {
@@ -36,6 +50,14 @@ export function PlaybackHeader({ bpm, metronomePlaying, status, sendCommand }: P
       </div>
 
       <div className="playback-header__tempo">
+        <MetronomeBeatIndicator
+          isPlaying={metronomePlaying}
+          currentBeat={currentBeat}
+          timeSignature={timeSignature}
+          beatAccents={beatAccents}
+          activeColor={metronomeColor}
+        />
+
         <div className="playback-header__bpm">
           <strong>{bpm}</strong>
           <span>{t('bpm')}</span>

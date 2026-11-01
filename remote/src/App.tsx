@@ -18,11 +18,18 @@ function App() {
     );
   }
 
+  const activeTrack = remoteState.tracks.find((track) => track.id === remoteState.playingTrackId);
+  const metronomeColor = activeTrack?.color;
+
   return (
     <main className="app app--playback">
       <PlaybackHeader
         bpm={remoteState.bpm}
         metronomePlaying={remoteState.metronomePlaying}
+        currentBeat={remoteState.currentBeat}
+        timeSignature={remoteState.timeSignature}
+        beatAccents={remoteState.beatAccents}
+        metronomeColor={metronomeColor}
         status={status}
         sendCommand={sendCommand}
       />

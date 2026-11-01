@@ -1,0 +1,108 @@
+/* Portrait */
+
+.metronome-beat {
+  width: 1.1rem;
+  height: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metronome-beat span {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.2;
+}
+
+.metronome-beat--playing span {
+  animation: metronome-beat-pulse 180ms ease-out;
+}
+
+.metronome-beat--accented span {
+  background: var(--metronome-color);
+  box-shadow: 0 0 0.65rem var(--metronome-color);
+  animation-name: metronome-accent-beat-pulse;
+}
+
+@keyframes metronome-beat-pulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(1.25);
+  }
+
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+}
+
+@keyframes metronome-accent-beat-pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1.65);
+  }
+
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+}
+
+/* Landscape */
+
+.metronome-beats {
+  display: none;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.metronome-beats__beat {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  border: 2px solid currentColor;
+
+  background: transparent;
+  opacity: 0.35;
+
+  transition:
+    background-color 80ms ease,
+    border-color 80ms ease,
+    box-shadow 80ms ease,
+    opacity 80ms ease,
+    transform 80ms ease;
+}
+
+.metronome-beats__beat--accented {
+  border-color: var(--metronome-color);
+  border-width: 3px;
+  opacity: 0.8;
+}
+
+.metronome-beats__beat--active {
+  background: currentColor;
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.metronome-beats__beat--active.metronome-beats__beat--accented {
+  background: var(--metronome-color);
+  border-color: var(--metronome-color);
+  box-shadow: 0 0 0.75rem var(--metronome-color);
+  opacity: 1;
+  transform: scale(1.35);
+}
+
+@media (orientation: landscape) {
+  .metronome-beat--portrait {
+    display: none;
+  }
+
+  .metronome-beats--landscape {
+    display: flex;
+  }
+}
