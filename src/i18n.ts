@@ -12,6 +12,7 @@ export const translations = {
     importTracks: 'Importar Setlist',
     exportTracks: 'Exportar Setlist',
     preferences: 'Preferencias',
+    remoteControl: 'Control Remoto',
     quit: 'Salir',
 
     // Settings
@@ -83,6 +84,7 @@ export const translations = {
     importTracks: 'Import Setlist',
     exportTracks: 'Export Setlist',
     preferences: 'Preferences',
+    remoteControl: 'Remote Control',
     quit: 'Quit',
 
     // Settings Modal

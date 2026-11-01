@@ -1,5 +1,10 @@
 import { ElectronAPI } from '@electron-toolkit/preload';
-import type { RemoteCommand, RemoteState, TonalPadBankValidation } from '../types';
+import type {
+  RemoteCommand,
+  RemoteConnectionInfo,
+  RemoteState,
+  TonalPadBankValidation
+} from '../types';
 
 declare global {
   interface Window {
@@ -18,6 +23,9 @@ declare global {
       selectTonalPadBank: () => Promise<TonalPadBankValidation | null>;
       validateTonalPadBank: (path: string) => Promise<TonalPadBankValidation>;
       resolveTonalPadPath: (directoryPath: string, key: string) => Promise<string>;
+
+      getRemoteConnectionInfo: () => Promise<RemoteConnectionInfo | null>;
+      getRemoteConnectionPayload: () => Promise<string | null>;
 
       updateRemoteState: (state: RemoteState) => void;
 

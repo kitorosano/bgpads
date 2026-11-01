@@ -76,3 +76,9 @@ export interface RemoteState {
   bpm: number;
   metronomePlaying: boolean;
 }
+
+export interface RemoteConnectionInfo {
+  host: string;
+  port: number;
+  interfaceName: string;
+}

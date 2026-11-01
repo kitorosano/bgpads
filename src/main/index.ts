@@ -15,6 +15,7 @@ import {
 import { translations } from '../i18n';
 import type { Language, RemoteState } from '../types';
 import { readConfig, setupPersistence, writeConfig } from './persistence';
+import { createRemoteConnectionPayload, getRemoteConnectionInfo } from './remoteConnection';
 import { createRemoteControlServer } from './remoteControlServer';
 import { resolveTonalPadPath, validateTonalPadBank } from './tonalPadBank';
 
@@ -27,6 +28,10 @@ const setMenu = (language: Language) => {
     {
       label: t.file,
       submenu: [
+        {
+          label: t.remoteControl,
+          click: () => ipcMain.emit('menu-open-remote')
+        },
         {
           label: t.preferences,
           click: () => ipcMain.emit('menu-open-settings')
@@ -200,6 +205,7 @@ app.whenReady().then(() => {
 
   // Window Management
   let settingsWindow: BrowserWindow | null = null;
+  let remoteWindow: BrowserWindow | null = null;
   let aboutWindow: BrowserWindow | null = null;
 
   const createAuxWindow = (
@@ -230,6 +236,15 @@ app.whenReady().then(() => {
 
     return win;
   };
+
+  ipcMain.on('menu-open-remote', () => {
+    if (remoteWindow && !remoteWindow.isDestroyed()) {
+      remoteWindow.focus();
+      return;
+    }
+
+    remoteWindow = createAuxWindow('/remote', 'BGPads Remote', 400, 500);
+  });
 
   ipcMain.on('menu-open-settings', () => {
     if (settingsWindow && !settingsWindow.isDestroyed()) {
@@ -336,6 +351,16 @@ app.whenReady().then(() => {
 
   ipcMain.handle('resolve-tonal-pad-path', (_event, directoryPath: string, key: string) => {
     return resolveTonalPadPath(directoryPath, key);
+  });
+
+  ipcMain.handle('get-remote-connection-info', () => {
+    return getRemoteConnectionInfo();
+  });
+  ipcMain.handle('get-remote-connection-payload', () => {
+    const connectionInfo = getRemoteConnectionInfo();
+    if (!connectionInfo) return null;
+
+    return createRemoteConnectionPayload();
   });
 
   createWindow();

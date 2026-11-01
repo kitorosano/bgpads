@@ -3,6 +3,7 @@ import { AboutPage } from './pages/AboutPage';
 import { MainPage } from './pages/MainPage';
 import { MetronomeSettingsPage } from './pages/MetronomeSettingsPage';
 import { PadSettingsPage } from './pages/PadSettingsPage';
+import { RemoteConnectionPage } from './pages/RemoteConnectionPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function App(): React.JSX.Element {
@@ -10,6 +11,7 @@ function App(): React.JSX.Element {
     <HashRouter>
       <Routes>
         <Route path="/" element={<MainPage />} />
+        <Route path="/remote" element={<RemoteConnectionPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/pads-settings" element={<PadSettingsPage />} />
         <Route path="/metronome-settings" element={<MetronomeSettingsPage />} />
