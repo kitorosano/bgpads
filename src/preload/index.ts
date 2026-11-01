@@ -21,6 +21,9 @@ const api = {
   resolveTonalPadPath: (directoryPath: string, key: string): Promise<string> =>
     ipcRenderer.invoke('resolve-tonal-pad-path', directoryPath, key),
 
+  getRemoteConnectionInfo: () => ipcRenderer.invoke('get-remote-connection-info'),
+  getRemoteConnectionPayload: () => ipcRenderer.invoke('get-remote-connection-payload'),
+
   updateRemoteState: (state: RemoteState): void => {
     ipcRenderer.send('remote-state-update', state);
   },

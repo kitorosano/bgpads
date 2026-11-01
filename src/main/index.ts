@@ -15,6 +15,7 @@ import {
 import { translations } from '../i18n';
 import type { Language, RemoteState } from '../types';
 import { readConfig, setupPersistence, writeConfig } from './persistence';
+import { createRemoteConnectionPayload, getRemoteConnectionInfo } from './remoteConnection';
 import { createRemoteControlServer } from './remoteControlServer';
 import { resolveTonalPadPath, validateTonalPadBank } from './tonalPadBank';
 
@@ -336,6 +337,16 @@ app.whenReady().then(() => {
 
   ipcMain.handle('resolve-tonal-pad-path', (_event, directoryPath: string, key: string) => {
     return resolveTonalPadPath(directoryPath, key);
+  });
+
+  ipcMain.handle('get-remote-connection-info', () => {
+    return getRemoteConnectionInfo();
+  });
+  ipcMain.handle('get-remote-connection-payload', () => {
+    const connectionInfo = getRemoteConnectionInfo();
+    if (!connectionInfo) return null;
+
+    return createRemoteConnectionPayload(connectionInfo);
   });
 
   createWindow();

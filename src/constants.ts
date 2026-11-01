@@ -2,6 +2,7 @@ import { Language, Theme } from './types';
 
 export const CONFIG_FILE_NAME = 'bgpads-config.json';
 export const REMOTE_CONTROL_PORT = 17891;
+export const REMOTE_PROTOCOL_VERSION = 1;
 
 export const SHORTCUT_KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
 
