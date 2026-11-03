@@ -37,6 +37,9 @@ function App() {
         tracks={remoteState.tracks}
         playingTrackId={remoteState.playingTrackId}
         fadingOutTrackId={remoteState.fadingOutTrackId}
+        playbackProgress={remoteState.playbackProgress}
+        currentTime={remoteState.currentTime}
+        duration={remoteState.duration}
         sendCommand={sendCommand}
       />
     </main>

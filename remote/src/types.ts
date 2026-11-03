@@ -13,6 +13,9 @@ export interface RemoteState {
   currentBeat: number;
   timeSignature: string;
   beatAccents: number[];
+  playbackProgress: number;
+  currentTime: number;
+  duration: number;
 }
 
 export type RemoteCommand =

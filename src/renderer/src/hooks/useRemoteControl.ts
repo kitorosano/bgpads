@@ -11,6 +11,9 @@ interface Props {
   currentBeat: number;
   timeSignature: string;
   beatAccents: number[];
+  playbackProgress: number;
+  currentTime: number;
+  duration: number;
 
   playTrack: (trackId: string) => void;
   stopPlayback: () => void;
@@ -26,6 +29,9 @@ export const useRemoteControl = ({
   currentBeat,
   timeSignature,
   beatAccents,
+  playbackProgress,
+  currentTime,
+  duration,
   playTrack,
   stopPlayback,
   toggleMetronome
@@ -63,7 +69,10 @@ export const useRemoteControl = ({
       metronomePlaying,
       currentBeat,
       timeSignature,
-      beatAccents
+      beatAccents,
+      playbackProgress,
+      currentTime,
+      duration
     });
   }, [
     tracks,
@@ -73,6 +82,9 @@ export const useRemoteControl = ({
     metronomePlaying,
     currentBeat,
     timeSignature,
-    beatAccents
+    beatAccents,
+    playbackProgress,
+    currentTime,
+    duration
   ]);
 };

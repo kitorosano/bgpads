@@ -94,6 +94,10 @@ export const MainPage = () => {
     currentBeat,
     timeSignature,
     beatAccents,
+    playbackProgress,
+    currentTime,
+    duration,
+
     playTrack,
     stopPlayback,
     toggleMetronome: metronome.toggle
