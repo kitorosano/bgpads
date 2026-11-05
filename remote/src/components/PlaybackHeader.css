@@ -168,3 +168,10 @@
     font-size: 0.95rem;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .pad,
+  .playback-header__metronome {
+    transition: none;
+  }
+}

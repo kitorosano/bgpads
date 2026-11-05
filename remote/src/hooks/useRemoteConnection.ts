@@ -126,7 +126,9 @@ export const useRemoteConnection = () => {
 
   useEffect(() => {
     const pageHost = window.location.hostname;
-    if (!pageHost.endsWith('.local')) return;
+
+    const isLocalHost = pageHost.endsWith('.local') || /^(?:\d{1,3}\.){3}\d{1,3}$/.test(pageHost);
+    if (!isLocalHost) return;
 
     connect(pageHost);
   }, [connect]);

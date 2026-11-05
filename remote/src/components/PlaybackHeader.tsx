@@ -1,6 +1,7 @@
 import { useI18n } from '../hooks/useI18n';
 import type { TranslationKey } from '../i18n';
 import type { ConnectionStatus, RemoteCommand } from '../types';
+import { triggerHapticFeedback } from '../utils/haptics';
 import MetronomeIcon from './icons/MetronomeIcon';
 import { MetronomeBeatIndicator } from './MetronomeBeatIndicator';
 import './PlaybackHeader.css';
@@ -34,6 +35,11 @@ export function PlaybackHeader({
     connected: 'statusConnected',
     reconnecting: 'statusReconnecting',
     disconnecting: 'statusDisconnecting'
+  };
+
+  const handleOnClick = () => {
+    const sent = sendCommand({ type: 'metronome.toggle' });
+    if (sent) triggerHapticFeedback();
   };
 
   return (
@@ -73,7 +79,7 @@ export function PlaybackHeader({
           className={`playback-header__metronome ${
             metronomePlaying ? 'playback-header__metronome--active' : ''
           }`}
-          onClick={() => sendCommand({ type: 'metronome.toggle' })}
+          onClick={handleOnClick}
           aria-label={metronomePlaying ? t('stopMetronome') : t('startMetronome')}
           aria-pressed={metronomePlaying}
           disabled={status !== 'connected'}

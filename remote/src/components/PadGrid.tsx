@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useI18n } from '../hooks/useI18n';
 import type { RemoteCommand, RemoteTrack } from '../types';
+import { triggerHapticFeedback } from '../utils/haptics';
 import { FadeOutProgress } from './FadeOutProgress';
 import './PadGrid.css';
 
@@ -31,9 +32,18 @@ export function PadGrid({
 }: Props) {
   const { t } = useI18n();
 
+  const handleOnClick = (trackId: string) => {
+    const sent = sendCommand({ type: 'track.play', trackId });
+    if (sent) triggerHapticFeedback();
+  };
+
   const trackCount = tracks.length;
   const gridSize =
     trackCount <= 2 ? 'small' : trackCount <= 6 ? 'medium' : trackCount <= 12 ? 'large' : 'dense';
+  const columns = trackCount <= 2 ? 1 : trackCount <= 6 ? 2 : trackCount <= 12 ? 3 : 4;
+  const landscapeColumns = trackCount <= 2 ? 2 : trackCount <= 6 ? 3 : trackCount <= 12 ? 4 : 6;
+  const rows = Math.ceil(trackCount / columns);
+  const landscapeRows = Math.ceil(trackCount / landscapeColumns);
 
   const formatRemainingTime = (currentTime: number, duration: number): string => {
     const remaining = Math.max(0, Math.ceil(duration - currentTime));
@@ -44,7 +54,18 @@ export function PadGrid({
   };
 
   return (
-    <section className={`pad-grid pad-grid--${gridSize}`} data-track-count={trackCount}>
+    <section
+      className={`pad-grid pad-grid--${gridSize}`}
+      data-track-count={trackCount}
+      style={
+        {
+          '--grid-columns': columns,
+          '--grid-landscape-columns': landscapeColumns,
+          '--grid-rows': rows,
+          '--grid-landscape-rows': landscapeRows
+        } as CSSProperties
+      }
+    >
       {tracks.map((track) => {
         const isPlaying = track.id === playingTrackId;
         const isFading = track.id === fadingOutTrackId;
@@ -56,7 +77,7 @@ export function PadGrid({
             className={`pad ${isPlaying ? 'pad--playing' : isFading ? 'pad--fading' : ''}`}
             style={{ '--pad-color': track.color } as CSSProperties}
             disabled={disabled}
-            onClick={() => sendCommand({ type: 'track.play', trackId: track.id })}
+            onClick={() => handleOnClick(track.id)}
           >
             <strong className="pad__name">{track.name}</strong>
 
