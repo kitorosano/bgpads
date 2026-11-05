@@ -60,14 +60,15 @@ export const useRemoteConnection = () => {
         if (socketRef.current !== socket) return;
 
         socketRef.current = null;
-        setRemoteState(null);
 
         if (manualDisconnectRef.current) {
           manualDisconnectRef.current = false;
+          setRemoteState(null);
           setStatus('disconnected');
           return;
         }
 
+        // Conservamos el último estado mientras intentamos reconectar.
         setStatus('reconnecting');
 
         reconnectTimerRef.current = window.setTimeout(() => {
@@ -125,7 +126,9 @@ export const useRemoteConnection = () => {
 
   useEffect(() => {
     const pageHost = window.location.hostname;
-    if (!pageHost.endsWith('.local')) return;
+
+    const isLocalHost = pageHost.endsWith('.local') || /^(?:\d{1,3}\.){3}\d{1,3}$/.test(pageHost);
+    if (!isLocalHost) return;
 
     connect(pageHost);
   }, [connect]);

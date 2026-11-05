@@ -1,0 +1,45 @@
+.connection {
+  width: 100%;
+  max-width: 640px;
+  padding: 2rem 1.25rem;
+}
+
+.connection__header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.connection__header p {
+  margin: 0.5rem 0 0;
+  opacity: 0.65;
+}
+
+.connection__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.connection__status-indicator {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.connection__form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.connection__form input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+.connection__form button {
+  padding: 0.75rem 1rem;
+}

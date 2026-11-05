@@ -30,4 +30,14 @@ body,
 
 body {
   min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100dvh;
+}
+
+* {
+  box-sizing: border-box;
 }

@@ -1,94 +1,52 @@
-import { useState } from 'react';
-import './assets/App.css';
+import './App.css';
+import { ConnectionScreen } from './components/ConnectionScreen';
+import { PadGrid } from './components/PadGrid';
+import { PlaybackHeader } from './components/PlaybackHeader';
 import { useRemoteConnection } from './hooks/useRemoteConnection';
+import { useScreenWakeLock } from './hooks/useScreenWakeLock';
 
 function App() {
   const { status, remoteState, lastHost, connect, disconnect, sendCommand } = useRemoteConnection();
+  useScreenWakeLock(status === 'connected');
 
-  const [host, setHost] = useState(lastHost);
-  const hasActiveConnection =
-    status === 'connecting' ||
-    status === 'connected' ||
-    status === 'reconnecting' ||
-    status === 'disconnecting';
+  if (!remoteState) {
+    return (
+      <ConnectionScreen
+        status={status}
+        lastHost={lastHost}
+        connect={connect}
+        disconnect={disconnect}
+      />
+    );
+  }
+
+  const activeTrack = remoteState.tracks.find((track) => track.id === remoteState.playingTrackId);
+  const metronomeColor = activeTrack?.color;
 
   return (
-    <main className="app">
-      <section className="remote">
-        <header className="remote__header">
-          <h1>BGPads Remote</h1>
-          <p>Remote control for BGPads Desktop</p>
-        </header>
-
-        <div className="remote__status">
-          <span className="remote__status-indicator" />
-          <span>{status}</span>
-        </div>
-
-        <div className="remote__connection">
-          <input
-            type="text"
-            value={host}
-            onChange={(event) => setHost(event.target.value)}
-            disabled={hasActiveConnection}
-            placeholder="Desktop IP"
-          />
-
-          {hasActiveConnection ? (
-            <button onClick={disconnect} disabled={status === 'disconnecting'}>
-              {status === 'disconnecting' ? 'Disconnecting...' : 'Disconnect'}
-            </button>
-          ) : (
-            <button onClick={() => connect(host)} disabled={!host.trim()}>
-              Connect
-            </button>
-          )}
-        </div>
-
-        {remoteState && (
-          <div className="remote__state">
-            <p>BPM: {remoteState.bpm}</p>
-            <p>Metronome: {remoteState.metronomePlaying ? 'On' : 'Off'}</p>
-            <p>Pads: {remoteState.tracks.length}</p>
-
-            <div className="remote__tracks">
-              {remoteState.tracks.map((track) => {
-                const isPlaying = track.id === remoteState.playingTrackId;
-                const isFading = track.id === remoteState.fadingOutTrackId;
-
-                return (
-                  <button
-                    key={track.id}
-                    type="button"
-                    className="remote__track"
-                    onClick={() =>
-                      sendCommand({
-                        type: 'track.play',
-                        trackId: track.id
-                      })
-                    }
-                  >
-                    <strong>{track.name}</strong>
-
-                    {isPlaying && <span>Playing</span>}
-                    {isFading && <span>Fading</span>}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="remote__controls">
-              <button type="button" onClick={() => sendCommand({ type: 'track.stop' })}>
-                Stop
-              </button>
-
-              <button type="button" onClick={() => sendCommand({ type: 'metronome.toggle' })}>
-                {remoteState.metronomePlaying ? 'Stop metronome' : 'Start metronome'}
-              </button>
-            </div>
-          </div>
-        )}
-      </section>
+    <main className="app app--playback">
+      <PlaybackHeader
+        bpm={remoteState.bpm}
+        metronomePlaying={remoteState.metronomePlaying}
+        currentBeat={remoteState.currentBeat}
+        timeSignature={remoteState.timeSignature}
+        beatAccents={remoteState.beatAccents}
+        metronomeColor={metronomeColor}
+        status={status}
+        sendCommand={sendCommand}
+      />
+      <PadGrid
+        disabled={status !== 'connected'}
+        tracks={remoteState.tracks}
+        playingTrackId={remoteState.playingTrackId}
+        fadingOutTrackId={remoteState.fadingOutTrackId}
+        fadeOutDuration={remoteState.fadeOutDuration}
+        fadeOutStartedAt={remoteState.fadeOutStartedAt}
+        playbackProgress={remoteState.playbackProgress}
+        currentTime={remoteState.currentTime}
+        duration={remoteState.duration}
+        sendCommand={sendCommand}
+      />
     </main>
   );
 }

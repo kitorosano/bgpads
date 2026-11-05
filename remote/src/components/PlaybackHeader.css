@@ -1,0 +1,177 @@
+.playback-header {
+  flex: 0 0 auto;
+  min-height: 3.25rem;
+  padding: max(0.4rem, env(safe-area-inset-top)) max(0.65rem, env(safe-area-inset-right)) 0.4rem
+    max(0.65rem, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.playback-header__brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.playback-header__brand > strong {
+  font-size: 0.95rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.playback-header__connection {
+  display: flex;
+  align-items: center;
+}
+
+.playback-header__connection-indicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #58d68d;
+}
+
+.playback-header__connection--reconnecting .playback-header__connection-indicator {
+  opacity: 0.45;
+}
+
+.playback-header__reconnecting {
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.playback-header__tempo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.playback-header__beat {
+  width: 0.65rem;
+  height: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playback-header__beat span {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.2;
+}
+
+.playback-header__beat--active span {
+  animation: metronome-beat 180ms ease-out;
+}
+
+@keyframes metronome-beat {
+  0% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+
+  100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+}
+
+.playback-header__bpm {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.playback-header__bpm strong {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.playback-header__bpm span {
+  font-size: 0.6rem;
+  font-weight: 600;
+  opacity: 0.55;
+}
+
+.playback-header__metronome {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.55rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.55;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    opacity 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 100ms ease;
+}
+
+.playback-header__metronome:active {
+  transform: scale(0.94);
+}
+
+.playback-header__metronome:disabled {
+  cursor: not-allowed;
+}
+
+.playback-header__metronome:disabled:active {
+  transform: none;
+}
+
+.playback-header__metronome-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.playback-header__metronome--active {
+  opacity: 1;
+  border-color: currentColor;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (orientation: landscape) {
+  .playback-header {
+    min-height: 2.75rem;
+    padding: max(0.3rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) 0.3rem
+      max(0.75rem, env(safe-area-inset-left));
+  }
+
+  .playback-header__metronome {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .playback-header__metronome-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .playback-header__bpm strong {
+    font-size: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pad,
+  .playback-header__metronome {
+    transition: none;
+  }
+}

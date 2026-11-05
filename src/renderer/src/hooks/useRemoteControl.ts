@@ -6,8 +6,16 @@ interface Props {
   tracks: AudioTrack[];
   playingTrackId: string | null;
   fadingOutTrackId: string | null;
+  fadeOutDuration: number;
+  fadeOutStartedAt: number | null;
   bpm: number;
   metronomePlaying: boolean;
+  currentBeat: number;
+  timeSignature: string;
+  beatAccents: number[];
+  playbackProgress: number;
+  currentTime: number;
+  duration: number;
 
   playTrack: (trackId: string) => void;
   stopPlayback: () => void;
@@ -18,8 +26,16 @@ export const useRemoteControl = ({
   tracks,
   playingTrackId,
   fadingOutTrackId,
+  fadeOutDuration,
+  fadeOutStartedAt,
   bpm,
   metronomePlaying,
+  currentBeat,
+  timeSignature,
+  beatAccents,
+  playbackProgress,
+  currentTime,
+  duration,
   playTrack,
   stopPlayback,
   toggleMetronome
@@ -53,8 +69,30 @@ export const useRemoteControl = ({
       })),
       playingTrackId,
       fadingOutTrackId,
+      fadeOutDuration,
+      fadeOutStartedAt,
       bpm,
-      metronomePlaying
+      metronomePlaying,
+      currentBeat,
+      timeSignature,
+      beatAccents,
+      playbackProgress,
+      currentTime,
+      duration
     });
-  }, [tracks, playingTrackId, fadingOutTrackId, bpm, metronomePlaying]);
+  }, [
+    tracks,
+    playingTrackId,
+    fadingOutTrackId,
+    fadeOutDuration,
+    fadeOutStartedAt,
+    bpm,
+    metronomePlaying,
+    currentBeat,
+    timeSignature,
+    beatAccents,
+    playbackProgress,
+    currentTime,
+    duration
+  ]);
 };
