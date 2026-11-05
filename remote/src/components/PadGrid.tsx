@@ -1,25 +1,32 @@
 import type { CSSProperties } from 'react';
 import { useI18n } from '../hooks/useI18n';
 import type { RemoteCommand, RemoteTrack } from '../types';
+import { FadeOutProgress } from './FadeOutProgress';
 import './PadGrid.css';
 
 interface Props {
+  disabled: boolean;
   tracks: RemoteTrack[];
   playingTrackId: string | null;
   playbackProgress: number;
   currentTime: number;
   duration: number;
   fadingOutTrackId: string | null;
+  fadeOutDuration: number;
+  fadeOutStartedAt: number | null;
   sendCommand: (command: RemoteCommand) => boolean;
 }
 
 export function PadGrid({
+  disabled,
   tracks,
   playingTrackId,
   playbackProgress,
   currentTime,
   duration,
   fadingOutTrackId,
+  fadeOutDuration,
+  fadeOutStartedAt,
   sendCommand
 }: Props) {
   const { t } = useI18n();
@@ -48,10 +55,20 @@ export function PadGrid({
             type="button"
             className={`pad ${isPlaying ? 'pad--playing' : isFading ? 'pad--fading' : ''}`}
             style={{ '--pad-color': track.color } as CSSProperties}
+            disabled={disabled}
             onClick={() => sendCommand({ type: 'track.play', trackId: track.id })}
           >
             <strong className="pad__name">{track.name}</strong>
+
             {isFading && <span className="pad__state">{t('fading')}</span>}
+            {isFading && fadeOutStartedAt !== null && (
+              <FadeOutProgress
+                key={fadeOutStartedAt}
+                startedAt={fadeOutStartedAt}
+                duration={fadeOutDuration}
+              />
+            )}
+
             {isPlaying && duration > 0 && (
               <span className="pad__remaining-time">
                 {formatRemainingTime(currentTime, duration)}

@@ -60,14 +60,15 @@ export const useRemoteConnection = () => {
         if (socketRef.current !== socket) return;
 
         socketRef.current = null;
-        setRemoteState(null);
 
         if (manualDisconnectRef.current) {
           manualDisconnectRef.current = false;
+          setRemoteState(null);
           setStatus('disconnected');
           return;
         }
 
+        // Conservamos el último estado mientras intentamos reconectar.
         setStatus('reconnecting');
 
         reconnectTimerRef.current = window.setTimeout(() => {

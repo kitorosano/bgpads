@@ -39,6 +39,13 @@
   opacity: 0.45;
 }
 
+.playback-header__reconnecting {
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
 .playback-header__tempo {
   display: flex;
   align-items: center;
@@ -119,6 +126,14 @@
 
 .playback-header__metronome:active {
   transform: scale(0.94);
+}
+
+.playback-header__metronome:disabled {
+  cursor: not-allowed;
+}
+
+.playback-header__metronome:disabled:active {
+  transform: none;
 }
 
 .playback-header__metronome-icon {

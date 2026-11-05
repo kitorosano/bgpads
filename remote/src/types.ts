@@ -8,6 +8,8 @@ export interface RemoteState {
   tracks: RemoteTrack[];
   playingTrackId: string | null;
   fadingOutTrackId: string | null;
+  fadeOutDuration: number;
+  fadeOutStartedAt: number | null;
   bpm: number;
   metronomePlaying: boolean;
   currentBeat: number;

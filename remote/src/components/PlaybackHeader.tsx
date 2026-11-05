@@ -47,6 +47,11 @@ export function PlaybackHeader({
         >
           <span className="playback-header__connection-indicator" />
         </span>
+        {status === 'reconnecting' && (
+          <span className="playback-header__reconnecting" role="status">
+            {t('statusReconnecting')}…
+          </span>
+        )}
       </div>
 
       <div className="playback-header__tempo">
@@ -71,6 +76,7 @@ export function PlaybackHeader({
           onClick={() => sendCommand({ type: 'metronome.toggle' })}
           aria-label={metronomePlaying ? t('stopMetronome') : t('startMetronome')}
           aria-pressed={metronomePlaying}
+          disabled={status !== 'connected'}
         >
           <MetronomeIcon />
         </button>

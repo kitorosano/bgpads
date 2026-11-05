@@ -3,9 +3,11 @@ import { ConnectionScreen } from './components/ConnectionScreen';
 import { PadGrid } from './components/PadGrid';
 import { PlaybackHeader } from './components/PlaybackHeader';
 import { useRemoteConnection } from './hooks/useRemoteConnection';
+import { useScreenWakeLock } from './hooks/useScreenWakeLock';
 
 function App() {
   const { status, remoteState, lastHost, connect, disconnect, sendCommand } = useRemoteConnection();
+  useScreenWakeLock(status === 'connected');
 
   if (!remoteState) {
     return (
@@ -34,9 +36,12 @@ function App() {
         sendCommand={sendCommand}
       />
       <PadGrid
+        disabled={status !== 'connected'}
         tracks={remoteState.tracks}
         playingTrackId={remoteState.playingTrackId}
         fadingOutTrackId={remoteState.fadingOutTrackId}
+        fadeOutDuration={remoteState.fadeOutDuration}
+        fadeOutStartedAt={remoteState.fadeOutStartedAt}
         playbackProgress={remoteState.playbackProgress}
         currentTime={remoteState.currentTime}
         duration={remoteState.duration}

@@ -58,7 +58,9 @@ export const MainPage = () => {
     playbackProgress,
     currentTime,
     duration,
-    fadingOutTrackId
+    fadingOutTrackId,
+    fadeOutDuration,
+    fadeOutStartedAt
   } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
   const { playTrack, stopPlayback, applyTrackConfig } = usePlaybackActions({
     tracks,
@@ -89,6 +91,8 @@ export const MainPage = () => {
     tracks,
     playingTrackId: isPlaying,
     fadingOutTrackId,
+    fadeOutDuration,
+    fadeOutStartedAt,
     bpm,
     metronomePlaying: metronome.isPlaying,
     currentBeat,

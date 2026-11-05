@@ -16,6 +16,7 @@ export const useAudioPlayer = ({
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [fadeOutDuration, setFadeOutDuration] = useState(2);
   const [fadingOutTrackId, setFadingOutTrackId] = useState<string | null>(null);
+  const [fadeOutStartedAt, setFadeOutStartedAt] = useState<number | null>(null);
 
   const fadeOutTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -154,6 +155,7 @@ export const useAudioPlayer = ({
     const trackId = isPlayingRef.current;
     if (trackId) {
       setFadingOutTrackId(trackId);
+      setFadeOutStartedAt(Date.now());
 
       if (fadeOutTimerRef.current) {
         clearTimeout(fadeOutTimerRef.current);
@@ -161,6 +163,7 @@ export const useAudioPlayer = ({
 
       fadeOutTimerRef.current = setTimeout(() => {
         setFadingOutTrackId(null);
+        setFadeOutStartedAt(null);
         fadeOutTimerRef.current = null;
       }, fadeOutDuration * 1000);
     }
@@ -222,9 +225,11 @@ export const useAudioPlayer = ({
           }
 
           setFadingOutTrackId(previousTrackId);
+          setFadeOutStartedAt(Date.now());
 
           fadeOutTimerRef.current = setTimeout(() => {
             setFadingOutTrackId(null);
+            setFadeOutStartedAt(null);
             fadeOutTimerRef.current = null;
           }, fadeOutDuration * 1000);
         }
@@ -282,6 +287,7 @@ export const useAudioPlayer = ({
     isPlaying,
     loadingTrackIds,
     fadeOutDuration,
+    fadeOutStartedAt,
     playbackProgress,
     currentTime,
     duration,
