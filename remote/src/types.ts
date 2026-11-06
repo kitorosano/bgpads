@@ -2,6 +2,8 @@ export interface RemoteTrack {
   id: string;
   name: string;
   color: string;
+  volume: number;
+  bpm: number;
 }
 
 export interface RemoteState {
@@ -22,6 +24,9 @@ export interface RemoteState {
 
 export type RemoteCommand =
   | {
+      type: 'metronome.toggle';
+    }
+  | {
       type: 'track.play';
       trackId: string;
     }
@@ -29,7 +34,14 @@ export type RemoteCommand =
       type: 'track.stop';
     }
   | {
-      type: 'metronome.toggle';
+      type: 'track.update';
+      trackId: string;
+      changes: Omit<RemoteTrack, 'id'>;
+    }
+  | {
+      type: 'track.reorder';
+      sourceTrackId: string;
+      targetTrackId: string;
     };
 
 export type ConnectionStatus =

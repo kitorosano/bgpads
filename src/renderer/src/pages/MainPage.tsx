@@ -7,6 +7,7 @@ import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useTrackShortcuts } from '@renderer/hooks/useTrackShortcuts';
 import { useTracksMenu } from '@renderer/hooks/useTracksMenu';
 import { useCallback, useEffect, useState } from 'react';
+import { MAX_BPM, MAX_TRACK_VOLUME, MIN_BPM, MIN_TRACK_VOLUME } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { MetronomeIndicator } from '../components/MetronomeIndicator';
@@ -87,6 +88,48 @@ export const MainPage = () => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [isRecordingShortcut, setIsRecordingShortcut] = useState(false);
 
+  const handleRemoteUpdateTrack = useCallback(
+    (trackId: string, changes: Pick<AudioTrack, 'name' | 'color' | 'volume' | 'bpm'>) => {
+      const track = tracks.find((item) => item.id === trackId);
+      if (!track) return;
+
+      const name = changes.name.trim();
+
+      if (
+        // Invalid name
+        !name ||
+        // Invalid Color
+        !/^#[0-9a-fA-F]{6}$/.test(changes.color) ||
+        // Invalid Volume
+        !Number.isFinite(changes.volume) ||
+        changes.volume < MIN_TRACK_VOLUME ||
+        changes.volume > MAX_TRACK_VOLUME ||
+        // Invalid BPM
+        !Number.isInteger(changes.bpm) ||
+        changes.bpm < MIN_BPM ||
+        changes.bpm > MAX_BPM
+      ) {
+        return;
+      }
+
+      const updatedTrack: AudioTrack = {
+        ...track,
+        name,
+        color: changes.color,
+        volume: changes.volume,
+        bpm: changes.bpm
+      };
+
+      updateTrack(updatedTrack);
+
+      if (isPlaying === trackId) {
+        applyTrackConfig(updatedTrack);
+        setVolume(updatedTrack.volume);
+      }
+    },
+    [tracks, updateTrack, isPlaying, applyTrackConfig, setVolume]
+  );
+
   useRemoteControl({
     tracks,
     playingTrackId: isPlaying,
@@ -102,9 +145,11 @@ export const MainPage = () => {
     currentTime,
     duration,
 
+    toggleMetronome: metronome.toggle,
     playTrack,
     stopPlayback,
-    toggleMetronome: metronome.toggle
+    updateRemoteTrack: handleRemoteUpdateTrack,
+    reorderRemoteTracks: reorderTracks
   });
 
   useEffect(() => {

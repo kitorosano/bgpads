@@ -1,6 +1,6 @@
 import type { AudioTrack } from '@renderer/types';
 import { useEffect } from 'react';
-import type { RemoteCommand } from '../../../types';
+import type { RemoteCommand, RemoteTrack } from '../../../types';
 
 interface Props {
   tracks: AudioTrack[];
@@ -17,9 +17,11 @@ interface Props {
   currentTime: number;
   duration: number;
 
+  toggleMetronome: () => void;
   playTrack: (trackId: string) => void;
   stopPlayback: () => void;
-  toggleMetronome: () => void;
+  updateRemoteTrack: (trackId: string, changes: Omit<RemoteTrack, 'id'>) => void;
+  reorderRemoteTracks: (sourceTrackId: string, targetTrackId: string) => void;
 }
 
 export const useRemoteControl = ({
@@ -36,13 +38,19 @@ export const useRemoteControl = ({
   playbackProgress,
   currentTime,
   duration,
+  toggleMetronome,
   playTrack,
   stopPlayback,
-  toggleMetronome
+  updateRemoteTrack,
+  reorderRemoteTracks
 }: Props) => {
   useEffect(() => {
     const handleCommand = (command: RemoteCommand) => {
       switch (command.type) {
+        case 'metronome.toggle':
+          toggleMetronome();
+          break;
+
         case 'track.play':
           playTrack(command.trackId);
           break;
@@ -51,21 +59,27 @@ export const useRemoteControl = ({
           stopPlayback();
           break;
 
-        case 'metronome.toggle':
-          toggleMetronome();
+        case 'track.update':
+          updateRemoteTrack(command.trackId, command.changes);
+          break;
+
+        case 'track.reorder':
+          reorderRemoteTracks(command.sourceTrackId, command.targetTrackId);
           break;
       }
     };
 
     return window.api.onRemoteCommand(handleCommand);
-  }, [playTrack, stopPlayback, toggleMetronome]);
+  }, [stopPlayback, toggleMetronome, playTrack, updateRemoteTrack, reorderRemoteTracks]);
 
   useEffect(() => {
     window.api.updateRemoteState({
       tracks: tracks.map((track) => ({
         id: track.id,
         name: track.name,
-        color: track.color
+        color: track.color,
+        volume: track.volume,
+        bpm: track.bpm
       })),
       playingTrackId,
       fadingOutTrackId,
