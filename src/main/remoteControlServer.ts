@@ -10,7 +10,7 @@ import {
   MIN_TRACK_VOLUME,
   REMOTE_CONTROL_PORT
 } from '../constants';
-import type { RemoteCommand, RemoteState } from '../types';
+import { TONAL_PAD_KEYS, type RemoteCommand, type RemoteState } from '../types';
 
 interface Props {
   onCommand: (command: RemoteCommand) => void;
@@ -76,6 +76,19 @@ const isRemoteCommand = (value: unknown): value is RemoteCommand => {
         typeof command.targetTrackId === 'string' &&
         command.targetTrackId.length > 0 &&
         command.sourceTrackId !== command.targetTrackId
+      );
+
+    case 'track.delete':
+      return (
+        // Valid trackId
+        typeof command.trackId === 'string' && command.trackId.length > 0
+      );
+
+    case 'track.addTonal':
+      return (
+        // Valid key
+        typeof command.key === 'string' &&
+        (TONAL_PAD_KEYS as readonly string[]).includes(command.key)
       );
 
     default:

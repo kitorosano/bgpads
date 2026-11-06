@@ -4,9 +4,10 @@ import { ConnectionScreen } from './components/ConnectionScreen';
 import { PadEditor } from './components/PadEditor';
 import { PadGrid } from './components/PadGrid';
 import { PlaybackHeader } from './components/PlaybackHeader';
+import { TonalPadPicker } from './components/TonalPadPicker';
 import { useRemoteConnection } from './hooks/useRemoteConnection';
 import { useScreenWakeLock } from './hooks/useScreenWakeLock';
-import type { RemoteTrack } from './types';
+import type { RemoteTrack, TonalPadKey } from './types';
 
 function App() {
   const { status, remoteState, lastHost, connect, disconnect, sendCommand } = useRemoteConnection();
@@ -14,6 +15,7 @@ function App() {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+  const [isTonalPickerOpen, setIsTonalPickerOpen] = useState(false);
 
   if (!remoteState) {
     return (
@@ -29,20 +31,41 @@ function App() {
   const handleToggleEditMode = () => {
     setIsEditMode((previous) => !previous);
     setSelectedTrackId(null);
+    setIsTonalPickerOpen(false);
   };
 
   const handleOnSave = (changes: Omit<RemoteTrack, 'id'>) => {
-    if (selectedTrackId) {
-      const sent = sendCommand({
-        type: 'track.update',
-        trackId: selectedTrackId,
-        changes
-      });
+    if (!selectedTrackId) return;
 
-      if (sent) {
-        setSelectedTrackId(null);
-      }
-    }
+    const sent = sendCommand({
+      type: 'track.update',
+      trackId: selectedTrackId,
+      changes
+    });
+
+    if (sent) setSelectedTrackId(null);
+  };
+
+  const handleOnDelete = () => {
+    if (!selectedTrackId) return;
+
+    const sent = sendCommand({
+      type: 'track.delete',
+      trackId: selectedTrackId
+    });
+
+    if (sent) setSelectedTrackId(null);
+  };
+
+  const handleAddTonalPad = (key: TonalPadKey) => {
+    if (status !== 'connected' || !remoteState.availableTonalKeys.includes(key)) return;
+
+    const sent = sendCommand({
+      type: 'track.addTonal',
+      key
+    });
+
+    if (sent) setIsTonalPickerOpen(false);
   };
 
   const selectedTrack = remoteState.tracks.find((track) => track.id === selectedTrackId) ?? null;
@@ -79,11 +102,37 @@ function App() {
         onSelectTrack={setSelectedTrackId}
       />
 
+      {isEditMode && (
+        <button
+          type="button"
+          className="app__add-tonal"
+          disabled={status !== 'connected'}
+          onClick={() => setIsTonalPickerOpen(true)}
+        >
+          <span aria-hidden="true">+</span>
+          Agregar pad tonal
+        </button>
+      )}
+
       {isEditMode && selectedTrack && (
         <PadEditor
           track={selectedTrack}
+          isActive={
+            selectedTrack.id === remoteState.playingTrackId ||
+            selectedTrack.id === remoteState.fadingOutTrackId
+          }
           onClose={() => setSelectedTrackId(null)}
           onSave={handleOnSave}
+          onDelete={handleOnDelete}
+        />
+      )}
+
+      {isEditMode && isTonalPickerOpen && (
+        <TonalPadPicker
+          availableKeys={remoteState.availableTonalKeys}
+          disabled={status !== 'connected'}
+          onSelect={handleAddTonalPad}
+          onClose={() => setIsTonalPickerOpen(false)}
         />
       )}
     </main>

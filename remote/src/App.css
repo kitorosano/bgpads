@@ -14,3 +14,35 @@
   flex-direction: column;
   overflow: hidden;
 }
+
+.app__add-tonal {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  min-height: 3rem;
+  margin: 0.25rem 0.5rem;
+  margin-bottom: max(0.5rem, env(safe-area-inset-bottom));
+
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 0.75rem;
+
+  background: rgba(255, 255, 255, 0.07);
+  color: inherit;
+
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app__add-tonal span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.app__add-tonal:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

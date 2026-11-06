@@ -5,6 +5,8 @@ export const REMOTE_CONTROL_PORT = 17891;
 
 export const SHORTCUT_KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
 
+export const BANK_VALIDATION_INTERVAL_MS = 3000;
+
 export const DEFAULT_CROSSFADE_DURATION = 4;
 export const CROSSFADE_STEP_INCREMENT = 0.5;
 

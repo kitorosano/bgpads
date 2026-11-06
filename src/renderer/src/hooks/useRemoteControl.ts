@@ -1,18 +1,22 @@
 import type { AudioTrack } from '@renderer/types';
 import { useEffect } from 'react';
-import type { RemoteCommand, RemoteTrack } from '../../../types';
+import type { RemoteCommand, RemoteTrack, TonalPadKey } from '../../../types';
 
 interface Props {
   tracks: AudioTrack[];
   playingTrackId: string | null;
+  availableTonalKeys: TonalPadKey[];
+
   fadingOutTrackId: string | null;
   fadeOutDuration: number;
   fadeOutStartedAt: number | null;
+
   bpm: number;
   metronomePlaying: boolean;
   currentBeat: number;
   timeSignature: string;
   beatAccents: number[];
+
   playbackProgress: number;
   currentTime: number;
   duration: number;
@@ -22,11 +26,14 @@ interface Props {
   stopPlayback: () => void;
   updateRemoteTrack: (trackId: string, changes: Omit<RemoteTrack, 'id'>) => void;
   reorderRemoteTracks: (sourceTrackId: string, targetTrackId: string) => void;
+  deleteRemoteTrack: (trackId: string) => void;
+  addRemoteTonalTrack: (key: TonalPadKey) => void | Promise<void>;
 }
 
 export const useRemoteControl = ({
   tracks,
   playingTrackId,
+  availableTonalKeys,
   fadingOutTrackId,
   fadeOutDuration,
   fadeOutStartedAt,
@@ -42,7 +49,9 @@ export const useRemoteControl = ({
   playTrack,
   stopPlayback,
   updateRemoteTrack,
-  reorderRemoteTracks
+  reorderRemoteTracks,
+  deleteRemoteTrack,
+  addRemoteTonalTrack
 }: Props) => {
   useEffect(() => {
     const handleCommand = (command: RemoteCommand) => {
@@ -66,11 +75,27 @@ export const useRemoteControl = ({
         case 'track.reorder':
           reorderRemoteTracks(command.sourceTrackId, command.targetTrackId);
           break;
+
+        case 'track.delete':
+          deleteRemoteTrack(command.trackId);
+          break;
+
+        case 'track.addTonal':
+          addRemoteTonalTrack(command.key);
+          break;
       }
     };
 
     return window.api.onRemoteCommand(handleCommand);
-  }, [stopPlayback, toggleMetronome, playTrack, updateRemoteTrack, reorderRemoteTracks]);
+  }, [
+    stopPlayback,
+    toggleMetronome,
+    playTrack,
+    updateRemoteTrack,
+    reorderRemoteTracks,
+    deleteRemoteTrack,
+    addRemoteTonalTrack
+  ]);
 
   useEffect(() => {
     window.api.updateRemoteState({
@@ -82,6 +107,7 @@ export const useRemoteControl = ({
         bpm: track.bpm
       })),
       playingTrackId,
+      availableTonalKeys,
       fadingOutTrackId,
       fadeOutDuration,
       fadeOutStartedAt,
@@ -97,6 +123,7 @@ export const useRemoteControl = ({
   }, [
     tracks,
     playingTrackId,
+    availableTonalKeys,
     fadingOutTrackId,
     fadeOutDuration,
     fadeOutStartedAt,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BANK_VALIDATION_INTERVAL_MS } from '../../../constants';
 import type { TonalPadBankValidation } from '../../../types';
 import { useAppConfig } from './useAppConfig';
 
@@ -11,31 +12,61 @@ export const useTonalPadBank = () => {
   useEffect(() => {
     if (!tonalPadBankPath) {
       setValidation(null);
+      setIsValidating(false);
       return;
     }
 
     let cancelled = false;
+    let validating = false;
+
+    // Evita mostrar resultados de un banco anterior.
+    setValidation(null);
+    setIsValidating(true);
 
     const validate = async () => {
-      setIsValidating(true);
+      if (validating || cancelled) return;
+
+      validating = true;
 
       try {
         const result = await window.api.validateTonalPadBank(tonalPadBankPath);
+        if (cancelled) return;
 
-        if (!cancelled) setValidation(result);
+        setValidation((previous) => {
+          if (
+            previous?.path === result.path &&
+            previous.availableKeys.join(',') === result.availableKeys.join(',') &&
+            previous.missingKeys.join(',') === result.missingKeys.join(',')
+          ) {
+            return previous;
+          }
+
+          return result;
+        });
       } catch (error) {
-        console.error('Failed to validate tonal pad bank:', error);
+        if (!cancelled) {
+          console.error('[TonalPadBank] Validation failed:', error);
 
-        if (!cancelled) setValidation(null);
+          setValidation(null);
+        }
       } finally {
-        if (!cancelled) setIsValidating(false);
+        validating = false;
+
+        if (!cancelled) {
+          setIsValidating(false);
+        }
       }
     };
 
     validate();
 
+    const intervalId = window.setInterval(() => {
+      validate();
+    }, BANK_VALIDATION_INTERVAL_MS);
+
     return () => {
       cancelled = true;
+      window.clearInterval(intervalId);
     };
   }, [tonalPadBankPath]);
 
@@ -43,7 +74,6 @@ export const useTonalPadBank = () => {
     const result = await window.api.selectTonalPadBank();
     if (!result) return;
 
-    setValidation(result);
     setTonalPadBankPath(result.path);
   };
 

@@ -11,11 +11,13 @@ import './PadEditor.css';
 
 interface Props {
   track: RemoteTrack;
+  isActive: boolean;
   onClose: () => void;
   onSave: (changes: Omit<RemoteTrack, 'id'>) => void;
+  onDelete: () => void;
 }
 
-export function PadEditor({ track, onClose, onSave }: Props) {
+export function PadEditor({ track, isActive, onClose, onSave, onDelete }: Props) {
   const [name, setName] = useState(track.name);
   const [color, setColor] = useState(track.color);
   const [volume, setVolume] = useState(track.volume);
@@ -27,6 +29,15 @@ export function PadEditor({ track, onClose, onSave }: Props) {
     setVolume(track.volume);
     setBpm(track.bpm);
   }, [track.id]);
+
+  const handleDelete = () => {
+    if (isActive) return;
+
+    const confirmed = window.confirm(
+      `¿Estás seguro de que querés eliminar el pad "${track.name}"?`
+    );
+    if (confirmed) onDelete();
+  };
 
   return (
     <div className="pad-editor__overlay" onClick={onClose}>
@@ -93,6 +104,22 @@ export function PadEditor({ track, onClose, onSave }: Props) {
           >
             Guardar cambios
           </button>
+
+          <button
+            type="button"
+            className="pad-editor__delete"
+            disabled={isActive}
+            onClick={handleDelete}
+          >
+            Eliminar pad
+          </button>
+
+          {isActive && (
+            <p className="pad-editor__delete-hint">
+              No se puede eliminar un pad mientras está reproduciéndose o finalizando su
+              reproducción.
+            </p>
+          )}
         </div>
       </section>
     </div>
