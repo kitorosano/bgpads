@@ -97,9 +97,13 @@ const isRemoteCommand = (value: unknown): value is RemoteCommand => {
 };
 
 const getRemoteDistPath = (): string => {
-  if (app.isPackaged) return join(process.resourcesPath, 'remote');
-  else return join(process.cwd(), 'remote', 'dist');
+  if (app.isPackaged) {
+    return join(process.resourcesPath, 'remote');
+  }
+
+  return resolve(app.getAppPath(), '..', 'remote', 'dist');
 };
+
 const CONTENT_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',

@@ -1,6 +1,10 @@
 minimumReleaseAge: 4320 # 3 days
 
 packages:
-  - '.'
+  - 'desktop'
   - 'remote'
   - 'packages/*'
+
+onlyBuiltDependencies:
+  - electron
+  - esbuild

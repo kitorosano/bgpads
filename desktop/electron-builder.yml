@@ -1,7 +1,9 @@
-appId: com.electron.app
-productName: bgpads
+appId: com.electron.bgpads
+productName: BGPads
+
 directories:
-  buildResources: build
+  buildResources: resources
+
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -9,15 +11,28 @@ files:
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+
+extraResources:
+  - from: ../remote/dist
+    to: remote
+
 asarUnpack:
   - resources/**
+
 win:
   executableName: bgpads
+  icon: resources/icon.png
+  target: nsis
+
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: BGPads-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
@@ -26,8 +41,10 @@ mac:
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
+
 dmg:
   artifactName: ${name}-${version}.${ext}
+
 linux:
   target:
     - AppImage
@@ -35,11 +52,15 @@ linux:
     - deb
   maintainer: electronjs.org
   category: Utility
+
 appImage:
   artifactName: ${name}-${version}.${ext}
+
 npmRebuild: false
+
 publish:
   provider: generic
   url: https://example.com/auto-updates
+
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
