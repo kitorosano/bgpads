@@ -1,12 +1,13 @@
-import type { RemoteTrack } from '@bgpads/shared';
-import { useEffect, useState } from 'react';
 import {
+  BPM_STEP_INCREMENT,
   MAX_BPM,
   MAX_TRACK_VOLUME,
   MIN_BPM,
   MIN_TRACK_VOLUME,
-  VOLUME_STEP_INCREMENT
-} from '../constants';
+  TRACK_VOLUME_STEP_INCREMENT,
+  type RemoteTrack
+} from '@bgpads/shared';
+import { useEffect, useState } from 'react';
 import './PadEditor.css';
 
 interface Props {
@@ -73,7 +74,7 @@ export function PadEditor({ track, isActive, onClose, onSave, onDelete }: Props)
               type="range"
               min={MIN_TRACK_VOLUME}
               max={MAX_TRACK_VOLUME}
-              step={VOLUME_STEP_INCREMENT}
+              step={TRACK_VOLUME_STEP_INCREMENT}
               value={volume}
               onChange={(event) => setVolume(Number(event.target.value))}
             />
@@ -83,8 +84,10 @@ export function PadEditor({ track, isActive, onClose, onSave, onDelete }: Props)
             BPM
             <input
               type="number"
+              inputMode="decimal"
               min={MIN_BPM}
               max={MAX_BPM}
+              step={BPM_STEP_INCREMENT}
               value={bpm}
               onChange={(event) => setBpm(Number(event.target.value))}
             />

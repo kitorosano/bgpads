@@ -1,4 +1,4 @@
-import { DEFAULT_BPM, MAX_BPM, MIN_BPM } from '../../../constants';
+import { DEFAULT_BPM, MAX_BPM, MIN_BPM } from '@bgpads/shared';
 
 export const clampBpm = (value: number | string): number => {
   const parsed = typeof value === 'string' ? parseFloat(value) : value;

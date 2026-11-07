@@ -1,6 +1,6 @@
+import { BPM_STEP_INCREMENT, MAX_BPM, MIN_BPM } from '@bgpads/shared';
 import { clampBpm } from '@renderer/utils/validationUtils';
 import { useEffect, useState } from 'react';
-import { MAX_BPM, MIN_BPM } from '../../../constants';
 
 interface Props {
   value: number;
@@ -34,7 +34,7 @@ export const BpmInput = ({ value, placeholder, onChange }: Props) => {
       type="number"
       min={MIN_BPM}
       max={MAX_BPM}
-      step="0.1"
+      step={BPM_STEP_INCREMENT}
       inputMode="decimal"
       placeholder={placeholder}
       value={localValue}

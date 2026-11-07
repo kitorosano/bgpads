@@ -9,9 +9,9 @@ import {
   useState
 } from 'react';
 
+import { DEFAULT_BPM } from '@bgpads/shared';
 import {
   DEFAULT_BEAT_ACCENTS,
-  DEFAULT_BPM,
   DEFAULT_CROSSFADE_DURATION,
   DEFAULT_LANGUAGE,
   DEFAULT_METRONOME_ACCENT_DECAY,

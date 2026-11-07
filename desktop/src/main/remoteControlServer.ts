@@ -1,16 +1,18 @@
-import { RemoteCommand, RemoteState, TONAL_PAD_KEYS } from '@bgpads/shared';
-import { app } from 'electron';
-import { createReadStream, existsSync, statSync } from 'fs';
-import { createServer } from 'http';
-import { extname, join, relative, resolve } from 'path';
-import { WebSocketServer } from 'ws';
 import {
   MAX_BPM,
   MAX_TRACK_VOLUME,
   MIN_BPM,
   MIN_TRACK_VOLUME,
-  REMOTE_CONTROL_PORT
-} from '../constants';
+  REMOTE_CONTROL_PORT,
+  RemoteCommand,
+  RemoteState,
+  TONAL_PAD_KEYS
+} from '@bgpads/shared';
+import { app } from 'electron';
+import { createReadStream, existsSync, statSync } from 'fs';
+import { createServer } from 'http';
+import { extname, join, relative, resolve } from 'path';
+import { WebSocketServer } from 'ws';
 
 interface Props {
   onCommand: (command: RemoteCommand) => void;

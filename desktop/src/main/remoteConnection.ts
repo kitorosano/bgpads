@@ -1,5 +1,5 @@
+import { REMOTE_CONTROL_PORT } from '@bgpads/shared';
 import { hostname } from 'os';
-import { REMOTE_CONTROL_PORT } from '../constants';
 import type { RemoteConnectionInfo } from '../types';
 import { getPreferredLanAddress } from './network';
 

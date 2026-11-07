@@ -1,4 +1,4 @@
-import { TonalPadKey } from '@bgpads/shared';
+import { MAX_BPM, MAX_TRACK_VOLUME, MIN_BPM, MIN_TRACK_VOLUME, TonalPadKey } from '@bgpads/shared';
 import { AddPadFab } from '@renderer/components/AddPadFab';
 import { Loading } from '@renderer/components/Loading';
 import { usePlaybackActions } from '@renderer/hooks/usePlaybackActions';
@@ -9,7 +9,6 @@ import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useTrackShortcuts } from '@renderer/hooks/useTrackShortcuts';
 import { useTracksMenu } from '@renderer/hooks/useTracksMenu';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MAX_BPM, MAX_TRACK_VOLUME, MIN_BPM, MIN_TRACK_VOLUME } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { MetronomeIndicator } from '../components/MetronomeIndicator';

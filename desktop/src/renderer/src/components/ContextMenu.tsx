@@ -1,12 +1,10 @@
+import { MAX_TRACK_VOLUME, MIN_TRACK_VOLUME, TRACK_VOLUME_STEP_INCREMENT } from '@bgpads/shared';
 import { useI18n } from '@renderer/hooks/useI18n';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   DEFAULT_COLORS,
   DEFAULT_METRONOME_TIME_SIGNATURES,
-  MAX_TRACK_VOLUME,
-  MIN_TRACK_VOLUME,
-  SHORTCUT_KEYS_TO_IGNORE,
-  VOLUME_STEP_INCREMENT
+  SHORTCUT_KEYS_TO_IGNORE
 } from '../../../constants';
 import { AudioTrack } from '../types';
 import { calculateMenuPosition, truncateFilename } from '../utils/uiUtils';
@@ -151,7 +149,7 @@ export const ContextMenu = ({
             className="gain-slider"
             min={MIN_TRACK_VOLUME}
             max={MAX_TRACK_VOLUME}
-            step={VOLUME_STEP_INCREMENT}
+            step={TRACK_VOLUME_STEP_INCREMENT}
             value={track.volume}
             onChange={(e) => onUpdate({ ...track, volume: parseFloat(e.target.value) })}
             style={{ accentColor: track.color }}

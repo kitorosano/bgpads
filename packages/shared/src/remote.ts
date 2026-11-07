@@ -1,5 +1,7 @@
 import type { TonalPadKey } from './tonalPad.js';
 
+export const REMOTE_CONTROL_PORT = 17891;
+
 export interface RemoteTrack {
   id: string;
   name: string;

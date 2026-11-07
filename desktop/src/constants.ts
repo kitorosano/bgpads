@@ -1,7 +1,6 @@
 import { Language, Theme } from './types';
 
 export const CONFIG_FILE_NAME = 'bgpads-config-test.json'; // TODO: Restore this to 'bgpads-config.json' when ready for migration to the new config file format
-export const REMOTE_CONTROL_PORT = 17891;
 
 export const SHORTCUT_KEYS_TO_IGNORE = ['CONTROL', 'SHIFT', 'ALT', 'META'];
 
@@ -13,10 +12,6 @@ export const CROSSFADE_STEP_INCREMENT = 0.5;
 export const TOP_ROW_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 export const DEFAULT_KEYBINDING = null;
 export const DEFAULT_KEYBINDING_MODE = 'auto';
-
-export const MIN_BPM = 50;
-export const MAX_BPM = 500;
-export const DEFAULT_BPM = 100;
 
 export const DEFAULT_METRONOME_FREQUENCY = 1050; // Hz
 export const DEFAULT_METRONOME_DECAY = 0.06; // Seconds
@@ -34,11 +29,6 @@ export const DEFAULT_BEAT_ACCENTS = [0]; // First beat accented by default
 
 export const DEFAULT_METRONOME_TIME_SIGNATURE = '4/4';
 export const DEFAULT_METRONOME_TIME_SIGNATURES = ['4/4', '4/8'];
-
-export const DEFAULT_TRACK_VOLUME = 1;
-export const VOLUME_STEP_INCREMENT = 0.1;
-export const MIN_TRACK_VOLUME = 0;
-export const MAX_TRACK_VOLUME = 3;
 
 export const DEFAULT_LANGUAGE: Language = 'en';
 export const DEFAULT_THEME: Theme = 'dark';

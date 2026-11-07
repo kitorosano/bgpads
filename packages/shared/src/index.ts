@@ -1,2 +1,3 @@
-export * from './types/remote.js';
-export * from './types/tonalPad.js';
+export * from './audio.js';
+export * from './remote.js';
+export * from './tonalPad.js';

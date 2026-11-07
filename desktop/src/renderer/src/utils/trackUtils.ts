@@ -1,11 +1,9 @@
-import { TonalPadKey } from '@bgpads/shared';
+import { DEFAULT_BPM, DEFAULT_TRACK_VOLUME, TonalPadKey } from '@bgpads/shared';
 import {
   COLORS,
-  DEFAULT_BPM,
   DEFAULT_KEYBINDING,
   DEFAULT_KEYBINDING_MODE,
   DEFAULT_METRONOME_TIME_SIGNATURE,
-  DEFAULT_TRACK_VOLUME,
   TOP_ROW_KEYS
 } from '../../../constants';
 import { AudioTrack } from '../types';
