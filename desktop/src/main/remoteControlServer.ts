@@ -1,13 +1,4 @@
-import {
-  MAX_BPM,
-  MAX_TRACK_VOLUME,
-  MIN_BPM,
-  MIN_TRACK_VOLUME,
-  REMOTE_CONTROL_PORT,
-  RemoteCommand,
-  RemoteState,
-  TONAL_PAD_KEYS
-} from '@bgpads/shared';
+import { isRemoteCommand, REMOTE_CONTROL_PORT, RemoteCommand, RemoteState } from '@bgpads/shared';
 import { app } from 'electron';
 import { createReadStream, existsSync, statSync } from 'fs';
 import { createServer } from 'http';
@@ -17,86 +8,6 @@ import { WebSocketServer } from 'ws';
 interface Props {
   onCommand: (command: RemoteCommand) => void;
 }
-
-const isRemoteCommand = (value: unknown): value is RemoteCommand => {
-  if (typeof value !== 'object' || value === null || !('type' in value)) {
-    return false;
-  }
-
-  const command = value as Record<string, unknown>;
-
-  switch (command.type) {
-    case 'metronome.toggle':
-      return true;
-
-    case 'track.play':
-      return (
-        // Valid trackId
-        typeof command.trackId === 'string' && command.trackId.length > 0
-      );
-
-    case 'track.stop':
-      return true;
-
-    case 'track.update': {
-      if (
-        typeof command.trackId !== 'string' ||
-        typeof command.changes !== 'object' ||
-        command.changes === null
-      ) {
-        return false;
-      }
-
-      const changes = command.changes as Record<string, unknown>;
-
-      return (
-        // Valid name
-        typeof changes.name === 'string' &&
-        !!changes.name &&
-        // Valid Color
-        typeof changes.color === 'string' &&
-        /^#[0-9a-fA-F]{6}$/.test(changes.color) &&
-        // Valid Volume
-        typeof changes.volume === 'number' &&
-        Number.isFinite(changes.volume) &&
-        changes.volume >= MIN_TRACK_VOLUME &&
-        changes.volume <= MAX_TRACK_VOLUME &&
-        // Valid BPM
-        typeof changes.bpm === 'number' &&
-        Number.isInteger(changes.bpm) &&
-        changes.bpm >= MIN_BPM &&
-        changes.bpm <= MAX_BPM
-      );
-    }
-
-    case 'track.reorder':
-      return (
-        // Valid sourceTrackId
-        typeof command.sourceTrackId === 'string' &&
-        command.sourceTrackId.length > 0 &&
-        // Valid targetTrackId
-        typeof command.targetTrackId === 'string' &&
-        command.targetTrackId.length > 0 &&
-        command.sourceTrackId !== command.targetTrackId
-      );
-
-    case 'track.delete':
-      return (
-        // Valid trackId
-        typeof command.trackId === 'string' && command.trackId.length > 0
-      );
-
-    case 'track.addTonal':
-      return (
-        // Valid key
-        typeof command.key === 'string' &&
-        (TONAL_PAD_KEYS as readonly string[]).includes(command.key)
-      );
-
-    default:
-      return false;
-  }
-};
 
 const getRemoteDistPath = (): string => {
   if (app.isPackaged) {

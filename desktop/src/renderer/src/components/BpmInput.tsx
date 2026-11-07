@@ -1,5 +1,4 @@
-import { BPM_STEP_INCREMENT, MAX_BPM, MIN_BPM } from '@bgpads/shared';
-import { clampBpm } from '@renderer/utils/validationUtils';
+import { BPM_STEP_INCREMENT, clampBpm, MAX_BPM, MIN_BPM } from '@bgpads/shared';
 import { useEffect, useState } from 'react';
 
 interface Props {

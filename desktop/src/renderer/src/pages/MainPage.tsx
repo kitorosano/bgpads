@@ -1,4 +1,4 @@
-import { MAX_BPM, MAX_TRACK_VOLUME, MIN_BPM, MIN_TRACK_VOLUME, TonalPadKey } from '@bgpads/shared';
+import { isValidBpm, isValidColor, isValidText, isValidVolume, TonalPadKey } from '@bgpads/shared';
 import { AddPadFab } from '@renderer/components/AddPadFab';
 import { Loading } from '@renderer/components/Loading';
 import { usePlaybackActions } from '@renderer/hooks/usePlaybackActions';
@@ -116,18 +116,10 @@ export const MainPage = () => {
       const name = changes.name.trim();
 
       if (
-        // Invalid name
-        !name ||
-        // Invalid Color
-        !/^#[0-9a-fA-F]{6}$/.test(changes.color) ||
-        // Invalid Volume
-        !Number.isFinite(changes.volume) ||
-        changes.volume < MIN_TRACK_VOLUME ||
-        changes.volume > MAX_TRACK_VOLUME ||
-        // Invalid BPM
-        !Number.isInteger(changes.bpm) ||
-        changes.bpm < MIN_BPM ||
-        changes.bpm > MAX_BPM
+        !isValidText(name) ||
+        !isValidColor(changes.color) ||
+        !isValidVolume(changes.volume) ||
+        !isValidBpm(changes.bpm)
       ) {
         return;
       }
