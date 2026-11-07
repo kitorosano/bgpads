@@ -2,11 +2,14 @@ import { AddPadFab } from '@renderer/components/AddPadFab';
 import { Loading } from '@renderer/components/Loading';
 import { usePlaybackActions } from '@renderer/hooks/usePlaybackActions';
 import { useRemoteControl } from '@renderer/hooks/useRemoteControl';
+import { useTonalPadBank } from '@renderer/hooks/useTonalPadBank';
 import { useTrackDragAndDrop } from '@renderer/hooks/useTrackDragAndDrop';
 import { useTrackPreloader } from '@renderer/hooks/useTrackPreloader';
 import { useTrackShortcuts } from '@renderer/hooks/useTrackShortcuts';
 import { useTracksMenu } from '@renderer/hooks/useTracksMenu';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { TonalPadKey } from 'src/types';
+import { MAX_BPM, MAX_TRACK_VOLUME, MIN_BPM, MIN_TRACK_VOLUME } from '../../../constants';
 import { AudioButton } from '../components/AudioButton';
 import { ContextMenu } from '../components/ContextMenu';
 import { MetronomeIndicator } from '../components/MetronomeIndicator';
@@ -31,10 +34,28 @@ export const MainPage = () => {
     setBeatAccents
   } = useAppConfig();
 
+  const activeTonalBankPathRef = useRef(tonalPadBankPath);
+  activeTonalBankPathRef.current = tonalPadBankPath;
+
+  const { validation: tonalBankValidation, isValidating: isTonalBankValidating } =
+    useTonalPadBank();
+
+  const availableTonalKeys = useMemo<TonalPadKey[]>(
+    () =>
+      !isLoading &&
+      !isTonalBankValidating &&
+      tonalBankValidation !== null &&
+      tonalBankValidation.path === tonalPadBankPath
+        ? tonalBankValidation.availableKeys
+        : [],
+    [isLoading, isTonalBankValidating, tonalBankValidation, tonalPadBankPath]
+  );
+
   const {
     tracks,
     setTracks,
     addTracks,
+    addTonalTrack,
     reorderTracks,
     moveTrackToEnd,
     updateTrack,
@@ -62,6 +83,7 @@ export const MainPage = () => {
     fadeOutDuration,
     fadeOutStartedAt
   } = useAudioPlayer({ tracksOutputDeviceId, tonalPadBankPath });
+
   const { playTrack, stopPlayback, applyTrackConfig } = usePlaybackActions({
     tracks,
     play,
@@ -87,24 +109,104 @@ export const MainPage = () => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [isRecordingShortcut, setIsRecordingShortcut] = useState(false);
 
+  const handleRemoteUpdateTrack = useCallback(
+    (trackId: string, changes: Pick<AudioTrack, 'name' | 'color' | 'volume' | 'bpm'>) => {
+      const track = tracks.find((item) => item.id === trackId);
+      if (!track) return;
+
+      const name = changes.name.trim();
+
+      if (
+        // Invalid name
+        !name ||
+        // Invalid Color
+        !/^#[0-9a-fA-F]{6}$/.test(changes.color) ||
+        // Invalid Volume
+        !Number.isFinite(changes.volume) ||
+        changes.volume < MIN_TRACK_VOLUME ||
+        changes.volume > MAX_TRACK_VOLUME ||
+        // Invalid BPM
+        !Number.isInteger(changes.bpm) ||
+        changes.bpm < MIN_BPM ||
+        changes.bpm > MAX_BPM
+      ) {
+        return;
+      }
+
+      const updatedTrack: AudioTrack = {
+        ...track,
+        name,
+        color: changes.color,
+        volume: changes.volume,
+        bpm: changes.bpm
+      };
+
+      updateTrack(updatedTrack);
+
+      if (isPlaying === trackId) {
+        applyTrackConfig(updatedTrack);
+        setVolume(updatedTrack.volume);
+      }
+    },
+    [tracks, updateTrack, isPlaying, applyTrackConfig, setVolume]
+  );
+
+  const handleRemoteDeleteTrack = useCallback(
+    (trackId: string) => {
+      if (trackId === isPlaying || trackId === fadingOutTrackId) return;
+      if (!tracks.some((track) => track.id === trackId)) return;
+
+      removeTrack(trackId);
+    },
+    [tracks, isPlaying, fadingOutTrackId, removeTrack]
+  );
+
+  const handleRemoteAddTonalTrack = useCallback(
+    async (key: TonalPadKey) => {
+      const bankPath = activeTonalBankPathRef.current;
+      if (!bankPath) return;
+
+      try {
+        const validation = await window.api.validateTonalPadBank(bankPath);
+
+        // El banco cambió mientras se realizaba la validación.
+        if (activeTonalBankPathRef.current !== bankPath) return;
+        if (!validation.availableKeys.includes(key)) return;
+
+        addTonalTrack(key);
+      } catch (error) {
+        console.error('[RemoteControl] Failed to validate tonal pad bank:', error);
+      }
+    },
+    [addTonalTrack]
+  );
+
   useRemoteControl({
     tracks,
     playingTrackId: isPlaying,
+    availableTonalKeys,
+
     fadingOutTrackId,
     fadeOutDuration,
     fadeOutStartedAt,
+
     bpm,
     metronomePlaying: metronome.isPlaying,
     currentBeat,
     timeSignature,
     beatAccents,
+
     playbackProgress,
     currentTime,
     duration,
 
+    toggleMetronome: metronome.toggle,
     playTrack,
     stopPlayback,
-    toggleMetronome: metronome.toggle
+    updateRemoteTrack: handleRemoteUpdateTrack,
+    reorderRemoteTracks: reorderTracks,
+    deleteRemoteTrack: handleRemoteDeleteTrack,
+    addRemoteTonalTrack: handleRemoteAddTonalTrack
   });
 
   useEffect(() => {

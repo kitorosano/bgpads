@@ -1,11 +1,13 @@
-import type { CSSProperties } from 'react';
+import { useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { useI18n } from '../hooks/useI18n';
 import type { RemoteCommand, RemoteTrack } from '../types';
 import { triggerHapticFeedback } from '../utils/haptics';
 import { FadeOutProgress } from './FadeOutProgress';
 import './PadGrid.css';
+import { DragHandleIcon } from './icons/DragHandle';
 
 interface Props {
+  isEditMode: boolean;
   disabled: boolean;
   tracks: RemoteTrack[];
   playingTrackId: string | null;
@@ -16,9 +18,11 @@ interface Props {
   fadeOutDuration: number;
   fadeOutStartedAt: number | null;
   sendCommand: (command: RemoteCommand) => boolean;
+  onSelectTrack: (trackId: string) => void;
 }
 
 export function PadGrid({
+  isEditMode,
   disabled,
   tracks,
   playingTrackId,
@@ -28,13 +32,83 @@ export function PadGrid({
   fadingOutTrackId,
   fadeOutDuration,
   fadeOutStartedAt,
-  sendCommand
+  sendCommand,
+  onSelectTrack
 }: Props) {
   const { t } = useI18n();
 
+  const dragRef = useRef<{
+    pointerId: number;
+    sourceTrackId: string;
+  } | null>(null);
+  const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
+  const [targetTrackId, setTargetTrackId] = useState<string | null>(null);
+
   const handleOnClick = (trackId: string) => {
+    if (isEditMode) {
+      onSelectTrack(trackId);
+      return;
+    }
+
     const sent = sendCommand({ type: 'track.play', trackId });
     if (sent) triggerHapticFeedback();
+  };
+
+  const handleDragStart = (event: PointerEvent<HTMLSpanElement>, trackId: string) => {
+    if (!isEditMode || disabled) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    dragRef.current = {
+      pointerId: event.pointerId,
+      sourceTrackId: trackId
+    };
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+
+    setDraggedTrackId(trackId);
+    setTargetTrackId(null);
+  };
+
+  const handleDragMove = (event: PointerEvent<HTMLSpanElement>) => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+
+    const element = document.elementFromPoint(event.clientX, event.clientY);
+
+    const pad = element?.closest<HTMLElement>('[data-track-id]');
+    const nextTargetId = pad?.dataset.trackId ?? null;
+
+    setTargetTrackId(nextTargetId === dragRef.current?.sourceTrackId ? null : nextTargetId);
+  };
+
+  const handleDragEnd = (event: PointerEvent<HTMLSpanElement>) => {
+    const drag = dragRef.current;
+
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    const element = document.elementFromPoint(event.clientX, event.clientY);
+
+    const pad = element?.closest<HTMLElement>('[data-track-id]');
+    const destinationId = pad?.dataset.trackId;
+
+    if (destinationId && destinationId !== drag.sourceTrackId) {
+      sendCommand({
+        type: 'track.reorder',
+        sourceTrackId: drag.sourceTrackId,
+        targetTrackId: destinationId
+      });
+    }
+
+    dragRef.current = null;
+    setDraggedTrackId(null);
+    setTargetTrackId(null);
+  };
+
+  const handleDragCancel = () => {
+    dragRef.current = null;
+    setDraggedTrackId(null);
+    setTargetTrackId(null);
   };
 
   const trackCount = tracks.length;
@@ -74,11 +148,32 @@ export function PadGrid({
           <button
             key={track.id}
             type="button"
-            className={`pad ${isPlaying ? 'pad--playing' : isFading ? 'pad--fading' : ''}`}
+            className={`pad 
+              ${isPlaying ? 'pad--playing' : isFading ? 'pad--fading' : ''} 
+              ${isEditMode ? 'pad--editing' : ''} 
+              ${draggedTrackId === track.id ? 'pad--dragging' : ''}
+              ${targetTrackId === track.id ? 'pad--drop-target' : ''}
+          `}
             style={{ '--pad-color': track.color } as CSSProperties}
             disabled={disabled}
             onClick={() => handleOnClick(track.id)}
+            data-track-id={track.id}
           >
+            {isEditMode && (
+              <span
+                className="pad__drag-handle"
+                role="button"
+                tabIndex={0}
+                aria-label={`Mover ${track.name}`}
+                onClick={(event) => event.stopPropagation()}
+                onPointerDown={(event) => handleDragStart(event, track.id)}
+                onPointerMove={handleDragMove}
+                onPointerUp={handleDragEnd}
+                onPointerCancel={handleDragCancel}
+              >
+                <DragHandleIcon />
+              </span>
+            )}
             <strong className="pad__name">{track.name}</strong>
 
             {isFading && <span className="pad__state">{t('fading')}</span>}

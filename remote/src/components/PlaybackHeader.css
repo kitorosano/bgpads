@@ -147,6 +147,41 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+.playback-header__edit {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.55rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 100ms ease;
+}
+
+.playback-header__edit:active {
+  transform: scale(0.94);
+}
+
+.playback-header__edit--active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: currentColor;
+}
+
+.playback-header__edit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 @media (orientation: landscape) {
   .playback-header {
     min-height: 2.75rem;
@@ -166,6 +201,11 @@
 
   .playback-header__bpm strong {
     font-size: 0.95rem;
+  }
+
+  .playback-header__edit {
+    width: 2rem;
+    height: 2rem;
   }
 }
 
