@@ -1,6 +1,7 @@
+import { TonalPadKey } from '@bgpads/shared';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TonalPadBankValidation, TonalPadKey } from '../types';
+import { TonalPadBankValidation } from '../types';
 
 const TONAL_PAD_FILES: Record<TonalPadKey, string> = {
   C: 'C.mp3',

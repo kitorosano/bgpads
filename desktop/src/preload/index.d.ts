@@ -1,10 +1,6 @@
+import type { RemoteCommand, RemoteState } from '@bgpads/shared';
 import { ElectronAPI } from '@electron-toolkit/preload';
-import type {
-  RemoteCommand,
-  RemoteConnectionInfo,
-  RemoteState,
-  TonalPadBankValidation
-} from '../types';
+import type { RemoteConnectionInfo, TonalPadBankValidation } from '../types';
 
 declare global {
   interface Window {

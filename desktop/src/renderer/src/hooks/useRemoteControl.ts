@@ -1,6 +1,6 @@
+import type { RemoteCommand, RemoteTrack, TonalPadKey } from '@bgpads/shared';
 import type { AudioTrack } from '@renderer/types';
 import { useEffect } from 'react';
-import type { RemoteCommand, RemoteTrack, TonalPadKey } from '../../../types';
 
 interface Props {
   tracks: AudioTrack[];

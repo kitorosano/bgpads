@@ -1,3 +1,4 @@
+import { RemoteCommand, RemoteState, TONAL_PAD_KEYS } from '@bgpads/shared';
 import { app } from 'electron';
 import { createReadStream, existsSync, statSync } from 'fs';
 import { createServer } from 'http';
@@ -10,7 +11,6 @@ import {
   MIN_TRACK_VOLUME,
   REMOTE_CONTROL_PORT
 } from '../constants';
-import { TONAL_PAD_KEYS, type RemoteCommand, type RemoteState } from '../types';
 
 interface Props {
   onCommand: (command: RemoteCommand) => void;

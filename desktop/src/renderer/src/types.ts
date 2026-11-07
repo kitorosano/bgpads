@@ -1,4 +1,5 @@
-import { Language, Theme, TonalPadKey } from 'src/types';
+import { TonalPadKey } from '@bgpads/shared';
+import { Language, Theme } from 'src/types';
 
 export type FileSource = { type: 'file'; path: string };
 export type TonalSource = { type: 'tonal'; key: TonalPadKey };

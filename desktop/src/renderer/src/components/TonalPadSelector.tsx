@@ -1,4 +1,4 @@
-import { TONAL_PAD_KEYS } from '../../../types';
+import { TONAL_PAD_KEYS } from '@bgpads/shared';
 import { useTonalPadBank } from '../hooks/useTonalPadBank';
 import { useTracks } from '../hooks/useTracks';
 

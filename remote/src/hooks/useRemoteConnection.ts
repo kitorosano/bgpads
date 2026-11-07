@@ -1,6 +1,7 @@
+import type { RemoteCommand, RemoteState } from '@bgpads/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LAST_HOST_STORAGE_KEY, RECONNECT_DELAY_MS, REMOTE_CONTROL_PORT } from '../constants';
-import type { ConnectionStatus, RemoteCommand, RemoteState } from '../types';
+import type { ConnectionStatus } from '../types';
 
 export const useRemoteConnection = () => {
   const socketRef = useRef<WebSocket | null>(null);

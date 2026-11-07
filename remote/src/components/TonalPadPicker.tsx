@@ -1,4 +1,4 @@
-import { TONAL_PAD_KEYS, type TonalPadKey } from '../types';
+import { TONAL_PAD_KEYS, type TonalPadKey } from '@bgpads/shared';
 import './TonalPadPicker.css';
 
 interface Props {

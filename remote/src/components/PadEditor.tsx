@@ -1,3 +1,4 @@
+import type { RemoteTrack } from '@bgpads/shared';
 import { useEffect, useState } from 'react';
 import {
   MAX_BPM,
@@ -6,7 +7,6 @@ import {
   MIN_TRACK_VOLUME,
   VOLUME_STEP_INCREMENT
 } from '../constants';
-import type { RemoteTrack } from '../types';
 import './PadEditor.css';
 
 interface Props {

@@ -1,1 +1,2 @@
-export const SHARED_PACKAGE_VERSION = '0.1.0';
+export * from './types/remote.js';
+export * from './types/tonalPad.js';

@@ -1,6 +1,6 @@
+import type { RemoteCommand, RemoteTrack } from '@bgpads/shared';
 import { useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { useI18n } from '../hooks/useI18n';
-import type { RemoteCommand, RemoteTrack } from '../types';
 import { triggerHapticFeedback } from '../utils/haptics';
 import { FadeOutProgress } from './FadeOutProgress';
 import './PadGrid.css';

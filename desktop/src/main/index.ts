@@ -1,3 +1,4 @@
+import { RemoteState } from '@bgpads/shared';
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { app, BrowserWindow, dialog, ipcMain, Menu, screen, shell } from 'electron';
 import { readFileSync, writeFileSync } from 'fs';
@@ -13,7 +14,7 @@ import {
   MAIN_WINDOW_MIN_WIDTH
 } from '../constants';
 import { translations } from '../i18n';
-import type { Language, RemoteState } from '../types';
+import type { Language } from '../types';
 import { readConfig, setupPersistence, writeConfig } from './persistence';
 import { createRemoteConnectionPayload, getRemoteConnectionInfo } from './remoteConnection';
 import { createRemoteControlServer } from './remoteControlServer';

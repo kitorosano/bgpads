@@ -1,5 +1,5 @@
+import { TonalPadKey } from '@bgpads/shared';
 import { useCallback } from 'react';
-import { TonalPadKey } from 'src/types';
 import { AudioTrack } from '../types';
 import {
   createTonalTrack,

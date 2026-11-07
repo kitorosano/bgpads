@@ -1,4 +1,4 @@
-import { TonalPadKey } from 'src/types';
+import { TonalPadKey } from '@bgpads/shared';
 import {
   COLORS,
   DEFAULT_BPM,

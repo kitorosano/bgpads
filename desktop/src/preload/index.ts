@@ -1,6 +1,7 @@
+import type { RemoteCommand, RemoteState } from '@bgpads/shared';
 import { electronAPI } from '@electron-toolkit/preload';
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
-import type { RemoteCommand, RemoteState, TonalPadBankValidation } from '../types';
+import type { TonalPadBankValidation } from '../types';
 
 const api = {
   loadConfig: (): Promise<unknown> => ipcRenderer.invoke('load-config'),
