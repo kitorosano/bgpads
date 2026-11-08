@@ -1,4 +1,5 @@
 import { DEFAULT_BPM, MAX_BPM, MAX_TRACK_VOLUME, MIN_BPM, MIN_TRACK_VOLUME } from './audio.js';
+import { TONAL_PAD_KEYS } from './tonalPad.js';
 
 export const clampBpm = (value: number | string): number => {
   const parsed = typeof value === 'string' ? parseFloat(value) : value;
@@ -15,6 +16,13 @@ export const isValidText = (value: unknown): value is string => {
   return isString && isNotEmpty;
 };
 
+export const isValidNumber = (value: unknown): value is number => {
+  const isNumber = typeof value === 'number';
+  const isFinite = Number.isFinite(value);
+
+  return isNumber && isFinite;
+};
+
 export const isValidColor = (value: unknown): value is string => {
   const isString = typeof value === 'string';
   const hexRegex = /^#[0-9a-fA-F]{6}$/;
@@ -23,19 +31,43 @@ export const isValidColor = (value: unknown): value is string => {
 };
 
 export const isValidVolume = (value: unknown): value is number => {
-  const isNumber = typeof value === 'number';
-  const isFinite = Number.isFinite(value);
-  const isOverMin = isNumber && value >= MIN_TRACK_VOLUME;
-  const isUnderMax = isNumber && value <= MAX_TRACK_VOLUME;
+  if (!isValidNumber(value)) return false;
 
-  return isNumber && isFinite && isOverMin && isUnderMax;
+  const isOverMin = value >= MIN_TRACK_VOLUME;
+  const isUnderMax = value <= MAX_TRACK_VOLUME;
+
+  return isOverMin && isUnderMax;
 };
 
 export const isValidBpm = (value: unknown): value is number => {
-  const isNumber = typeof value === 'number';
-  const isFinite = Number.isFinite(value);
-  const isOverMin = isNumber && value >= MIN_BPM;
-  const isUnderMax = isNumber && value <= MAX_BPM;
+  if (!isValidNumber(value)) return false;
 
-  return isNumber && isFinite && isOverMin && isUnderMax;
+  const isOverMin = value >= MIN_BPM;
+  const isUnderMax = value <= MAX_BPM;
+
+  return isOverMin && isUnderMax;
+};
+
+export const isValidTonalKey = (value: unknown): boolean => {
+  if (!isValidText(value)) return false;
+
+  const isIncluded = (TONAL_PAD_KEYS as readonly string[]).includes(value);
+
+  return isIncluded;
+};
+
+export const isValidTrack = (value: unknown): boolean => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  const track = value as Record<string, unknown>;
+
+  return (
+    isValidText(track.id) &&
+    isValidText(track.name) &&
+    isValidText(track.color) &&
+    isValidVolume(track.volume) &&
+    isValidBpm(track.bpm)
+  );
 };

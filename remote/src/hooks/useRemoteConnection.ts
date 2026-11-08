@@ -1,4 +1,9 @@
-import { REMOTE_CONTROL_PORT, type RemoteCommand, type RemoteState } from '@bgpads/shared';
+import {
+  isRemoteState,
+  REMOTE_CONTROL_PORT,
+  type RemoteCommand,
+  type RemoteState
+} from '@bgpads/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LAST_HOST_STORAGE_KEY, RECONNECT_DELAY_MS } from '../constants';
 import type { ConnectionStatus } from '../types';
@@ -44,8 +49,14 @@ export const useRemoteConnection = () => {
         if (socketRef.current !== socket) return;
 
         try {
-          const state = JSON.parse(event.data) as RemoteState;
-          setRemoteState(state);
+          const message: unknown = JSON.parse(event.data);
+
+          if (!isRemoteState(message)) {
+            console.warn('[Remote] Invalid state received:', message);
+            return;
+          }
+
+          setRemoteState(message);
         } catch (error) {
           console.warn('[Remote] Invalid state received:', error);
         }

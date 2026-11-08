@@ -83,10 +83,6 @@
     0 0 1rem color-mix(in srgb, var(--pad-color) 45%, transparent);
 }
 
-.pad--playing .pad__name {
-  font-weight: 800;
-}
-
 .pad--playing .pad__state,
 .pad--fading .pad__state {
   opacity: 1;
