@@ -1,6 +1,6 @@
-import type { RemoteCommand, RemoteTrack, TonalPadKey } from '@bgpads/shared';
+import type { RemoteCommand, RemoteState, RemoteTrack, TonalPadKey } from '@bgpads/shared';
 import type { AudioTrack } from '@renderer/types';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface Props {
   tracks: AudioTrack[];
@@ -53,6 +53,13 @@ export const useRemoteControl = ({
   deleteRemoteTrack,
   addRemoteTonalTrack
 }: Props) => {
+  const PROGRESS_SYNC_INTERVAL_MS = 100;
+
+  const lastSyncRef = useRef(0);
+  const pendingSyncRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestStateRef = useRef<RemoteState | null>(null);
+  const lastImmediateSignatureRef = useRef<string | null>(null);
+
   useEffect(() => {
     const handleCommand = (command: RemoteCommand) => {
       switch (command.type) {
@@ -98,7 +105,7 @@ export const useRemoteControl = ({
   ]);
 
   useEffect(() => {
-    window.api.updateRemoteState({
+    const state: RemoteState = {
       tracks: tracks.map((track) => ({
         id: track.id,
         name: track.name,
@@ -119,7 +126,57 @@ export const useRemoteControl = ({
       playbackProgress,
       currentTime,
       duration
+    };
+
+    latestStateRef.current = state;
+
+    const immediateSignature = JSON.stringify({
+      tracks: state.tracks,
+      playingTrackId,
+      availableTonalKeys,
+      fadingOutTrackId,
+      fadeOutDuration,
+      fadeOutStartedAt,
+      bpm,
+      metronomePlaying,
+      currentBeat,
+      timeSignature,
+      beatAccents,
+      duration
     });
+
+    const publishState = () => {
+      if (pendingSyncRef.current !== null) {
+        clearTimeout(pendingSyncRef.current);
+        pendingSyncRef.current = null;
+      }
+
+      const latestState = latestStateRef.current;
+      if (!latestState) return;
+
+      window.api.updateRemoteState(latestState);
+      lastSyncRef.current = performance.now();
+    };
+
+    // Los cambios importantes se publican inmediatamente.
+    if (lastImmediateSignatureRef.current !== immediateSignature) {
+      lastImmediateSignatureRef.current = immediateSignature;
+      publishState();
+      return;
+    }
+
+    const elapsed = performance.now() - lastSyncRef.current;
+
+    // El progreso se publica como máximo cada 100 ms.
+    if (elapsed >= PROGRESS_SYNC_INTERVAL_MS) {
+      publishState();
+      return;
+    }
+
+    // Conservamos una publicación pendiente con el estado más reciente.
+    if (pendingSyncRef.current === null) {
+      pendingSyncRef.current = setTimeout(publishState, PROGRESS_SYNC_INTERVAL_MS - elapsed);
+    }
   }, [
     tracks,
     playingTrackId,
@@ -136,4 +193,13 @@ export const useRemoteControl = ({
     currentTime,
     duration
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (pendingSyncRef.current !== null) {
+        clearTimeout(pendingSyncRef.current);
+        pendingSyncRef.current = null;
+      }
+    };
+  }, []);
 };

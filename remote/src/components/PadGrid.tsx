@@ -1,6 +1,7 @@
 import type { RemoteCommand, RemoteTrack } from '@bgpads/shared';
 import { useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { useI18n } from '../hooks/useI18n';
+import { useInterpolatedPlayback } from '../hooks/useInterpolatedPlayback';
 import { triggerHapticFeedback } from '../utils/haptics';
 import { FadeOutProgress } from './FadeOutProgress';
 import './PadGrid.css';
@@ -11,7 +12,6 @@ interface Props {
   disabled: boolean;
   tracks: RemoteTrack[];
   playingTrackId: string | null;
-  playbackProgress: number;
   currentTime: number;
   duration: number;
   fadingOutTrackId: string | null;
@@ -26,7 +26,6 @@ export function PadGrid({
   disabled,
   tracks,
   playingTrackId,
-  playbackProgress,
   currentTime,
   duration,
   fadingOutTrackId,
@@ -36,6 +35,13 @@ export function PadGrid({
   onSelectTrack
 }: Props) {
   const { t } = useI18n();
+
+  const { currentTime: displayTime, progress: displayProgress } = useInterpolatedPlayback({
+    playingTrackId,
+    currentTime,
+    duration,
+    disabled
+  });
 
   const dragRef = useRef<{
     pointerId: number;
@@ -187,7 +193,7 @@ export function PadGrid({
 
             {isPlaying && duration > 0 && (
               <span className="pad__remaining-time">
-                {formatRemainingTime(currentTime, duration)}
+                {formatRemainingTime(displayTime, duration)}
               </span>
             )}
             {isPlaying && (
@@ -195,7 +201,7 @@ export function PadGrid({
                 <span
                   className="pad-grid__progress-fill"
                   style={{
-                    width: `${Math.min(Math.max(playbackProgress, 0), 1) * 100}%`
+                    width: `${displayProgress * 100}%`
                   }}
                 />
               </span>

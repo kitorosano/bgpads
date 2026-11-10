@@ -95,7 +95,6 @@ function App() {
         fadingOutTrackId={remoteState.fadingOutTrackId}
         fadeOutDuration={remoteState.fadeOutDuration}
         fadeOutStartedAt={remoteState.fadeOutStartedAt}
-        playbackProgress={remoteState.playbackProgress}
         currentTime={remoteState.currentTime}
         duration={remoteState.duration}
         sendCommand={sendCommand}

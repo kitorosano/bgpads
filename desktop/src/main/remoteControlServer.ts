@@ -70,7 +70,9 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
   });
 
   httpServer.listen(REMOTE_CONTROL_PORT);
+
   let currentState: RemoteState | null = null;
+  let lastSerializedState: string | null = null;
 
   server.on('connection', (socket) => {
     console.log('[RemoteControl] Client connected');
@@ -104,9 +106,11 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
   });
 
   const updateState = (state: RemoteState) => {
-    currentState = state;
+    const message = serializeRemoteState(state);
+    if (message === lastSerializedState) return;
 
-    const message = serializeRemoteState(currentState);
+    currentState = state;
+    lastSerializedState = message;
 
     server.clients.forEach((client) => {
       if (client.readyState === client.OPEN) {
