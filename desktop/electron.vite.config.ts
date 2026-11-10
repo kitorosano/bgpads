@@ -1,21 +1,13 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
-import { resolve } from 'path';
+import { resolve } from 'path'
+import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [
-      externalizeDepsPlugin({
-        exclude: ['@bgpads/shared']
-      })
-    ]
+    plugins: [externalizeDepsPlugin()]
   },
   preload: {
-    plugins: [
-      externalizeDepsPlugin({
-        exclude: ['@bgpads/shared']
-      })
-    ]
+    plugins: [externalizeDepsPlugin()]
   },
   renderer: {
     resolve: {
@@ -25,4 +17,4 @@ export default defineConfig({
     },
     plugins: [react()]
   }
-});
+})
