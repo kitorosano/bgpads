@@ -1,19 +1,27 @@
 import {
-  isRemoteState,
+  parseRemoteState,
   REMOTE_CONTROL_PORT,
+  serializeRemoteCommand,
   type RemoteCommand,
   type RemoteState
 } from '@bgpads/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { LAST_HOST_STORAGE_KEY, RECONNECT_DELAY_MS } from '../constants';
+import {
+  CONNECTION_TIMEOUT_MS,
+  LAST_HOST_STORAGE_KEY,
+  RECONNECT_BACKOFF_MULTIPLIER,
+  RECONNECT_INITIAL_DELAY_MS,
+  RECONNECT_MAX_DELAY_MS
+} from '../constants';
 import type { ConnectionStatus } from '../types';
 
 export const useRemoteConnection = () => {
   const socketRef = useRef<WebSocket | null>(null);
-  const manualDisconnectRef = useRef(false);
 
   const hostRef = useRef<string | null>(null);
   const reconnectTimerRef = useRef<number | null>(null);
+  const connectionTimeoutRef = useRef<number | null>(null);
+  const reconnectAttemptRef = useRef(0);
 
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [remoteState, setRemoteState] = useState<RemoteState | null>(null);
@@ -21,12 +29,49 @@ export const useRemoteConnection = () => {
     return localStorage.getItem(LAST_HOST_STORAGE_KEY) ?? '';
   });
 
+  const getReconnectDelay = useCallback((): number => {
+    const attempt = reconnectAttemptRef.current;
+
+    const delay = Math.min(
+      RECONNECT_INITIAL_DELAY_MS * RECONNECT_BACKOFF_MULTIPLIER ** attempt,
+      RECONNECT_MAX_DELAY_MS
+    );
+
+    reconnectAttemptRef.current += 1;
+
+    return delay;
+  }, []);
+
   const clearReconnectTimer = useCallback(() => {
     if (reconnectTimerRef.current !== null) {
       window.clearTimeout(reconnectTimerRef.current);
       reconnectTimerRef.current = null;
     }
   }, []);
+
+  const clearConnectionTimeout = useCallback(() => {
+    if (connectionTimeoutRef.current !== null) {
+      window.clearTimeout(connectionTimeoutRef.current);
+      connectionTimeoutRef.current = null;
+    }
+  }, []);
+
+  const closeCurrentSocket = useCallback(() => {
+    clearConnectionTimeout();
+
+    const socket = socketRef.current;
+    socketRef.current = null;
+    if (!socket) return;
+
+    socket.onopen = null;
+    socket.onmessage = null;
+    socket.onerror = null;
+    socket.onclose = null;
+
+    if (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN) {
+      socket.close();
+    }
+  }, [clearConnectionTimeout]);
 
   const openConnection = useCallback(
     (host: string, reconnecting = false) => {
@@ -37,8 +82,25 @@ export const useRemoteConnection = () => {
       const socket = new WebSocket(`ws://${host}:${REMOTE_CONTROL_PORT}`);
       socketRef.current = socket;
 
+      connectionTimeoutRef.current = window.setTimeout(() => {
+        if (socketRef.current !== socket) return;
+
+        connectionTimeoutRef.current = null;
+
+        if (socket.readyState === WebSocket.CONNECTING) {
+          console.warn('[Remote] Connection timeout:', host);
+
+          // Cerramos el intento. onclose gestionará la reconexión.
+          socket.close();
+        }
+      }, CONNECTION_TIMEOUT_MS);
+
       socket.onopen = () => {
         if (socketRef.current !== socket) return;
+
+        clearConnectionTimeout();
+
+        reconnectAttemptRef.current = 0;
 
         localStorage.setItem(LAST_HOST_STORAGE_KEY, host);
         setLastHost(host);
@@ -48,18 +110,19 @@ export const useRemoteConnection = () => {
       socket.onmessage = (event) => {
         if (socketRef.current !== socket) return;
 
-        try {
-          const message: unknown = JSON.parse(event.data);
-
-          if (!isRemoteState(message)) {
-            console.warn('[Remote] Invalid state received:', message);
-            return;
-          }
-
-          setRemoteState(message);
-        } catch (error) {
-          console.warn('[Remote] Invalid state received:', error);
+        if (typeof event.data !== 'string') {
+          console.warn('[Remote] Unexpected message format');
+          return;
         }
+
+        const state = parseRemoteState(event.data);
+
+        if (!state) {
+          console.warn('[Remote] Invalid state received');
+          return;
+        }
+
+        setRemoteState(state);
       };
 
       socket.onerror = () => {
@@ -71,27 +134,28 @@ export const useRemoteConnection = () => {
       socket.onclose = () => {
         if (socketRef.current !== socket) return;
 
+        clearConnectionTimeout();
         socketRef.current = null;
 
-        if (manualDisconnectRef.current) {
-          manualDisconnectRef.current = false;
-          setRemoteState(null);
-          setStatus('disconnected');
-          return;
-        }
-
-        // Conservamos el último estado mientras intentamos reconectar.
         setStatus('reconnecting');
 
+        const delay = getReconnectDelay();
+
+        console.log(
+          `[Remote] Reconnecting in ${delay}ms ` + `(attempt ${reconnectAttemptRef.current})`
+        );
+
         reconnectTimerRef.current = window.setTimeout(() => {
+          reconnectTimerRef.current = null;
+
           const currentHost = hostRef.current;
-          if (!currentHost || manualDisconnectRef.current) return;
+          if (!currentHost) return;
 
           openConnection(currentHost, true);
-        }, RECONNECT_DELAY_MS);
+        }, delay);
       };
     },
-    [clearReconnectTimer]
+    [clearReconnectTimer, clearConnectionTimeout]
   );
 
   const connect = useCallback(
@@ -99,40 +163,53 @@ export const useRemoteConnection = () => {
       const normalizedHost = host.trim();
       if (!normalizedHost) return;
 
-      manualDisconnectRef.current = false;
-      hostRef.current = normalizedHost;
+      const currentSocket = socketRef.current;
+      const isSameHost = hostRef.current === normalizedHost;
+
+      const hasActiveConnection =
+        currentSocket !== null &&
+        (currentSocket.readyState === WebSocket.CONNECTING ||
+          currentSocket.readyState === WebSocket.OPEN);
+
+      // No reiniciar una conexión activa al mismo servidor.
+      if (isSameHost && hasActiveConnection) return;
 
       clearReconnectTimer();
-      socketRef.current?.close();
+      closeCurrentSocket();
+
+      reconnectAttemptRef.current = 0;
+
+      hostRef.current = normalizedHost;
 
       setRemoteState(null);
       openConnection(normalizedHost);
     },
-    [clearReconnectTimer, openConnection]
+    [clearReconnectTimer, closeCurrentSocket, openConnection]
   );
 
   const disconnect = useCallback(() => {
-    manualDisconnectRef.current = true;
+    // Cancelamos cualquier reconexión programada.
     clearReconnectTimer();
 
-    const socket = socketRef.current;
-    if (!socket) {
-      manualDisconnectRef.current = false;
+    // Invalidamos el destino para impedir nuevas reconexiones.
+    hostRef.current = null;
 
-      setStatus('disconnected');
-      setRemoteState(null);
-      return;
-    }
+    // Cerramos la conexión sin esperar eventos posteriores.
+    closeCurrentSocket();
 
-    setStatus('disconnecting');
-    socket.close();
-  }, [clearReconnectTimer]);
+    // Reiniciamos el contador de intentos de reconexión.
+    reconnectAttemptRef.current = 0;
+
+    // Actualizamos inmediatamente el estado de la interfaz.
+    setRemoteState(null);
+    setStatus('disconnected');
+  }, [clearReconnectTimer, closeCurrentSocket]);
 
   const sendCommand = useCallback((command: RemoteCommand) => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return false;
 
-    socket.send(JSON.stringify(command));
+    socket.send(serializeRemoteCommand(command));
     return true;
   }, []);
 
@@ -147,11 +224,12 @@ export const useRemoteConnection = () => {
 
   useEffect(() => {
     return () => {
-      manualDisconnectRef.current = true;
+      hostRef.current = null;
+      reconnectAttemptRef.current = 0;
       clearReconnectTimer();
-      socketRef.current?.close();
+      closeCurrentSocket();
     };
-  }, [clearReconnectTimer]);
+  }, [clearReconnectTimer, closeCurrentSocket]);
 
   return {
     status,

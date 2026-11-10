@@ -1,4 +1,10 @@
-import { isRemoteCommand, REMOTE_CONTROL_PORT, RemoteCommand, RemoteState } from '@bgpads/shared';
+import {
+  parseRemoteCommand,
+  REMOTE_CONTROL_PORT,
+  RemoteCommand,
+  RemoteState,
+  serializeRemoteState
+} from '@bgpads/shared';
 import { app } from 'electron';
 import { createReadStream, existsSync, statSync } from 'fs';
 import { createServer } from 'http';
@@ -70,22 +76,18 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
     console.log('[RemoteControl] Client connected');
 
     if (currentState) {
-      socket.send(JSON.stringify(currentState));
+      socket.send(serializeRemoteState(currentState));
     }
 
     socket.on('message', (data) => {
-      try {
-        const message: unknown = JSON.parse(data.toString());
+      const command = parseRemoteCommand(data.toString());
 
-        if (!isRemoteCommand(message)) {
-          console.warn('[RemoteControl] Invalid command:', message);
-          return;
-        }
-
-        onCommand(message);
-      } catch (error) {
-        console.warn('[RemoteControl] Invalid message:', error);
+      if (!command) {
+        console.warn('[RemoteControl] Invalid command received');
+        return;
       }
+
+      onCommand(command);
     });
 
     socket.on('close', () => {
@@ -104,7 +106,7 @@ export const createRemoteControlServer = ({ onCommand }: Props) => {
   const updateState = (state: RemoteState) => {
     currentState = state;
 
-    const message = JSON.stringify(state);
+    const message = serializeRemoteState(currentState);
 
     server.clients.forEach((client) => {
       if (client.readyState === client.OPEN) {
