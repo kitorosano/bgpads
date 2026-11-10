@@ -1,7 +1,7 @@
 {
-  "name": "remote",
+  "name": "@bgpads/remote",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bgpads/shared": "workspace:*",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
@@ -28,3 +29,4 @@
     "vite": "^8.3.5"
   }
 }
+

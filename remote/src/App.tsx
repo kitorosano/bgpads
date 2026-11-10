@@ -1,3 +1,4 @@
+import type { RemoteTrack, TonalPadKey } from '@bgpads/shared';
 import { useState } from 'react';
 import './App.css';
 import { ConnectionScreen } from './components/ConnectionScreen';
@@ -7,7 +8,6 @@ import { PlaybackHeader } from './components/PlaybackHeader';
 import { TonalPadPicker } from './components/TonalPadPicker';
 import { useRemoteConnection } from './hooks/useRemoteConnection';
 import { useScreenWakeLock } from './hooks/useScreenWakeLock';
-import type { RemoteTrack, TonalPadKey } from './types';
 
 function App() {
   const { status, remoteState, lastHost, connect, disconnect, sendCommand } = useRemoteConnection();

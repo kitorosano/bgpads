@@ -1,6 +1,7 @@
+import type { RemoteCommand } from '@bgpads/shared';
 import { useI18n } from '../hooks/useI18n';
 import type { TranslationKey } from '../i18n';
-import type { ConnectionStatus, RemoteCommand } from '../types';
+import type { ConnectionStatus } from '../types';
 import { triggerHapticFeedback } from '../utils/haptics';
 import { EditIcon } from './icons/EditIcon';
 import MetronomeIcon from './icons/MetronomeIcon';
